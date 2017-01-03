@@ -1,0 +1,26 @@
+{
+  "name": "dash-elements",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "build": "node build-documentation.js"
+  },
+  "author": "Google",
+  "contributors": [
+    {
+      "name": "Rob Dodson",
+      "email": "robdodson@google.com"
+    },
+    {
+      "name": "Surma",
+      "email": "surma@google.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "docco": "^0.7.0",
+    "dot": "^1.1.1",
+    "fs-extra": "^1.0.0",
+    "mz": "^2.6.0"
+  }
+}
