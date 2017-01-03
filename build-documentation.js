@@ -22,7 +22,8 @@ function generateDocs() {
     .then(_ => fs.readdir('elements'))
     .then(elements => Promise.all(
       elements.map(elem => parseElement(elem).then(writeElement))
-    ));
+    ))
+    .then(buildIndex);
 }
 
 function copyStaticFiles() {
@@ -54,13 +55,25 @@ function parseElement(name) {
     });
 }
 
-const tpl = fs.readFile('site-resources/element.tpl.html').then(contents => dot.template(contents.toString('utf-8')));
 function writeElement(element) {
-  return tpl
+  return template('site-resources/element.tpl.html')
     .then(tpl => {
       const rendered = tpl(element);
-      return fs.writeFile(`docs/${element.title}.html`, rendered);
+      return fs.writeFile(`docs/${element.title}.html`, rendered)
+        .then(_ => element);
     });
+}
+
+function buildIndex(elements) {
+  return template('site-resources/index.tpl.html')
+    .then(tpl => tpl(elements))
+    .then(contents => fs.writeFile('docs/index.html', contents));
+}
+
+function template(path) {
+  return fs
+    .readFile(path)
+    .then(contents => dot.template(contents.toString('utf-8')))
 }
 
 function copy(a, b) {
