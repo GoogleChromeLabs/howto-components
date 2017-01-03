@@ -63,12 +63,6 @@ ul.literate li {
   align-items: stretch;
 }
 
-@media (max-width: 1000px) {
-  ul.literate li {
-    flex-direction: column;
-  }
-}
-
 ul.literate > li > aside {
   flex-shrink: 0;
   padding-right: 2em;
@@ -88,10 +82,28 @@ ul.literate > li > code {
 ul.literate > li > code > * {
   width: 100%;
 }
-ul.literate > li:first-of-type > code {
+ul.literate > li:first-of-type > code,
+ul.literate > li:first-of-type > aside {
   padding-top: 2em;
 }
-ul.literate > li:last-of-type > code {
+ul.literate > li:last-of-type > code,
+ul.literate > li:last-of-type > aside {
   padding-bottom: 2em;
 }
 
+@media (max-width: 1000px) {
+  ul.literate li {
+    flex-direction: column;
+  }
+  ul.literate li > aside {
+    margin: 1em 0 0.5em 0;
+  }
+
+  ul.literate > li:last-of-type > aside {
+    padding-bottom: 0;
+  }
+  ul.literate > li:first-of-type > code,
+  ul.literate > li:first-of-type > aside {
+    padding-top: 0em;
+  }
+}
