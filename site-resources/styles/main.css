@@ -35,8 +35,9 @@ html {
 body {
   padding-left: 20px;
 }
-code {
-  font-family: 'Roboto Mono';
+code, pre {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9em;
 }
 pre {
   margin: 0;
