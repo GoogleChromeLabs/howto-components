@@ -23,4 +23,7 @@
     link.href = asyncStyle;
     document.head.appendChild(link);
   }
+
+  Array.from(document.querySelector('iframe.demo'))
+    .forEach(ifr => ifr.style.height = `${ifr.contentWindow.innerHeight}px`);
 })();
