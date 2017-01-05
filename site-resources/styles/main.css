@@ -123,3 +123,8 @@ ul.literate > li:last-of-type > aside {
     padding-top: 0em;
   }
 }
+
+.demo {
+  width: 100%;
+  border: 0;
+}

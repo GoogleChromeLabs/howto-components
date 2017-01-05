@@ -27,7 +27,8 @@ const dotConfig = {
 Object.assign(dot.templateSettings, dotConfig);
 Promise.all([
   generateDocs(),
-  copyStaticFiles()
+  copyStaticFiles(),
+  copyDemos()
 ])
   .then(_ => console.log('done'));
 
@@ -48,6 +49,19 @@ function copyStaticFiles() {
         files
           .filter(name => !name.includes('.tpl.'))
           .map(name => copy(`site-resources/${name}`, `docs/${name}`))
+      )
+    );
+}
+
+function copyDemos() {
+  return fs.readdir('elements')
+    .then(files => 
+      Promise.all(
+        files.map(name => 
+          copy(`elements/${name}/demo.html`, `docs/${name}_demo.html`)
+            .then(_ => copy(`elements/${name}/${name}.js`, `docs/${name}.js`))
+            .catch(err => console.log(`Error copying: ${err.toString()}`))
+        )
       )
     );
 }

@@ -17,6 +17,7 @@ limitations under the License.
 <link rel="stylesheet" href="styles/main.css" />
 
 <h1>{{=it.title}}</h1>
+<iframe src="{{=it.title}}_demo.html" class="demo"></iframe>
 <ul class="literate" id="{{=it.title}}">
     {{ for (let section of it.sections) { }}
     <li>
