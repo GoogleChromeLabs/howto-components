@@ -75,7 +75,7 @@ ul.literate li {
   align-items: stretch;
 
   border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.54);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.24);
 }
 
 ul.literate > li > aside,
