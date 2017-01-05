@@ -1,0 +1,37 @@
+<!doctype html>
+
+<style>
+  tab-panel {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  tab-panel header {
+    border: 1px solid black;
+    padding: 20px;
+  }
+  tab-panel section {
+    flex-basis: 100%;
+    padding: 20px;
+    background-color: lightgray;
+  }
+</style>
+
+<style>
+  .hidden {
+    display: none;
+  }
+  .selected {
+    background-color: bisque;
+  }
+</style>
+
+<tab-panel>
+  <header aria-role="tab" aria-controls="tab1">Tab 1</header>
+  <section id="tab1" aria-role="tabpanel">Content 1</section>
+  <header aria-role="tab" aria-controls="tab2">Tab 2</header>
+  <section id="tab2" aria-role="tabpanel">Content 2</section>
+  <header aria-role="tab" aria-controls="tab3">Tab 3</header>
+  <section id="tab3" aria-role="tabpanel">Content 3</section>
+</tab-panel>
+
+<script src="tab-panel.js"></script>
