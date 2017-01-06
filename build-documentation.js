@@ -16,7 +16,7 @@
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
-const sectionizer = require('./sectionizer.js');
+const sectionizer = require('./sectionizer.js').parse;
 
 // Configs
 const dotConfig = {
@@ -75,7 +75,8 @@ function parseElement(name) {
         source: contents,
         sections: sectionizer(contents)
       };
-    });
+    })
+    .catch(err => console.error(err.toString(), err.stack));
 }
 
 function writeElement(element) {
