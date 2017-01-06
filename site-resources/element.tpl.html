@@ -21,8 +21,8 @@ limitations under the License.
 <ul class="literate" id="{{=it.title}}">
     {{ for (let section of it.sections) { }}
     <li>
-        <aside>{{=section.docsHtml}}</aside>
-        <code>{{=section.codeHtml}}</code>
+        <aside>{{=section.commentText}}</aside>
+        <code>{{=section.codeText}}</code>
     </li>
     {{ } }}
 </ul>

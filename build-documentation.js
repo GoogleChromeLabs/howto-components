@@ -82,7 +82,6 @@ function parseElement(name) {
 function writeElement(element) {
   return template('site-resources/element.tpl.html')
     .then(tpl => {
-      console.log(element.sections);
       const rendered = tpl(element);
       return fs.writeFile(`docs/${element.title}.html`, rendered)
         .then(_ => element);

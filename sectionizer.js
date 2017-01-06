@@ -7,8 +7,9 @@ class ParserState {
     this._currentSegmentStart = 0;
     this.segments = [];
     this.nonWhitespaceInSegment = false;
-    this.segmentStartsAfterNewline = false;
-    this.lastNonWhitespaceCharacterWasNewline = false;
+    // Start of file is practically a newline :3
+    this.segmentStartsAfterNewline = true;
+    this.lastNonWhitespaceCharacterWasNewline = true;
   }
 
   get current() {
@@ -38,7 +39,7 @@ class ParserState {
 
   pushSegment(meta = {}) {
     if (this._currentSegmentStart === this._index) return;
-    const segment = Object.assign({}, meta, {startIndex: this._currentSegmentStart, endIndex: this._index - 1});
+    const segment = Object.assign({}, meta, {startIndex: this._currentSegmentStart, endIndex: this._index});
     this.segments.push(segment);
     this.resetSegment()
   }
@@ -48,12 +49,12 @@ class ParserState {
   }
 }
 
-function eatWhitespace(ss, state) {
+function eatWhitespace(ss) {
   while (ParserState.whitespace.includes(ss.current)) ss.next();
 }
 
-function parseSegment(ss, state) {
-  eatWhitespace(ss, state);
+function parseSegment(ss) {
+  eatWhitespace(ss);
   switch (ss.current) {
     case '/':
       if (ss.nonWhitespaceInSegment) ss.pushSegment({type: 'code'});
@@ -110,11 +111,6 @@ function parseCode(ss) {
     case '\"':
       parseDoubleQuotedString(ss);
       break;
-    case '/':
-      ss.pushSegment({type: 'code'});
-      ss.next();
-      parseComment(ss);
-      break;
     default:
       ss.next();
   }
@@ -142,6 +138,15 @@ function parse(str) {
   while (!ss.isEOF()) parseSegment(ss);
   ss.pushSegment({type: 'code'});
 
+  // Always start with a comment block. Add an empty one if necessary.
+  if (ss.segments[0].type === 'code') 
+    ss.segments.unshift({
+      type: 'LineComment',
+      text: '',
+      startIndex: 0,
+      endIndex: 0
+    });
+
   return ss.segments
     // Coalesc sequences of line comments
     .reduce((accumulator, nextSegment) => {
@@ -152,7 +157,7 @@ function parse(str) {
         &&
         nextSegment.type === 'LineComment'
         &&
-        lastSegment.endIndex + 1 === nextSegment.startIndex
+        lastSegment.endIndex === nextSegment.startIndex
       ) {
         lastSegment.endIndex = nextSegment.endIndex;
       } else {
@@ -160,7 +165,41 @@ function parse(str) {
       }
       return accumulator;
     }, [])
-    .map(segment => Object.assign(segment, {text: ss.codeForSegment(segment)}));
+    // Put the actual text into the segment objects
+    .map(segment => Object.assign(segment, {text: ss.codeForSegment(segment)}))
+    // Cleanup comment blocks of their comment symbols
+    .map(segment => {
+      switch (segment.type) {
+        case 'LineComment':
+        // case 'InlineComment':
+          segment.text = segment.text.replace(/^\s*\/\//mg, '');
+          break;
+        case 'BlockComment':
+          segment.text = 
+            segment.text
+              .replace(/^\s*\/\**\s*$/m, '')
+              .replace(/^\s*\*[ \t]*/mg, '')
+              .replace(/^\s*\**\/$/m, '');
+          break;
+      }
+      return segment;
+    })
+    // Pair up one comment block and one code block. Strip out all
+    // the metadata.
+    .reduce((accumulator, nextSegment, idx) => {
+      // Start a new block for either of these two types
+      if (['LineComment', 'BlockComment'].includes(nextSegment.type)) {
+        accumulator.push({
+          commentText: nextSegment.text,
+          codeText: ''
+        });
+        return accumulator;
+      }
+      // Otherwise append
+      const lastSegment = accumulator[accumulator.length - 1];
+      lastSegment.codeText += nextSegment.text;
+      return accumulator;
+    }, [])
 }
 
 module.exports = {
