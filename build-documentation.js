@@ -16,10 +16,9 @@
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
-const docco = require('docco');
+const sectionizer = require('./sectionizer.js');
 
 // Configs
-const doccoConfig = {}; 
 const dotConfig = {
   strip: false
 };
@@ -74,19 +73,15 @@ function parseElement(name) {
       return {
         title: name,
         source: contents,
-        sections: docco.parse(filePath, contents, doccoConfig),
-        config: Object.assign({}, doccoConfig)
+        sections: sectionizer(contents)
       };
-    })
-    .then(element => {
-      docco.format(filePath, element.sections, element.config);
-      return element;
     });
 }
 
 function writeElement(element) {
   return template('site-resources/element.tpl.html')
     .then(tpl => {
+      console.log(element.sections);
       const rendered = tpl(element);
       return fs.writeFile(`docs/${element.title}.html`, rendered)
         .then(_ => element);
