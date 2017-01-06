@@ -1,9 +1,14 @@
-class SegmentedString {
+class ParserState {
+  static get whitespace() { return ['\n', '\t', ' ']; }
+
   constructor(str) {
     this._str = str;
     this._index = 0;
     this._currentSegmentStart = 0;
     this.segments = [];
+    this.nonWhitespaceInSegment = false;
+    this.segmentStartsAfterNewline = false;
+    this.lastNonWhitespaceCharacterWasNewline = false;
   }
 
   get current() {
@@ -12,6 +17,11 @@ class SegmentedString {
   }
 
   next() {
+    if (!ParserState.whitespace.includes(this.current)) {
+      this.nonWhitespaceInSegment = true;
+      this.lastNonWhitespaceCharacterWasNewline = false;
+    } else if (this.current === '\n') 
+      this.lastNonWhitespaceCharacterWasNewline = true;
     this._index++;
     return this.current;
   }
@@ -20,11 +30,17 @@ class SegmentedString {
     return this._index >= this._str.length;
   }
 
+  resetSegment() {
+    this._currentSegmentStart = this._index;
+    this.nonWhitespaceInSegment = false;
+    this.segmentStartsAfterNewline = this.lastNonWhitespaceCharacterWasNewline;
+  }
+
   pushSegment(meta = {}) {
     if (this._currentSegmentStart === this._index) return;
     const segment = Object.assign({}, meta, {startIndex: this._currentSegmentStart, endIndex: this._index - 1});
     this.segments.push(segment);
-    this._currentSegmentStart = this._index;
+    this.resetSegment()
   }
 
   codeForSegment(segment) {
@@ -32,15 +48,15 @@ class SegmentedString {
   }
 }
 
-const whitespace = ['\n', ' ', '\t'];
-function eatWhitespace(ss) {
-  while (whitespace.includes(ss.current)) ss.next();
+function eatWhitespace(ss, state) {
+  while (ParserState.whitespace.includes(ss.current)) ss.next();
 }
 
-function parseSegment(ss) {
+function parseSegment(ss, state) {
+  eatWhitespace(ss, state);
   switch (ss.current) {
     case '/':
-      ss.pushSegment({type: 'code'});
+      if (ss.nonWhitespaceInSegment) ss.pushSegment({type: 'code'});
       ss.next();
       parseComment(ss);
       break;
@@ -68,7 +84,10 @@ function parseComment(ss) {
 function parseLineComment(ss) {
   while (ss.current !== '\n') ss.next();
   ss.next();
-  ss.pushSegment({type: 'LineComment'});
+  if (ss.segmentStartsAfterNewline)
+    ss.pushSegment({type: 'LineComment'});
+  else
+    ss.pushSegment({type: 'InlineComment'});
 }
 
 function parseBlockComment(ss) {
@@ -118,13 +137,9 @@ function parseSingleQuotedString(ss) {
 }
 
 function parse(str) {
-  const ss = new SegmentedString(str);
+  const ss = new ParserState(str);
 
-  eatWhitespace(ss);
-  while (!ss.isEOF()) {
-    parseSegment(ss);
-    eatWhitespace(ss);
-  }
+  while (!ss.isEOF()) parseSegment(ss);
   ss.pushSegment({type: 'code'});
 
   return ss.segments
@@ -145,10 +160,10 @@ function parse(str) {
       }
       return accumulator;
     }, [])
-    .map(segment => Object.assign(segment, {code: ss.codeForSegment(segment)}));
+    .map(segment => Object.assign(segment, {text: ss.codeForSegment(segment)}));
 }
 
 module.exports = {
-  SegmentedString,
+  ParserState,
   parse
 };
