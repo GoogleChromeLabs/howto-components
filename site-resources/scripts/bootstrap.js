@@ -15,7 +15,7 @@
  */
 (function () {
   const asyncStyles = [
-    'styles/highlighting.css'
+    // 'styles/highlighting.css'
   ];
   for(let asyncStyle of asyncStyles) {
     const link = document.createElement('link');
@@ -24,6 +24,10 @@
     document.head.appendChild(link);
   }
 
-  Array.from(document.querySelector('iframe.demo'))
-    .forEach(ifr => ifr.style.height = `${ifr.contentWindow.innerHeight}px`);
+  Array.from(document.querySelectorAll('iframe.demo'))
+    .forEach(ifr => {
+      ifr.addEventListener('load', _ => {
+        ifr.style.height = `${ifr.contentWindow.innerHeight}px`;
+      });
+    });
 })();

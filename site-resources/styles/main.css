@@ -50,7 +50,6 @@ html {
 code, pre {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.9em;
-  white-space: pre;
 }
 pre {
   margin: 0;
@@ -98,6 +97,7 @@ ul.literate > li > code {
   background-color: var(--code-background);
   overflow-x: auto;
   box-sizing: content-box;
+  white-space: pre;
 }
 ul.literate > li > code > * {
   width: 100%;
