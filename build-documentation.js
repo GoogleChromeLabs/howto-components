@@ -80,7 +80,13 @@ function parseElement(name) {
       contents.sections = 
         contents.sections.map(section => {
           // Markdown, JSDoc etc here!
-          section.commentText = section.commentText.replace(/\n/g, '<br>');
+          section.commentText = 
+            section.commentText
+              .replace(/\n\n/g, '<br><br>');
+          section.codeText =
+            section.codeText
+            .replace(/\s*$/, '')
+            .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
           return section;
         });
       return contents;

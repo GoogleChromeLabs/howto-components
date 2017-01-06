@@ -33,6 +33,7 @@
   --code-background: hsla(220, 60%, 95%, 1);
   --code-border-color: hsla(220, 60%, 85%, 1);
   --aside-width: 400px;
+  --indent-line: hsla(0, 0%, 0%, 0.1);
 }
 
 * {
@@ -97,7 +98,6 @@ ul.literate > li > code {
   background-color: var(--code-background);
   overflow-x: auto;
   box-sizing: content-box;
-  white-space: pre;
 }
 ul.literate > li > code > * {
   width: 100%;
@@ -131,4 +131,12 @@ ul.literate > li:last-of-type > aside {
 .demo {
   width: 100%;
   border: 0;
+}
+
+code {
+  white-space: pre;
+}
+
+code .indent {
+  border-left: 1px solid var(--indent-line);
 }
