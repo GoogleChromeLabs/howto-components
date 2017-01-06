@@ -76,6 +76,15 @@ function parseElement(name) {
         sections: sectionizer(contents)
       };
     })
+    .then(contents => {
+      contents.sections = 
+        contents.sections.map(section => {
+          // Markdown, JSDoc etc here!
+          section.commentText = section.commentText.replace(/\n/g, '<br>');
+          return section;
+        });
+      return contents;
+    })
     .catch(err => console.error(err.toString(), err.stack));
 }
 

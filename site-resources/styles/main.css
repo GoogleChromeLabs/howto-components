@@ -50,6 +50,7 @@ html {
 code, pre {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.9em;
+  white-space: pre;
 }
 pre {
   margin: 0;
