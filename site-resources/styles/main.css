@@ -76,7 +76,12 @@ ul.literate li {
   align-items: stretch;
 
   border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.24);
+}
+ul.literate li.blockcomment {
+  border-top: 1px solid rgba(0, 0, 0, 0.24);
+}
+ul.literate li.blockcomment:first-of-type {
+  border-top: none;
 }
 
 ul.literate > li > aside,
@@ -88,19 +93,6 @@ ul.literate > li > aside {
   padding-right: 2em;
   width: var(--aside-width);
 }
-ul.literate > li > aside.blockcomment {
-  position: relative;
-}
-ul.literate > li > aside.blockcomment:after {
-  position: absolute;
-  content: 'JSDoc';
-  bottom: 0;
-  right: 0;
-  font-size: 0.8em;
-  padding: 0.2em;
-  opacity: 0.3;;
-}
-
 ul.literate > li > code {
   border-left-width: 1px;
   border-left-style: solid;

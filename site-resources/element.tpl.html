@@ -27,8 +27,8 @@ limitations under the License.
 <h2>Code</h2>
 <ul class="literate" id="{{=it.title}}">
   {{ for (let section of it.sections) { }}
-  <li>
-    <aside class="{{=section.commentType.toLowerCase()}}">{{=section.commentText}}</aside>
+  <li class="{{=section.commentType.toLowerCase()}}">
+    <aside>{{=section.commentText}}</aside>
     <code>{{=section.codeText}}</code>
   </li>
   {{ } }}
