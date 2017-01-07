@@ -78,14 +78,30 @@ function parseElement(name) {
     })
     .then(contents => {
       contents.sections = 
-        contents.sections.map(section => {
-          section.commentText = marked(section.commentText);
-          section.codeText = Prism.highlight(section.codeText, Prism.languages.javascript)
-            .replace(/^\n*/, '')
-            .replace(/\s*$/, '')
-            .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-          return section;
-        });
+        contents.sections
+          // Make jsdoc blocks only belong to _one_ line of code for better visuals
+          .reduce((accumulator, nextSegment) => {
+            if (nextSegment.commentType !== 'BlockComment') return [...accumulator, nextSegment];
+            const copy = Object.assign({}, nextSegment);
+            const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
+            nextSegment.codeText = lines[0] + '\n';
+            accumulator.push(nextSegment);
+            if (lines.length >= 2 && lines[1] !== '') {
+              copy.commentType = 'LineComment';
+              copy.commentText = '';
+              copy.codeText = lines.slice(1).join('\n'); 
+              accumulator.push(copy);
+            }
+            return accumulator;
+          }, [])
+          .map(section => {
+            section.commentText = marked(section.commentText);
+            section.codeText = Prism.highlight(section.codeText, Prism.languages.javascript)
+              .replace(/^\n*/, '')
+              .replace(/\s*$/, '')
+              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
+            return section;
+          });
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
