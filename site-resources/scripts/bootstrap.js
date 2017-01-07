@@ -23,11 +23,4 @@
     link.href = asyncStyle;
     document.head.appendChild(link);
   }
-
-  Array.from(document.querySelectorAll('iframe.demo'))
-    .forEach(ifr => {
-      ifr.addEventListener('load', _ => {
-        ifr.style.height = `${ifr.contentWindow.innerHeight}px`;
-      });
-    });
 })();

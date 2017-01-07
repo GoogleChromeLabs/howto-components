@@ -30,7 +30,7 @@
 }
 
 :root {
-  --code-background: hsla(220, 60%, 95%, 1);
+  --code-background: hsla(220, 60%, 98%, 1);
   --code-border-color: hsla(220, 60%, 85%, 1);
   --aside-width: 400px;
   --indent-line: hsla(0, 0%, 0%, 0.1);
@@ -143,7 +143,6 @@ ul.literate > li:last-of-type > aside {
 
 .intro {
   max-width: 720px;
-  margin: 0 auto;
   padding: 20px;
 }
 
@@ -158,4 +157,10 @@ code {
 }
 code .indent {
   border-left: 1px solid var(--indent-line);
+}
+code.example {
+  display: block;
+  background-color: var(--code-background);
+  margin: 20px 0;
+  padding: 20px;
 }

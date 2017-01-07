@@ -28,8 +28,7 @@ const dotConfig = {
 Object.assign(dot.templateSettings, dotConfig);
 Promise.all([
   generateDocs(),
-  copyStaticFiles(),
-  copyDemos()
+  copyStaticFiles()
 ])
   .then(_ => console.log('done'));
 
@@ -54,31 +53,26 @@ function copyStaticFiles() {
     );
 }
 
-function copyDemos() {
-  return fs.readdir('elements')
-    .then(files => 
-      Promise.all(
-        files.map(name => 
-          copy(`elements/${name}/demo.html`, `docs/${name}_demo.html`)
-            .then(_ => copy(`elements/${name}/${name}.js`, `docs/${name}.js`))
-            .catch(err => console.log(`Error copying: ${err.toString()}`))
-        )
-      )
-    );
-}
-
 function parseElement(name) {
-  const filePath = `elements/${name}/${name}.js`;
-  return fs.readFile(filePath)
-    .then(contents => {
-      contents = contents.toString('utf-8');
+  const filePath = `elements/${name}/`;
+  return Promise.all([
+    fs.readFile(`${filePath}/${name}.js`),
+    fs.readFile(`${filePath}/demo.html`)
+  ])
+    .then(([code, demo]) => {
+      code = code.toString('utf-8');
+      demo = demo.toString('utf-8');
       const data = {
         title: name,
-        source: contents,
-        sections: sectionizer(contents)
+        source: code,
+        demo: demo,
+        highlightedDemo: Prism.highlight(demo, Prism.languages.markup),
+        sections: sectionizer(code)
       };
       if (data.sections[0].codeText === '') {
         data.intro = marked(data.sections.shift().commentText);
+      } else {
+        data.intro = '';
       }
       return data;
     })
@@ -97,12 +91,15 @@ function parseElement(name) {
 }
 
 function writeElement(element) {
-  return template('site-resources/element.tpl.html')
-    .then(tpl => {
-      const rendered = tpl(element);
-      return fs.writeFile(`docs/${element.title}.html`, rendered)
-        .then(_ => element);
-    });
+  return Promise.all([
+    template('site-resources/element.tpl.html'),
+    template('site-resources/demo.tpl.html')
+  ])
+    .then(([elemTpl, demoTpl]) => Promise.all([
+        fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
+        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element))
+    ])).then(_ => element)
+    .catch(err => console.log(err.toString(), err.stack))
 }
 
 function buildIndex(elements) {

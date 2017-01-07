@@ -1,5 +1,4 @@
 <!doctype html>
-
 <style>
   tab-panel {
     display: flex;
@@ -14,9 +13,6 @@
     padding: 20px;
     background-color: lightgray;
   }
-</style>
-
-<style>
   .hidden {
     display: none;
   }
@@ -33,14 +29,3 @@
   <header aria-role="tab" aria-controls="tab3">Tab 3</header>
   <section id="tab3" aria-role="tabpanel">Content 3</section>
 </tab-panel>
-
-<a href="?nojs">Load without JavaScript</a>
-<a href="?">Load with JavaScript</a>
-<script>
-  if (!document.location.search.includes('nojs')) {
-    console.log('loading!');
-    const s = document.createElement('script');
-    s.src = 'tab-panel.js';
-    document.head.appendChild(s);
-  }
-</script>
