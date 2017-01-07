@@ -74,7 +74,7 @@ function parseElement(name) {
       } else {
         data.intro = '';
       }
-      return data;
+      return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
       contents.sections = 
