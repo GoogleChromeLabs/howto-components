@@ -15,55 +15,65 @@
  * `TabPanel` is a container element for tabs and panels.
  * 
  * Tabs have the `aria-role=tab` attribute and the ID of the associated panel
- * in the `aria-controls` attribute.
+ * in the `aria-controls` attribute. The selected tab has the `.selected` class.
  * 
  * Panels have the `aria-role=tabpanel` attribute.
  */
 class TabPanel extends HTMLElement {
-  // For accessibility, the element needs to do some manual input 
-  // event handling.
+
+  /**
+   * The constructor does work that needs to be executed _exactly_
+   * once.
+   */
   constructor() {
     super();
+    // For accessibility, the element needs to do some manual input 
+    // event handling. 
     this.addEventListener('keydown', this._handleKeyDown.bind(this));
     this.addEventListener('click', this._handleClick.bind(this));
   }
 
   /**
    * `connectedCallback` is a life cycle callback defined by CustomElements v1
-   * that gets called when an instance of the element gets inserted into the DOM.
+   * that gets called when an instance of the element gets inserted into the 
+   * DOM. Theoretically, `connectedCallback` could be called multiple
+   * times when an element gets moved around.
    */
   connectedCallback() {
+    // Acquire all tabs and panels inside the element
     const tabs = Array.from(this.querySelectorAll('[aria-role=tab]'));
     const panels = Array.from(this.querySelectorAll('[aria-role=tabpanel]'));
+    // If there are no tabs, there is no way to switch between panels. Abort.
     if (tabs.length === 0) return;
 
-    // It is recommended to interleave tabs and tab panels in the markup for 
-    // progressive enhancement. If JavaScript is disabled, all panels are 
+    // For progressive enhancement, the markup should alternate between tabs
+    // and panels. If JavaScript is disabled, all panels are 
     // visible with their respective tab right above them.
-    // For that reason, the element reorders all children into
-    // two groups. The first group is the tabs, the second group is the panels.
+    // If JavaScript is enabled, the element reorders all children into
+    // their two groups. First all the tabs, then all the panels.
+    // Calling `appendChild` on an already inserted element _moves_ the 
+    // element to the last child position.
     tabs.forEach(tab => this.appendChild(tab));
     panels.forEach(panel => this.appendChild(panel));
     
     // The element checks if any of the tabs have been marked as selected. If 
-    // not, the first tab is declared as selected.
+    // not, the first tab is now selected.
     const selectedTab = tabs.find(e => e.getAttribute('aria-selected') === 'true') || tabs[0];
 
-    // Next, all tabs are marked as deselected and all panels are marked as hidden.
-    // Then, the elements marks the selected tab as, well, selected and makes 
-    // the corresponding tabpanel visible.
-    this.switchTabs(selectedTab);
+    // Next, we switch to the selected tab. `selectTab` takes care of marking
+    // all other tabs as deselected and hiding all other panels.
+    this.selectTab(selectedTab);
   }
 
   /**
-   * `reset` marks all tabs as deselected and hides all teh panels.
+   * `reset` marks all tabs as deselected and hides all the panels.
    */
   reset() {
     const tabs = Array.from(this.querySelectorAll('[aria-role=tab]'));
     const panels = Array.from(this.querySelectorAll('[aria-role=tabpanel]'));
 
     tabs.forEach(tab => {
-      tab.classList.remove('selected', 'focus');
+      tab.classList.remove('selected');
       tab.setAttribute('tabindex', '-1')
       tab.setAttribute('aria-selected', 'false'); 
     });
@@ -75,18 +85,21 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * `switchTabs` deselectes the current tab and marks the given tab as active.
-   * Additionally, it hides the current panel and unhides the panel 
-   * corresponding to the given tab.
+   * `selectTab` marks the given tab as selected.
+   * Additionally, it unhides the panel corresponding to the given tab.
    */
-  switchTabs(newTab) {
+  selectTab(newTab) {
+    // Deselect all tabs and hide all panels.
     this.reset();
 
     const panels = Array.from(this.querySelectorAll('[aria-role=tabpanel]'));
+    // Get the panel that corresponds to the given tab.
     const newPanelId = newTab.getAttribute('aria-controls');
     const newPanel = panels.find(panel => panel.id === newPanelId);
+    // If that panel doesn’t exist, abort.
     if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
 
+    // Unhide the panel and mark the tab as active.
     newPanel.classList.remove('hidden');
     newPanel.setAttribute('aria-hidden', 'false');
 
@@ -100,7 +113,8 @@ class TabPanel extends HTMLElement {
    * `_handleKeyDown` handles key presses inside the tab panel.
    */
   _handleKeyDown(event) {
-    // If the keypress did not originate from a tab, the event is ignored.
+    // If the keypress did not originate from a tab element itself,
+    // it was a keypress inside the a panel or on empty space. Nothing to do.
     if (event.target.getAttribute('aria-role') !== 'tab') return;
     // TODO: Why are we skipping on alt?
     if (event.altKey) return;
@@ -108,12 +122,13 @@ class TabPanel extends HTMLElement {
     let newIdx, newTab;
     const tabs = Array.from(this.querySelectorAll('[aria-role=tab]'));
 
+    // The switch-case will determine which tab should be marked as active
+    // depending on the key that was pressed.
     switch (event.keyCode) {
       // When up or left is pressed, the previous tab is selected. If the
       // first tab is reached, the element loops around to the last tab.
       case 37: // 'ArrowLeft':
       case 38: // 'ArrowUp':
-        // Find the index of the selected tab and subtract one.
         newIdx = tabs.findIndex(panel => panel.classList.contains('selected')) - 1;
         newTab = tabs[(newIdx + tabs.length) % tabs.length];
         break;
@@ -134,21 +149,26 @@ class TabPanel extends HTMLElement {
       case 35: // 'End':
         newTab = tabs[tabs.length - 1];
         break;
+      // Any other key press is ignored and passed back to the browser.
       default:
         return;
     }
-    this.switchTabs(newTab);
+    // Select the new tab, that has been determined in the switch-case.
+    this.selectTab(newTab);
+    // The browser might have some native functionality bound to the arrow
+    // keys. Prevent the browser from taking any actions.
     event.preventDefault();
-    return false;
   }
 
   /**
    * `_handleClick` handles clicks inside the tab panel.
    */
   _handleClick(event) {
-    // If the click was not targeted on a tab, the event is ignored.
+    // If the click was not targeted on a tab element itself, 
+    // it was a click inside the a panel or on empty space. Nothing to do.
     if (!event.target.getAttribute('aria-role', 'tab')) return;
-    this.switchTabs(event.target)
+    // If it was on a tab element, though, select that tab.
+    this.selectTab(event.target)
   }
 }
 
