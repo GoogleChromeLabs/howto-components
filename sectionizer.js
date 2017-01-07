@@ -209,6 +209,7 @@ function parse(str) {
       // Start a new block for either of these two types
       if (['LineComment', 'BlockComment'].includes(nextSegment.type)) {
         accumulator.push({
+          commentType: nextSegment.type,
           commentText: nextSegment.text,
           codeText: ''
         });

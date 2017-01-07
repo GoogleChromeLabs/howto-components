@@ -88,6 +88,19 @@ ul.literate > li > aside {
   padding-right: 2em;
   width: var(--aside-width);
 }
+ul.literate > li > aside.blockcomment {
+  position: relative;
+}
+ul.literate > li > aside.blockcomment:after {
+  position: absolute;
+  content: 'JSDoc';
+  bottom: 0;
+  right: 0;
+  font-size: 0.8em;
+  padding: 0.2em;
+  opacity: 0.3;;
+}
+
 ul.literate > li > code {
   border-left-width: 1px;
   border-left-style: solid;
@@ -136,7 +149,6 @@ ul.literate > li:last-of-type > aside {
 code {
   white-space: pre;
 }
-
 code .indent {
   border-left: 1px solid var(--indent-line);
 }
