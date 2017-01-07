@@ -6,10 +6,15 @@ class ParserState {
     this._index = 0;
     this._currentSegmentStart = 0;
     this.segments = [];
+    this.meta = {};
     this.nonWhitespaceInSegment = false;
     // Start of file is practically a newline :3
     this.segmentStartsAfterNewline = true;
     this.lastNonWhitespaceCharacterWasNewline = true;
+  }
+
+  get sneakPeek() {
+    return this._str.substr(this._index, 80);
   }
 
   get current() {
@@ -39,7 +44,7 @@ class ParserState {
 
   pushSegment(meta = {}) {
     if (this._currentSegmentStart === this._index) return;
-    const segment = Object.assign({}, meta, {startIndex: this._currentSegmentStart, endIndex: this._index});
+    const segment = Object.assign({}, this.meta, meta, {startIndex: this._currentSegmentStart, endIndex: this._index});
     this.segments.push(segment);
     this.resetSegment()
   }
@@ -53,32 +58,26 @@ function eatWhitespace(ss) {
   while (ParserState.whitespace.includes(ss.current)) ss.next();
 }
 
-function parseSegment(ss) {
+function parseExpression(ss) {
   eatWhitespace(ss);
-  switch (ss.current) {
-    case '/':
+  if (ss.current === '/') {
       if (ss.nonWhitespaceInSegment) ss.pushSegment({type: 'code'});
       ss.next();
-      parseComment(ss);
-      break;
-    default:
-      parseCode(ss);
-      break;
+      return parseComment(ss);
   }
+  parseCode(ss);
 }
 
 function parseComment(ss) {
   switch (ss.current) {
     case '/':
       ss.next();
-      parseLineComment(ss);
-      break;
+      return parseLineComment(ss);
     case '*':
       ss.next();
-      parseBlockComment(ss);
-      break;
+      return parseBlockComment(ss);
     default:
-      parseCode(ss);
+      return parseCode(ss);
   }
 }
 
@@ -97,26 +96,44 @@ function parseBlockComment(ss) {
     ss.next();
     if (ss.current === '/') {
       ss.next();
-      ss.pushSegment({type: 'BlockComment'});
-      break;
+      return ss.pushSegment({type: 'BlockComment'});
     }
   }
 }
 
 function parseCode(ss) {
-  switch(ss.current) {
-    case '\'':
-      parseSingleQuotedString(ss);
-      break;
-    case '\"':
-      parseDoubleQuotedString(ss);
-      break;
-    default:
-      ss.next();
+  if (ss.sneakPeek.startsWith('class ')) {
+    ss.meta.objectType = 'class';
+    ss.meta.objectName = /class\s*([^\s]*)/.exec(ss.sneakPeek)[1];
+    while (ss.current !== '{') ss.next();
+  } else if (ss.sneakPeek.startsWith('function ')) {
+    ss.meta.objectType = 'function';
+    ss.meta.objectName = /function\s*([^\s]*).+$/.exec(ss.sneakPeek)[1];
+    while (ss.current !== '{') ss.next();
   }
+  
+  if (ss.current === '\'')
+    return parseSingleQuotedString(ss);
+  else if (ss.current === '\"')
+    return parseDoubleQuotedString(ss);
+  else if (ss.current === '{')
+    return parseBlock(ss);
+  else
+    ss.next();
+}
+
+function parseBlock(ss) {
+  ss.meta.indentationLevel++;
+  ss.next();
+  while(ss.current !== '}') {
+    parseExpression(ss);
+    eatWhitespace(ss);
+  }
+  ss.meta.indentationLevel--;
 }
 
 function parseDoubleQuotedString(ss) {
+  ss.next();
   while (ss.current !== '"') {
     if (ss.current === '\\') ss.next();
     ss.next();
@@ -125,6 +142,7 @@ function parseDoubleQuotedString(ss) {
 }
 
 function parseSingleQuotedString(ss) {
+  ss.next();
   while (ss.current !== '\'') {
     if (ss.current === '\\') ss.next();
     ss.next();
@@ -134,8 +152,9 @@ function parseSingleQuotedString(ss) {
 
 function parse(str) {
   const ss = new ParserState(str);
+  ss.meta.indentationLevel = 0;
 
-  while (!ss.isEOF()) parseSegment(ss);
+  while (!ss.isEOF()) parseExpression(ss);
   ss.pushSegment({type: 'code'});
 
   // Always start with a comment block. Add an empty one if necessary.
@@ -169,6 +188,7 @@ function parse(str) {
     .map(segment => Object.assign(segment, {text: ss.codeForSegment(segment)}))
     // Cleanup comment blocks of their comment symbols
     .map(segment => {
+      console.log(segment);
       switch (segment.type) {
         case 'LineComment':
         // case 'InlineComment':
