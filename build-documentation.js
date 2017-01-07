@@ -81,6 +81,7 @@ function parseElement(name) {
         contents.sections.map(section => {
           section.commentText = marked(section.commentText);
           section.codeText = Prism.highlight(section.codeText, Prism.languages.javascript)
+            .replace(/^\n*/, '')
             .replace(/\s*$/, '')
             .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
           return section;
