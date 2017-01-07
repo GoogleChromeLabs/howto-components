@@ -9,6 +9,13 @@
   if (!document.location.search.includes('nojs')) {
     const s = document.createElement('script');
     s.src = '{{=it.title}}.js';
+    s.onload = sendSize;
     document.head.appendChild(s);
   }
+  function sendSize() {
+    window.parent.postMessage(document.scrollingElement.scrollHeight, '*');
+  }
+  window.addEventListener('resize', sendSize);
+  window.addEventListener('message', sendSize);
+  sendSize();
 </script>

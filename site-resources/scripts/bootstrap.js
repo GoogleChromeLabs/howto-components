@@ -23,4 +23,13 @@
     link.href = asyncStyle;
     document.head.appendChild(link);
   }
+  const demo = document.querySelector('iframe.demo');
+  window.addEventListener('message', event => {
+    demo.style.height = `${event.data}px`;
+  });
+  demo.addEventListener('load', _ => {
+    demo.style.height = '';
+    demo.contentWindow.postMessage({}, '*');
+  });
+
 })();
