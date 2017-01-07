@@ -30,9 +30,10 @@
 }
 
 :root {
-  --code-background: hsla(220, 60%, 95%, 1);
+  --code-background: hsla(220, 60%, 98%, 1);
   --code-border-color: hsla(220, 60%, 85%, 1);
   --aside-width: 400px;
+  --indent-line: hsla(0, 0%, 0%, 0.1);
 }
 
 * {
@@ -75,7 +76,7 @@ ul.literate li {
   align-items: stretch;
 
   border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.54);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.24);
 }
 
 ul.literate > li > aside,
@@ -87,6 +88,19 @@ ul.literate > li > aside {
   padding-right: 2em;
   width: var(--aside-width);
 }
+ul.literate > li > aside.blockcomment {
+  position: relative;
+}
+ul.literate > li > aside.blockcomment:after {
+  position: absolute;
+  content: 'JSDoc';
+  bottom: 0;
+  right: 0;
+  font-size: 0.8em;
+  padding: 0.2em;
+  opacity: 0.3;;
+}
+
 ul.literate > li > code {
   border-left-width: 1px;
   border-left-style: solid;
@@ -127,7 +141,26 @@ ul.literate > li:last-of-type > aside {
   }
 }
 
+.intro {
+  max-width: 720px;
+  padding: 20px;
+}
+
 .demo {
   width: 100%;
   border: 0;
+  margin: 20px 0;
+}
+
+code {
+  white-space: pre;
+}
+code .indent {
+  border-left: 1px solid var(--indent-line);
+}
+code.example {
+  display: block;
+  background-color: var(--code-background);
+  margin: 20px 0;
+  padding: 20px;
 }

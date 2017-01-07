@@ -15,7 +15,7 @@
  */
 (function () {
   const asyncStyles = [
-    'styles/highlighting.css'
+    'styles/prism-solarizedlight.css'
   ];
   for(let asyncStyle of asyncStyles) {
     const link = document.createElement('link');
@@ -23,7 +23,4 @@
     link.href = asyncStyle;
     document.head.appendChild(link);
   }
-
-  Array.from(document.querySelector('iframe.demo'))
-    .forEach(ifr => ifr.style.height = `${ifr.contentWindow.innerHeight}px`);
 })();
