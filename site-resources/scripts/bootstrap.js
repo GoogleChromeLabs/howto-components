@@ -15,7 +15,7 @@
  */
 (function () {
   const asyncStyles = [
-    // 'styles/highlighting.css'
+    'styles/prism-solarizedlight.css'
   ];
   for(let asyncStyle of asyncStyles) {
     const link = document.createElement('link');

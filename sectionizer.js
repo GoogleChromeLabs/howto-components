@@ -188,7 +188,6 @@ function parse(str) {
     .map(segment => Object.assign(segment, {text: ss.codeForSegment(segment)}))
     // Cleanup comment blocks of their comment symbols
     .map(segment => {
-      console.log(segment);
       switch (segment.type) {
         case 'LineComment':
         // case 'InlineComment':

@@ -17,6 +17,7 @@ const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
 const sectionizer = require('./sectionizer.js').parse;
+const prism = require('prismjs');
 
 // Configs
 const dotConfig = {
@@ -83,8 +84,7 @@ function parseElement(name) {
           section.commentText = 
             section.commentText
               .replace(/\n\n/g, '<br><br>');
-          section.codeText =
-            section.codeText
+          section.codeText = Prism.highlight(section.codeText, Prism.languages.javascript)
             .replace(/\s*$/, '')
             .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
           return section;
