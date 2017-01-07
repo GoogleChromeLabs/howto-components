@@ -141,9 +141,16 @@ ul.literate > li:last-of-type > aside {
   }
 }
 
+.intro {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .demo {
   width: 100%;
   border: 0;
+  margin: 20px 0;
 }
 
 code {

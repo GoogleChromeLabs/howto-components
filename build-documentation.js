@@ -72,11 +72,15 @@ function parseElement(name) {
   return fs.readFile(filePath)
     .then(contents => {
       contents = contents.toString('utf-8');
-      return {
+      const data = {
         title: name,
         source: contents,
         sections: sectionizer(contents)
       };
+      if (data.sections[0].codeText === '') {
+        data.intro = marked(data.sections.shift().commentText);
+      }
+      return data;
     })
     .then(contents => {
       contents.sections = 

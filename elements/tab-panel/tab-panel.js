@@ -1,7 +1,18 @@
 /**
- * TabPanel is a container for tabs and panels associated with these tabs.
- * Activating tab makes the associated panel visible, while the rest 
- * remains invisible.
+ * Tab panels are a pattern to limit visible content by separating
+ * it into multiple panels. Only one panel is visible at a time, while
+ * _all_ corresponding tabs are always visible. To switch from one panel 
+ * to another, the corresponding tab has to be selected.
+ * 
+ * Invisible panels are hidden with `display: none` and `aria-hidden`.
+ * By either clicking or by using the arrow keys the user changes the
+ * selection.
+ * 
+ * If JavaScript is disabled, all panels are shown interleaved with the
+ * respective tabs. The tabs now function as headings.
+ */
+/**
+ * `TabPanel` is a container element for tabs and panels.
  * 
  * Tabs have the `aria-role=tab` attribute and the ID of the associated panel
  * in the `aria-controls` attribute.
@@ -18,7 +29,7 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * connectedCallback is a life cycle callback defined by CustomElements v1
+   * `connectedCallback` is a life cycle callback defined by CustomElements v1
    * that gets called when an instance of the element gets inserted into the DOM.
    */
   connectedCallback() {
@@ -45,7 +56,7 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * reset marks all tabs as deselected and hides all teh panels.
+   * `reset` marks all tabs as deselected and hides all teh panels.
    */
   reset() {
     const tabs = Array.from(this.querySelectorAll('[aria-role=tab]'));
@@ -64,7 +75,7 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * switchTabs deselectes the current tab and marks the given tab as active.
+   * `switchTabs` deselectes the current tab and marks the given tab as active.
    * Additionally, it hides the current panel and unhides the panel 
    * corresponding to the given tab.
    */
@@ -86,10 +97,10 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * HandleKeyDown handles key presses inside the tab panel.
+   * `_handleKeyDown` handles key presses inside the tab panel.
    */
   _handleKeyDown(event) {
-    // If the keypress did not originate from a tab, the element does nothing.
+    // If the keypress did not originate from a tab, the event is ignored.
     if (event.target.getAttribute('aria-role') !== 'tab') return;
     // TODO: Why are we skipping on alt?
     if (event.altKey) return;
@@ -114,12 +125,12 @@ class TabPanel extends HTMLElement {
         newTab = tabs[(newIdx + tabs.length) % tabs.length];
         break;
       
-      // The home button will always select the first tab.
+      // The home button always selects the first tab.
       case 36: // 'Home':
         newTab = tabs[0];
         break;
 
-      // And end will always select the last one.
+      // And end always selects the last one.
       case 35: // 'End':
         newTab = tabs[tabs.length - 1];
         break;
@@ -132,10 +143,10 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * handleClick handles clicks inside the tab panel.
+   * `_handleClick` handles clicks inside the tab panel.
    */
   _handleClick(event) {
-    // If the click was not targeted on a tab, the element does nothing.
+    // If the click was not targeted on a tab, the event is ignored.
     if (!event.target.getAttribute('aria-role', 'tab')) return;
     this.switchTabs(event.target)
   }

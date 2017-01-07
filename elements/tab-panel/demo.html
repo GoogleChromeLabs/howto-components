@@ -34,4 +34,13 @@
   <section id="tab3" aria-role="tabpanel">Content 3</section>
 </tab-panel>
 
-<script src="tab-panel.js"></script>
+<a href="?nojs">Load without JavaScript</a>
+<a href="?">Load with JavaScript</a>
+<script>
+  if (!document.location.search.includes('nojs')) {
+    console.log('loading!');
+    const s = document.createElement('script');
+    s.src = 'tab-panel.js';
+    document.head.appendChild(s);
+  }
+</script>
