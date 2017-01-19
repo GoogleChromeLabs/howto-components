@@ -1,0 +1,10 @@
+sudo: required
+language: node
+services:
+  - docker
+
+before_install:
+  - docker build -t googlechrome/dash-elements .
+
+script:
+  - docker run googlechrome/dash-elements /bin/sh -c "npm test"

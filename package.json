@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "node build-documentation.js"
+    "build": "node build-documentation.js",
+    "test": "echo DONE; true"
   },
   "author": "Google",
   "contributors": [
