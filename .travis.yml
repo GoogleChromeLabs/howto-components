@@ -4,7 +4,7 @@ services:
   - docker
 
 before_install:
-  - docker build -t googlechrome/dash-elements .
+  - npm run docker-build
 
 script:
-  - docker run googlechrome/dash-elements /bin/sh -c "npm test"
+  - npm run docker-test
