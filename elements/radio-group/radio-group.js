@@ -1,12 +1,13 @@
+/* eslint-disable */
 // `RadioButton` is the radio button element itself. Maybe surprisingly,
-// there’s almost no logic on this element. 
+// there’s almost no logic on this element.
 class RadioButton extends HTMLElement {
   constructor() {
     super();
   }
 
   connectedCallback() {
-    // All the juggling of ARIA attributes will be handled 
+    // All the juggling of ARIA attributes will be handled
     // in the surrounding `RadioGroup`. We only initialize the
     // the radio button when it gets attached to the DOM.
     this.setAttribute('role', 'radio');

@@ -1,0 +1,12 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "mocha": true
+  },
+  "extends": "google",
+  "rules": {
+    "arrow-parens": 0,
+    "valid-jsdoc": "off"
+  }
+}

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint require-jsdoc: 0 */
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
@@ -22,13 +23,13 @@ const marked = require('marked');
 
 // Configs
 const dotConfig = {
-  strip: false
+  strip: false,
 };
 
 Object.assign(dot.templateSettings, dotConfig);
 Promise.all([
   generateDocs(),
-  copyStaticFiles()
+  copyStaticFiles(),
 ])
   .then(_ => console.log('done'));
 
@@ -44,7 +45,7 @@ function generateDocs() {
 
 function copyStaticFiles() {
   return fs.readdir('site-resources')
-    .then(files => 
+    .then(files =>
       Promise.all(
         files
           .filter(name => !name.includes('.tpl.'))
@@ -57,7 +58,7 @@ function parseElement(name) {
   const filePath = `elements/${name}/`;
   return Promise.all([
     fs.readFile(`${filePath}/${name}.js`),
-    fs.readFile(`${filePath}/demo.html`)
+    fs.readFile(`${filePath}/demo.html`),
   ])
     .then(([code, demo]) => {
       code = code.toString('utf-8');
@@ -66,8 +67,8 @@ function parseElement(name) {
         title: name,
         source: code,
         demo: demo,
-        highlightedDemo: Prism.highlight(demo, Prism.languages.markup),
-        sections: sectionizer(code)
+        highlightedDemo: prism.highlight(demo, prism.languages.markup),
+        sections: sectionizer(code),
       };
       if (data.sections[0].codeText === '') {
         data.intro = marked(data.sections.shift().commentText);
@@ -77,11 +78,13 @@ function parseElement(name) {
       return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
-      contents.sections = 
+      contents.sections =
         contents.sections
-          // Make jsdoc blocks only belong to _one_ line of code for better visuals
+          // Make jsdoc blocks only belong to _one_
+          // line of code for better visuals
           .reduce((accumulator, nextSegment) => {
-            if (nextSegment.commentType !== 'BlockComment') return [...accumulator, nextSegment];
+            if (nextSegment.commentType !== 'BlockComment')
+              return [...accumulator, nextSegment];
             const copy = Object.assign({}, nextSegment);
             const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
             nextSegment.codeText = lines[0] + '\n';
@@ -89,14 +92,15 @@ function parseElement(name) {
             if (lines.length >= 2 && lines[1] !== '') {
               copy.commentType = 'LineComment';
               copy.commentText = '';
-              copy.codeText = lines.slice(1).join('\n'); 
+              copy.codeText = lines.slice(1).join('\n');
               accumulator.push(copy);
             }
             return accumulator;
           }, [])
           .map(section => {
             section.commentText = marked(section.commentText);
-            section.codeText = Prism.highlight(section.codeText, Prism.languages.javascript)
+            section.codeText =
+              prism.highlight(section.codeText, prism.languages.javascript)
               .replace(/^\n*/, '')
               .replace(/\s*$/, '')
               .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
@@ -110,13 +114,13 @@ function parseElement(name) {
 function writeElement(element) {
   return Promise.all([
     template('site-resources/element.tpl.html'),
-    template('site-resources/demo.tpl.html')
+    template('site-resources/demo.tpl.html'),
   ])
     .then(([elemTpl, demoTpl]) => Promise.all([
         fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
-        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element))
+        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
     ])).then(_ => element)
-    .catch(err => console.log(err.toString(), err.stack))
+    .catch(err => console.log(err.toString(), err.stack));
 }
 
 function buildIndex(elements) {
@@ -128,7 +132,7 @@ function buildIndex(elements) {
 function template(path) {
   return fs
     .readFile(path)
-    .then(contents => dot.template(contents.toString('utf-8')))
+    .then(contents => dot.template(contents.toString('utf-8')));
 }
 
 function copy(a, b) {
