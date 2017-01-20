@@ -1,5 +1,8 @@
+/* eslint require-jsdoc: 0 */
 class ParserState {
-  static get whitespace() { return ['\n', '\t', ' ']; }
+  static get whitespace() {
+    return ['\n', '\t', ' '];
+  }
 
   constructor(str) {
     this._str = str;
@@ -26,7 +29,7 @@ class ParserState {
     if (!ParserState.whitespace.includes(this.current)) {
       this.nonWhitespaceInSegment = true;
       this.lastNonWhitespaceCharacterWasNewline = false;
-    } else if (this.current === '\n') 
+    } else if (this.current === '\n')
       this.lastNonWhitespaceCharacterWasNewline = true;
     this._index++;
     return this.current;
@@ -44,9 +47,17 @@ class ParserState {
 
   pushSegment(meta = {}) {
     if (this._currentSegmentStart === this._index) return;
-    const segment = Object.assign({}, this.meta, meta, {startIndex: this._currentSegmentStart, endIndex: this._index});
+    const segment = Object.assign(
+      {},
+      this.meta,
+      meta,
+      {
+        startIndex: this._currentSegmentStart,
+        endIndex: this._index,
+      }
+    );
     this.segments.push(segment);
-    this.resetSegment()
+    this.resetSegment();
   }
 
   codeForSegment(segment) {
@@ -111,7 +122,7 @@ function parseCode(ss) {
     ss.meta.objectName = /function\s*([^\s]*).+$/.exec(ss.sneakPeek)[1];
     while (ss.current !== '{') ss.next();
   }
-  
+
   if (ss.current === '\'')
     return parseSingleQuotedString(ss);
   else if (ss.current === '\"')
@@ -158,12 +169,12 @@ function parse(str) {
   ss.pushSegment({type: 'code'});
 
   // Always start with a comment block. Add an empty one if necessary.
-  if (ss.segments[0].type === 'code') 
+  if (ss.segments[0].type === 'code')
     ss.segments.unshift({
       type: 'LineComment',
       text: '',
       startIndex: 0,
-      endIndex: 0
+      endIndex: 0,
     });
 
   return ss.segments
@@ -194,7 +205,7 @@ function parse(str) {
           segment.text = segment.text.replace(/^\s*\/\//mg, '');
           break;
         case 'BlockComment':
-          segment.text = 
+          segment.text =
             segment.text
               .replace(/^\s*\/\**\s*$/m, '')
               .replace(/^\s*\*[ \t]*/mg, '')
@@ -211,7 +222,7 @@ function parse(str) {
         accumulator.push({
           commentType: nextSegment.type,
           commentText: nextSegment.text,
-          codeText: ''
+          codeText: '',
         });
         return accumulator;
       }
@@ -219,10 +230,10 @@ function parse(str) {
       const lastSegment = accumulator[accumulator.length - 1];
       lastSegment.codeText += nextSegment.text;
       return accumulator;
-    }, [])
+    }, []);
 }
 
 module.exports = {
   ParserState,
-  parse
+  parse,
 };

@@ -5,7 +5,7 @@ module.exports = function(config) {
     files: [
       'node_modules/chai/chai.js',
       'node_modules/@webcomponents/custom-elements/custom-elements.min.js',
-      'elements/*/*.js'
+      'elements/*/*.js',
     ],
     exclude: [
     ],
@@ -22,9 +22,9 @@ module.exports = function(config) {
     customLaunchers: {
       DockerChrome: {
           base: 'Chrome',
-          flags: ['--no-sandbox']
-      }
-    }
+          flags: ['--no-sandbox'],
+      },
+    },
   };
 
   if (process.env.INSIDE_DOCKER) {
