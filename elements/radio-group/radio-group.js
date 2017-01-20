@@ -66,7 +66,7 @@
      * This assumes `RadioButton` children are already in the DOM and their
      * definition has already been loaded. For a more robust implementation you
      * might consider using a Mutation Observer to detect if children are
-     * present yet. The `RadioGroup also adds listeners for keyboard and mouse
+     * present yet. The `RadioGroup` also adds listeners for keyboard and mouse
      * events. 
      */
     connectedCallback() {
@@ -125,19 +125,20 @@
      * A getter for the first `RadioButton` child.
      */
     get firstRadioButton() {
-      return Array.from(this.querySelectorAll('[role="radio"]')).shift();
+      return this.querySelectorAll('[role="radio"]:first-of-type');
     }
 
     /**
      * A getter for the last `RadioButton` child.
      */
     get lastRadioButton() {
-      return Array.from(this.querySelectorAll('[role="radio"]')).pop();
+      return this.querySelectorAll('[role="radio"]:last-of-type');
     }
 
     /**
-     * Return the previous sibling of the node that was passed in. The
-     * previous sibling must have a role of `radio`. If no sibling is found,
+     * A helper for when the user tries to moves backwards through the
+     * `RadioGroup` using their keyboard. Return the `RadioButton` coming before
+     * the one passed as an argument. If no previous `RadioButton` is found,
      * return null.
      */
     _prevRadioButton(node) {
@@ -152,9 +153,10 @@
     }
 
     /**
-     * Return the next sibling of the node that was passed in. The
-     * next sibling must have a role of `radio`. If no sibling is found,
-     * return null.
+     * A helper for when the user tries to moves forwards through the
+     * `RadioGroup` using their keyboard. Return the `RadioButton` coming after
+     * the one passed as an argument. If no next `RadioButton` is found, return
+     * null.
      */
     _nextRadioButton(node) {
       let next = node.nextElementSibling;
@@ -168,6 +170,8 @@
     }
 
     /**
+     * This method is called in response to a user pressing a key to move
+     * backwards through the `RadioGroup`.
      * Check to see if the currently checked `RadioButton` is the first child.
      * If so, loop around and focus the last child. Otherwise, find the previous
      * sibling of the currently checked `RadioButton`, and make it the new
@@ -183,6 +187,8 @@
     }
 
     /**
+     * This method is called in response to a user pressing a key to move
+     * forwards through the `RadioGroup`.
      * Check to see if the currently checked `RadioButton` is the last child.
      * If so, loop around and focus the first child. Otherwise, find the next
      * sibling of the currently checked `RadioButton`, and make it the new
@@ -198,6 +204,8 @@
     }
 
     /**
+     * Any user action (a keypress or mouse click) eventually funnels down to
+     * this method which ensures that only the passed in element is checked.
      * Uncheck _all_ `RadioButton` children. Then set the `RadioButton` that was
      * passed in to `aria-checked=true`. Also make it focusable with
      * `tabIndex=0` and call its `focus()` method.
@@ -221,7 +229,7 @@
      */
     _onClick(e) {
       if (e.target.getAttribute('role') === 'radio') {
-        this.setChecked(e.target);
+        this._setChecked(e.target);
       }
     }
   }
