@@ -1,9 +1,12 @@
 #!/bin/bash
 
-set -o
+set -e
 
 # Exit if this is not a pull request
-if [ -z "$TRAVIS_PULL_REQUEST" ]; then exit 0; fi
+if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+  echo "This is not a pull request. Aborting"
+  exit 0;
+fi
 NAME=pr_${TRAVIS_PULL_REQUEST}
 
 npm i
