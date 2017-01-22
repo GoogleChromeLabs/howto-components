@@ -8,3 +8,10 @@ before_install:
 
 script:
   - npm run docker-test
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: "tools/pr_preview.sh"
+  on:
+    all_branches: true

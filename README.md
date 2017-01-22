@@ -1,5 +1,7 @@
 # DASH elements
 
+![Travis CI Build status badge](https://travis-ci.org/GoogleChrome/dash-elements.svg?branch=master)
+
 Dash elements are a collection of implementations of common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read their implementation rather than just using the elements.
 
 ## Testing
@@ -14,7 +16,7 @@ Tests run using [Karma](https://karma-runner.github.io/1.0/config/browsers.html)
 $ npm test
 ```
 
-This assumes that Chrome, Firefox and Safari are installed as the tests run in all of these browser (using the [Custom Elements v1 Polyfill](https://github.com/webcomponents/custom-elements)). 
+This assumes that Chrome, Firefox and Safari are installed as the tests run in all of these browser (using the [Custom Elements v1 Polyfill](https://github.com/webcomponents/custom-elements)).
 
 ### Local + Docker (or Travis)
 
@@ -25,6 +27,10 @@ $ npm run docker
 ```
 
 This builds a docker image `googlechrome/dash-elements` and runs it. The dockerized tests use Chrome only.
+
+## Staging
+
+All branches and PRs are built and uploaded on Travis CI. The staged version can be viewed at `https://dash-elements.surma.link/<commit hash>`.
 
 ## License
 
