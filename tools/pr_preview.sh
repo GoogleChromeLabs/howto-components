@@ -3,7 +3,7 @@
 set -o
 
 # Exit if this is not a pull request
-$TRAVIS_PULL_REQUEST || exit 0
+if [ -z "$TRAVIS_PULL_REQUEST" ]; then exit 0; fi
 NAME=pr_${TRAVIS_PULL_REQUEST}
 
 npm i
