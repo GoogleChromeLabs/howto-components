@@ -4,6 +4,10 @@ set -e
 
 NAME=pr_${TRAVIS_COMMIT}
 
+echo "Buiding ${NAME}"
+echo "and uploading to ${ARTIFACTS_BUCKET}"
+echo "${PATH}"
+echo $(which go)
 npm i
 npm run build
 go get github.com/surma/s3put
