@@ -13,4 +13,4 @@ deploy:
   provider: script
   script: tools/pr_preview.sh
   on:
-    condition: $TRAVIS = true
+    all_branches: true
