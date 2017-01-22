@@ -10,4 +10,4 @@ script:
   - npm run docker-test
 
 after_success:
-  - tools/pr_preview.sh
+  - "tools/pr_preview.sh"
