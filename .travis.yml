@@ -8,7 +8,7 @@ before_install:
 
 script:
   - npm run docker-test
-  - ./tools/pr_preview.sh
+  - sh tools/pr_preview.sh
 
 addons:
   artifacts:
