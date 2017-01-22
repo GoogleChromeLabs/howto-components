@@ -8,10 +8,8 @@ before_install:
 
 script:
   - npm run docker-test
-  - sh tools/pr_preview.sh
 
-addons:
-  artifacts:
-    s3_region: "eu-west-1"
-    paths:
-      - "docs"
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: tools/pr_preview.sh
