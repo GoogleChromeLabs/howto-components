@@ -1,9 +1,10 @@
 #!/bin/bash
 
+echo "a"
 set -e
-
+echo "b"
 NAME=pr_${TRAVIS_COMMIT}
-
+echo "c"
 echo "Buiding ${NAME}"
 echo "and uploading to ${ARTIFACTS_BUCKET}"
 echo "${PATH}"
