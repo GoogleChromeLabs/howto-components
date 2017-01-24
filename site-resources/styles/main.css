@@ -41,12 +41,15 @@
 }
 html, body {
   margin: 0;
-  padding: 0;
   border: 0;
+}
+body {
+  padding: 0 2em;
 }
 html {
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 400;
+  padding: 0;
 }
 code, pre {
   font-family: 'Roboto Mono', monospace;
