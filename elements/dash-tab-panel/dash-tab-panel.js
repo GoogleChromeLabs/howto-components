@@ -176,4 +176,4 @@ class TabPanel extends HTMLElement {
   }
 }
 
-window.customElements.define('tab-panel', TabPanel);
+window.customElements.define('dash-tab-panel', TabPanel);

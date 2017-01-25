@@ -70,11 +70,14 @@ function parseElement(name) {
         highlightedDemo: prism.highlight(demo, prism.languages.markup),
         sections: sectionizer(code),
       };
-      if (data.sections[0].codeText === '') {
-        data.intro = marked(data.sections.shift().commentText);
-      } else {
-        data.intro = '';
+      // The first comment is always the intro
+      const firstSection = data.sections.shift();
+      data.intro = marked(firstSection.commentText || '');
+      if (firstSection.codeText !== '') {
+        firstSection.commentText = '';
+        data.sections.unshift(firstSection);
       }
+
       return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
