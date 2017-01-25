@@ -14,6 +14,15 @@
     color: #fff;
     border-radius: 3px;
     opacity: 0.9;
+
+    /* Optionally, you can animate the tooltip. */
+    -webkit-animation: fadein 1s;
+    animation: fadein 1s;
+  }
+
+  @keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 </style>
 
