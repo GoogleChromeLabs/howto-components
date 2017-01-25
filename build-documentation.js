@@ -67,7 +67,7 @@ function parseElement(name) {
         title: name,
         source: code,
         demo: demo,
-        highlightedDemo: prism.highlight(demo, prism.languages.markup),
+        demoSections: sectionizer(demo),
         sections: sectionizer(code),
       };
       // The first comment is always the intro
@@ -104,6 +104,18 @@ function parseElement(name) {
             section.commentText = marked(section.commentText);
             section.codeText =
               prism.highlight(section.codeText, prism.languages.javascript)
+              .replace(/^\n*/, '')
+              .replace(/\s*$/, '')
+              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
+            return section;
+          });
+
+      contents.demoSections =
+        contents.demoSections
+          .map(section => {
+            section.commentText = marked(section.commentText);
+            section.codeText =
+              prism.highlight(section.codeText, prism.languages.markup)
               .replace(/^\n*/, '')
               .replace(/\s*$/, '')
               .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');

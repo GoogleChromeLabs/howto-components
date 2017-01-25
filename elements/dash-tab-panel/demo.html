@@ -1,6 +1,10 @@
 <!doctype html>
 <style>
   dash-tab-panel {
+    /**
+     * The element uses flex box to line up the tabs in the first line
+     * and wraps if necessary.
+     */
     display: flex;
     flex-wrap: wrap;
   }
@@ -9,6 +13,10 @@
     padding: 20px;
   }
   dash-tab-panel section {
+    /**
+     * Each section has a base size of 100%, forcing it to be in its
+     * own row.
+     */
     flex-basis: 100%;
     padding: 20px;
     background-color: lightgray;
@@ -20,6 +28,10 @@
     background-color: bisque;
   }
 
+  /**
+   * If JavaScript does not run, the element will stay `:unresolved`.
+   * In that case this style adds spacing between tabs and panel.
+   */
   dash-tab-panel:unresolved header {
     margin-top: 10px;
   }
