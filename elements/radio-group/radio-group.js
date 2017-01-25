@@ -1,10 +1,22 @@
-/* eslint-disable */
 /**
  * A `RadioGroup` is a set of checkable buttons, where only one button may be
  * checked at a time. The `RadioGroup` element wraps a set of `RadioButton`
  * children and manages their checked states in response to user keyboard
  * actions such as pressing arrow keys to select the next radio button, or if
  * the user clicks with a mouse.
+ * 
+ * The `RadioGroup` uses a technique called [roving tabindex](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Technique_1_Roving_tabindex)
+ * to manage which `RadioButton` child is currently focusable. In a nutshell,
+ * the currently focusable child will have a `tabindex=0`, and all other
+ * children will have a `tabindex=-1`. This ensures that the `RadioGroup` itself
+ * is only a single tab stop, and focus always lands on whichever child is
+ * currently checked. In the case where no child is checked, focus will land
+ * on the first `RadioButton` child in the `RadioGroup`.
+ * 
+ * The `RadioGroup` uses `aria-checked=true` to indicate the checked state of
+ * its `RadioButton` children. Only one child may be set to `aria-checked=true`.
+ * Note that unlike most boolean attributes in HTML, boolean ARIA attributes
+ * take a literal string value of either `"true"` or `"false"`.
  */
 
 (function() {
@@ -64,17 +76,23 @@
     /**
      * The `RadioGroup` sets its ARIA role to `radiogroup` and sets the
      * `tabindex` on its first `RadioButton` child to 0 if no other child is
-     * already set to `tabindex=0`. This makes the first `RadioButton` focusable.
-     * This assumes `RadioButton` children are already in the DOM and their
-     * definition has already been loaded. For a more robust implementation you
-     * might consider using a Mutation Observer to detect if children are
-     * present yet. The `RadioGroup` also adds listeners for keyboard and mouse
-     * events. 
+     * already checked. This makes the first `RadioButton` focusable. If a
+     * child is already checked, the `RadioGroup` calls `_setChecked` to 
+     * uncheck any other `RadioButton` children and ensure that only this first
+     * child is checked. The `RadioGroup` also adds listeners for keyboard and
+     * mouse events. 
+     * Note that any code manipulating `RadioButton` children assumes they are
+     * already in the DOM and their definitions have been loaded. For a more
+     * robust implementation you might consider using a Mutation Observer to
+     * detect if children are present yet.
      */
     connectedCallback() {
       this.setAttribute('role', 'radiogroup');
-      let hasCheckedChild = this.querySelector('[role="radio"][tabindex="0"]');
-      if (!hasCheckedChild) {
+      let firstCheckedButton = this.checkedRadioButton;
+      if (firstCheckedButton) {
+        this._uncheckAll();
+        this._checkNode(firstCheckedButton);
+      } else {
         this.querySelector('[role="radio"]').setAttribute('tabindex', 0); 
       }
       this.addEventListener('keydown', this._onKeyDown);
@@ -116,11 +134,10 @@
     }
 
     /**
-     * A getter for whichever `RadioButton` is currently checked. If no button
-     * is checked, return the first `RadioButton` child.
+     * A getter for whichever `RadioButton` is currently checked.
      */
     get checkedRadioButton() {
-      return this.querySelector('[aria-checked="true"]') || this.firstRadioButton;
+      return this.querySelector('[aria-checked="true"]');
     }
 
     /**
@@ -180,7 +197,7 @@
      * checked button.
      */
     _setCheckedToPrevButton() {
-      let checkedButton = this.checkedRadioButton;
+      let checkedButton = this.checkedRadioButton || this.firstRadioButton;
       if (checkedButton === this.firstRadioButton) {
         this._setChecked(this.lastRadioButton);
       } else {
@@ -197,7 +214,7 @@
      * checked button.
      */
     _setCheckedToNextButton() {
-      let checkedButton = this.checkedRadioButton;
+      let checkedButton = this.checkedRadioButton || this.firstRadioButton;;
       if (checkedButton === this.lastRadioButton) {
         this._setChecked(this.firstRadioButton);
       } else {
@@ -213,16 +230,40 @@
      * `tabIndex=0` and call its `focus()` method.
      */
     _setChecked(node) {
-      const radioButtons = Array.from(this.querySelectorAll('[role="radio"]'));
+      this._uncheckAll();
+      this._checkNode(node);
+      this._focusNode(node);
+    }
+
+    /**
+     * Only one `RadioButton` should be checked at any time. To ensure this,
+     * loop through all `RadioButton` children and set them to
+     * `aria-checked=false` and `tabindex=-1`.
+     */
+    _uncheckAll() {
+      const radioButtons = this.querySelectorAll('[role="radio"]');
       for (let i = 0; i < radioButtons.length; i++) {
         let btn = radioButtons[i];
         btn.setAttribute('aria-checked', 'false');
         btn.tabIndex = -1;
       }
+    }
+
+    /**
+     * Mark the passed in node as being checked by setting `aria-checked=true`,
+     * and make it focusable by setting `tabindex=0`.
+     */
+    _checkNode(node) {
       node.setAttribute('aria-checked', 'true');
       node.tabIndex = 0;
-      node.focus();
     }
+
+    /**
+     * Call `focus()` on the passed in node to direct keyboard focus to it.
+     */
+    _focusNode(node) {
+      node.focus();
+    };
 
     /**
      * If the user clicks inside of the `RadioGroup`, verify that the clicked
