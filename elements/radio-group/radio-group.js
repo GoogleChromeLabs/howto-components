@@ -32,7 +32,9 @@
      * the DOM. The surrounding RadioGroup handles dynamic changes to the ARIA
      * attributes. The RadioButton should always set a `role` of `radio`, and
      * should check to see if its `tabindex` and `aria-checked` values have been
-     * set by the user. Otherwise, it should use default values.
+     * set by the user. Otherwise, it can set these attributes to default
+     * values. Here, the tabindex and aria-checked values are set to defaults
+     * just to indcate that they will likely change in the future.
      */
     connectedCallback() {
       this.setAttribute('role', 'radio');
@@ -42,10 +44,10 @@
   }
 
   /**
-   * Define a custom element, `<radio-button>`, and associate it with the
+   * Define a custom element, `<dash-radio-button>`, and associate it with the
    * `RadioButton` class.
    */
-  window.customElements.define('radio-button', RadioButton);
+  window.customElements.define('dash-radio-button', RadioButton);
 
   /**
    * `RadioGroup` is responsible for handling user input, and updating the state
@@ -125,14 +127,14 @@
      * A getter for the first `RadioButton` child.
      */
     get firstRadioButton() {
-      return this.querySelectorAll('[role="radio"]:first-of-type');
+      return this.querySelector('[role="radio"]:first-of-type');
     }
 
     /**
      * A getter for the last `RadioButton` child.
      */
     get lastRadioButton() {
-      return this.querySelectorAll('[role="radio"]:last-of-type');
+      return this.querySelector('[role="radio"]:last-of-type');
     }
 
     /**
@@ -235,8 +237,8 @@
   }
 
   /**
-   * Define a custom element, `<radio-group>`, and associate it with the
+   * Define a custom element, `<dash-radio-group>`, and associate it with the
    * `RadioGroup` class.
    */
-  window.customElements.define('radio-group', RadioGroup);
+  window.customElements.define('dash-radio-group', RadioGroup);
 })();
