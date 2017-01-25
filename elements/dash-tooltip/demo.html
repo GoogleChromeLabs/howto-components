@@ -1,0 +1,28 @@
+<!doctype html>
+
+<style>
+  /* When the tooltip is hidden, it shouldn't be visible. */
+  dash-tooltip[aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* The tooltip is by default unstyled. */
+  dash-tooltip {
+    margin-left: 8px;
+    padding: 4px;
+    background-color: #616161;
+    color: #fff;
+    border-radius: 3px;
+    opacity: 0.9;
+  }
+</style>
+
+<div class="text">
+   <label id="lb1" for="name">Your name:</label>
+   <input id="name" aria-labelledby="lb1" aria-describedby="tp1"/>
+   <dash-tooltip id="tp1">Ideally your name is Batman</dash-tooltip>
+   <br>
+   <label id="lb2" for="noms">Favourite type of cheese: </label>
+   <input id="cheese" aria-labelledby="lb2" aria-describedby="tp2"/>
+   <dash-tooltip id="tp2">Help I am trapped inside a tooltip message</dash-tooltip>
+</div>
