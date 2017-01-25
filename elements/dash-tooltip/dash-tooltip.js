@@ -13,6 +13,9 @@ class DashTooltip extends HTMLElement {
   */
   constructor() {
     super();
+
+    this._show = this._show.bind(this);
+    this._hide = this._hide.bind(this);
   }
 
   /**
@@ -39,10 +42,10 @@ class DashTooltip extends HTMLElement {
 
     // The tooltip needs to listen to focus/blur events from the target,
     // as well as hover events over the target.
-    this._target.addEventListener('focus', this._show.bind(this));
-    this._target.addEventListener('blur', this._hide.bind(this));
-    this._target.addEventListener('mouseenter', this._show.bind(this));
-    this._target.addEventListener('mouseleave', this._hide.bind(this));
+    this._target.addEventListener('focus', this._show);
+    this._target.addEventListener('blur', this._hide);
+    this._target.addEventListener('mouseenter', this._show);
+    this._target.addEventListener('mouseleave', this._hide);
   }
 
   /**
@@ -66,14 +69,16 @@ class DashTooltip extends HTMLElement {
 
   _show() {
     // If the tooltip is hidden, show after a delay.
-    if (this.getAttribute('aria-hidden')) {
-      this.setAttribute('aria-hidden', false);
+    if (this.getAttribute('aria-hidden') === 'true') {
+      this.setAttribute('aria-hidden', 'false');
     }
   }
 
   _hide() {
     // If the tooltip is visible, hide.
-    this.setAttribute('aria-hidden', true);
+    if (this.getAttribute('aria-hidden') === 'false') {
+      this.setAttribute('aria-hidden', 'true');
+    }
   }
 }
 
