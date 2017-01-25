@@ -57,6 +57,8 @@ class DashTooltip extends HTMLElement {
 
     // Remove the existing listeners, so that they don't trigger even though
     // there's no tooltip to show.
+    this._target.removeEventListener('focus', this._show);
+    this._target.removeEventListener('blur', this._hide);
     this._target.removeEventListener('mouseenter', this._show);
     this._target.removeEventListener('mouseleave', this._hide);
     this._target = null;
