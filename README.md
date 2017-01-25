@@ -4,6 +4,18 @@
 
 Dash elements are a collection of implementations of common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read their implementation rather than just using the elements.
 
+## Demos
+
+You can run the demos locally, after you build them:
+
+```
+npm install  # if you haven't already
+npm run build
+python -m SimpleHTTPServer  # or your favourite local server
+```
+
+In your browser, navigate to `http://localhost:8000/docs` (or the port that you're running the local server from.)
+
 ## Testing
 
 Tests are written using [Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/). Each component has tests.
