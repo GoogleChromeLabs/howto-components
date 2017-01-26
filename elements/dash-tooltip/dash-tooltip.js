@@ -14,6 +14,8 @@ class DashTooltip extends HTMLElement {
   constructor() {
     super();
 
+    // These functions are used in a bunch of places, and always need to
+    // bind the correct `this` reference, so do it once.
     this._show = this._show.bind(this);
     this._hide = this._hide.bind(this);
   }
@@ -29,7 +31,7 @@ class DashTooltip extends HTMLElement {
     this.setAttribute('role', 'tooltip');
 
     // Tooltips cannot be focused themselves.
-    this.setAttribute('tabindex', -1);
+    this.tabindex = -1;
 
     // 'aria-hidden' is used to show or hide the tooltip. A tooltip should
     // check to see if its `aria-hidden` value has been set by the user.
@@ -68,7 +70,7 @@ class DashTooltip extends HTMLElement {
   }
 
   _show() {
-    // If the tooltip is hidden, show after a delay.
+    // If the tooltip is hidden, show it.
     if (this.getAttribute('aria-hidden') === 'true') {
       this.setAttribute('aria-hidden', 'false');
     }

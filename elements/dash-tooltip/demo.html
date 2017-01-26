@@ -1,11 +1,6 @@
 <!doctype html>
 
 <style>
-  /* When the tooltip is hidden, it shouldn't be visible. */
-  dash-tooltip[aria-hidden="true"] {
-    display: none !important;
-  }
-
   /* The tooltip is by default unstyled. */
   dash-tooltip {
     margin-left: 8px;
@@ -13,15 +8,23 @@
     background-color: #616161;
     color: #fff;
     border-radius: 3px;
-    opacity: 0.9;
+    opacity: 0;
 
-    /* Optionally, you can animate the tooltip. */
-    animation: fadein 1s;
+    /* Optionally, animate the tooltip. */
+    will-change: opacity;
+    transition: opacity 1s;
   }
 
-  @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  /* The tooltip is hidden. */
+  dash-tooltip[aria-hidden="true"] {
+    opacity: 0;
+  }
+
+  /* The tooltip is showing. */
+  dash-tooltip[aria-hidden="false"] {
+    /* Optionally, add a delay to showing the tooltip. */
+    transition-delay: 0.3s;
+    opacity: 1;
   }
 </style>
 
