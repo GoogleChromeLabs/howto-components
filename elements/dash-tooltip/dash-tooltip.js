@@ -4,6 +4,7 @@
  * It typically appears after a small delay and disappears when Escape is
  * pressed or on mouse out. The element that triggers the tooltip references
  * the tooltip element with aria-describedby.
+ *
  * See: https://www.w3.org/TR/wai-aria-practices-1.1/#tooltip
  */
 
@@ -21,7 +22,7 @@ class DashTooltip extends HTMLElement {
   }
 
   /**
-   * `connectedCallback` is a life cycle callback defined by CustomElements v1
+   * `connectedCallback` is a lifecycle callback defined by CustomElements v1
    * that gets called when an instance of the element gets inserted into the
    * DOM. Theoretically, `connectedCallback` could be called multiple
    * times when an element gets moved around.
@@ -51,7 +52,7 @@ class DashTooltip extends HTMLElement {
   }
 
   /**
-   * `disconnectedCallback` is a life cycle callback defined by
+   * `disconnectedCallback` is a lifecycle callback defined by
    * Custom Elements v1 that gets called when an instance of the element gets
    * removed from the DOM. Theoretically, `connectedCallback` could be called
    * multiple times when an element gets moved around.
