@@ -5,6 +5,7 @@ module.exports = function(config) {
     files: [
       'node_modules/chai/chai.js',
       'node_modules/@webcomponents/custom-elements/custom-elements.min.js',
+      'tools/testing-helper.js',
       'elements/*/*.js',
     ],
     exclude: [
