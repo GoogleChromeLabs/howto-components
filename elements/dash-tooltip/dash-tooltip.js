@@ -32,7 +32,7 @@ class DashTooltip extends HTMLElement {
     this.setAttribute('role', 'tooltip');
 
     // Tooltips cannot be focused themselves.
-    this.tabindex = -1;
+    this.tabIndex = -1;
 
     // 'aria-hidden' is used to show or hide the tooltip. A tooltip should
     // check to see if its `aria-hidden` value has been set by the user.
