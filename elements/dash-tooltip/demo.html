@@ -1,0 +1,43 @@
+<!doctype html>
+
+<style>
+  /* The tooltip is by default unstyled. */
+  dash-tooltip {
+    margin-left: 8px;
+    padding: 4px;
+    background-color: #616161;
+    color: #fff;
+    border-radius: 3px;
+    opacity: 0;
+
+    /* Optionally, animate the tooltip. */
+    transition: opacity 1s;
+
+    /* will-change tells the browser we will be animating the opacity, so
+     * it can try to optimize that */
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/will-change */
+    will-change: opacity;
+  }
+
+  /* The tooltip is hidden. */
+  dash-tooltip[aria-hidden="true"] {
+    opacity: 0;
+  }
+
+  /* The tooltip is showing. */
+  dash-tooltip[aria-hidden="false"] {
+    /* Optionally, add a delay to showing the tooltip. */
+    transition-delay: 0.3s;
+    opacity: 1;
+  }
+</style>
+
+<div class="text">
+   <label for="name">Your name:</label>
+   <input id="name" aria-describedby="tp1"/>
+   <dash-tooltip id="tp1">Ideally your name is Batman</dash-tooltip>
+   <br>
+   <label for="cheese">Favourite type of cheese: </label>
+   <input id="cheese" aria-describedby="tp2"/>
+   <dash-tooltip id="tp2">Help I am trapped inside a tooltip message</dash-tooltip>
+</div>
