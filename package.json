@@ -9,7 +9,7 @@
     "docker": "npm run docker-build && npm run docker-test",
     "test-lint": "eslint elements site-resources *.js",
     "test-unit": "karma start",
-    "test": "npm run test-lint && npm run test-unit"
+    "test": "npm run test-lint && npm run test-unit && node --harmony-async-await run-e2e-tests.js"
   },
   "author": "Google",
   "contributors": [

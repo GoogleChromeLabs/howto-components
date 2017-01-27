@@ -9,6 +9,7 @@ module.exports = function(config) {
       'elements/*/*.js',
     ],
     exclude: [
+      'elements/*/*.e2etest.js',
     ],
     preprocessors: {
     },
