@@ -36,6 +36,16 @@ async function loadTestSuites() {
     }));
 }
 
+function unsandboxChrome(browser) {
+  const isChrome = browser.getReleaseName() === 'stable'
+    && ['chrome'].includes(browser.getId());
+  if (!isChrome) return browser;
+  browser
+  .getSeleniumOptions()
+  .addArguments('--no-sandbox');
+  return browser;
+}
+
 async function main() {
   // * Start a webserver to serve the docs so we can run the e2e tests on the
   // demos.
@@ -47,6 +57,7 @@ async function main() {
       loadTestSuites(),
       ...seleniumAssistant.getLocalBrowsers()
         .filter(browserFilter)
+        .map(unsandboxChrome)
         .map(b => b.getSeleniumDriver()),
     ]);
 
