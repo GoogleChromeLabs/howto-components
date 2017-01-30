@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node build-documentation.js",
     "docker-build": "docker build -t googlechrome/dash-elements .",
-    "docker-test": "docker run googlechrome/dash-elements",
+    "docker-test": "docker run -e TRAVIS=$TRAVIS googlechrome/dash-elements",
     "docker": "npm run docker-build && npm run docker-test",
     "test-lint": "eslint elements site-resources *.js",
     "test-unit": "karma start",

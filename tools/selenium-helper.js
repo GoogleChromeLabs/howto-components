@@ -18,4 +18,11 @@ module.exports = {
     }
     return found;
   },
+  waitForElement: async (driver, elementName) => {
+    return driver.executeAsyncScript(`
+      const cb = arguments[arguments.length - 1];
+      customElements.whenDefined('${elementName}')
+        .then(_ => cb());
+    `);
+  },
 };

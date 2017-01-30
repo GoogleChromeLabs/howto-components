@@ -1,23 +1,29 @@
 const helper = require('../../tools/selenium-helper.js');
+const expect = require('chai').expect;
 const Key = require('selenium-webdriver').Key;
 
-module.exports = {
-  'should focus the next element on [arrow right]': async function(driver) {
+describe('dash-tab-panel', function() {
+  beforeEach(function() {
+    return this.driver.get(`${this.address}/dash-tab-panel_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'dash-tab-panel'));
+  });
+
+  it('should focus the next element on [arrow right]', async function() {
     const found =
       await helper.pressKeyUntil(
-        driver,
+        this.driver,
         Key.TAB,
         `return document.activeElement.getAttribute('aria-role') === 'tab';`
       );
     if (!found)
       return 'Could not find header element by tabbing';
 
-    await driver.executeScript(`window.firstTab = document.activeElement;`);
-    await driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-    const rightFocus = await driver.executeScript(`
+    await this.driver
+      .executeScript(`window.firstTab = document.activeElement;`);
+    await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
+    const rightFocus = await this.driver.executeScript(`
       return window.firstTab.nextElementSibling === document.activeElement;
     `);
-    if (!rightFocus)
-      return 'Sibling of first tab wasn’t focused after pressing [arrow-right]';
-  },
-};
+    expect(rightFocus).to.equal(true);
+  });
+});

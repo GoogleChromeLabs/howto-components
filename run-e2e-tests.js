@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('mz/fs');
 const express = require('express');
 const seleniumAssistant = require('selenium-assistant');
+const Mocha = require('mocha');
 
 function browserFilter(browser) {
   return browser.getReleaseName() === 'stable'
@@ -17,7 +18,8 @@ function startServer() {
   });
 }
 
-async function loadTestSuites() {
+async function buildMocha() {
+  const mocha = new Mocha();
   const elements = await fs.readdir('elements');
   const filteredElements = await Promise.all(
     elements.map(async element => {
@@ -28,12 +30,13 @@ async function loadTestSuites() {
         return '';
     })
   );
-  return filteredElements
+  filteredElements
     .filter(name => !!name)
-    .map(name => ({
-      name,
-      suite: require(`./elements/${name}/${name}.e2etest`),
-    }));
+    .forEach(name =>
+      mocha.addFile(`./elements/${name}/${name}.e2etest`));
+  mocha.suite.timeout(60000);
+  return new Promise(resolve => mocha.loadFiles(resolve))
+    .then(_ => mocha);
 }
 
 function unsandboxChrome(browser) {
@@ -51,14 +54,17 @@ async function main() {
   // demos.
   // * require() all test suites.
   // * Open all stable browsers and get their webdriver.
-  const [server, testSuites, ...drivers] =
+  const [server, ...drivers] =
     await Promise.all([
       startServer(),
-      loadTestSuites(),
       ...seleniumAssistant.getLocalBrowsers()
         .filter(browserFilter)
         .map(unsandboxChrome)
-        .map(b => b.getSeleniumDriver()),
+        .map(b => {
+          const driver = b.getSeleniumDriver();
+          driver.manage().timeouts().setScriptTimeout(60000);
+          return driver;
+        }),
     ]);
 
   // We let the OS choose the port, so we assemble the URL here
@@ -66,10 +72,7 @@ async function main() {
 
   let err = null;
   try {
-    const test = await runTests(address, testSuites, drivers);
-    if (test && test.error)
-      err = `Error: "${test.testSuite.name} ${test.name}"` +
-        ` in ???: ${test.error}`;
+    err = await runTests(address, drivers);
   } catch (e) {
     err = e.stack;
   }
@@ -83,59 +86,35 @@ async function main() {
   return err;
 }
 
-async function runTests(address, testSuites, drivers) {
-  for (let testSuite of testSuites) {
-    console.log(`Running test suite for ${testSuite.name}...`);
-    console.log(`Navigate all browsers to the demo page...`);
-    await Promise.all(
-      drivers.map(
-        driver => driver.get(`${address}/${testSuite.name}_demo.html`)
-      )
+function runMocha(mocha) {
+  return new Promise((resolve, reject) =>
+    mocha.run(code =>
+      code === 0?resolve():reject()
+  ));
+}
+
+async function runTests(address, drivers) {
+  return drivers
+    .reduce(
+      async (chain, driver) => {
+        await chain;
+        const mocha = await buildMocha();
+        mocha.suite.suites.forEach(s => {
+          s.ctx.driver = driver;
+          s.ctx.address = address;
+        });
+        return await runMocha(mocha).then(_ => {});
+      },
+      Promise.resolve()
     );
-    console.log('Navigation done.');
-    for (let test of Object.entries(testSuite.suite)) {
-      console.log(`Running test "${testSuite.name} ${test[0]}"...`);
-      const results = await Promise.all(
-        drivers.map(async driver => {
-          const error = await test[1](driver);
-          return {driver, testSuite, name: test[0], error};
-        })
-      );
-      const failedTest = results.find(r => !!r.error);
-      if (failedTest) {
-        return failedTest;
-      } else {
-        console.log(`Done with "${testSuite.name} ${test[0]}"`);
-      }
-    }
-  }
 }
 
 main()
   .then(err => {
-    if (err) {
-      console.log(err);
-      process.exit(1);
-    }
+    if (err) process.exit(1);
     console.log('e2e tests done.');
   })
   .catch(err => {
     console.error(err.stack);
     process.exit(1);
   });
-
-//   return Promise.all([
-//     server,
-//     ...browsers.map(async browser => {
-//         await browser.get(address);
-//         const header = await browser.findElement(By.css('h1'));
-//         const text = await header.getText();
-//         console.log(`${browser._id}: ${text}`);
-//         return browser;
-//       }),
-//   ]);
-// })
-// .then(([server, ...browsers]) => Promise.all([
-//   server.close(),
-//   browsers.map(browser => seleniumAssistant.killWebDriver(browser)),
-// ]))
