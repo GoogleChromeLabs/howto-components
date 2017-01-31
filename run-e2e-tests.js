@@ -44,16 +44,16 @@ function unsandboxChrome(browser) {
     && ['chrome'].includes(browser.getId());
   if (!isChrome) return browser;
   browser
-  .getSeleniumOptions()
-  .addArguments('--no-sandbox');
+    .getSeleniumOptions()
+    .addArguments('--no-sandbox');
   return browser;
 }
 
 async function main() {
-  // * Start a webserver to serve the docs so we can run the e2e tests on the
+  // - Start a webserver to serve the docs so we can run the e2e tests on the
   // demos.
-  // * require() all test suites.
-  // * Open all stable browsers and get their webdriver.
+  // - require() all test suites.
+  // - Open all stable browsers and get their webdriver.
   const [server, ...drivers] =
     await Promise.all([
       startServer(),
