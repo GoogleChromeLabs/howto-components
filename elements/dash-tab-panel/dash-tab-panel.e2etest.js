@@ -15,8 +15,7 @@ describe('dash-tab-panel', function() {
         Key.TAB,
         `return document.activeElement.getAttribute('aria-role') === 'tab';`
       );
-    if (!found)
-      return 'Could not find header element by tabbing';
+    expect(found).to.equal(true);
 
     await this.driver
       .executeScript(`window.firstTab = document.activeElement;`);
