@@ -2,7 +2,8 @@ module.exports = {
   /**
    * `pressKeyUntil` sends a key presses to the page until the script
    * evaluates to true. A maximum of `maxPresses` key presses will be sent.
-   * @returns `true` if the condition was met. `false` otherwise.
+   * @returns a promise that resolves to `true` if the condition was met.
+   * `false` otherwise.
    */
   pressKeyUntil: async (driver, key, script, maxPresses = 100) => {
     // Tab through the page until the focused element matches selector.
@@ -18,6 +19,11 @@ module.exports = {
     }
     return found;
   },
+  /**
+   * `waitForElement` waits for the browser to load the definition of the custom
+   * element with the name `elementName`.
+   * @returns a promise that resolves when the element has been defined.
+   */
   waitForElement: async (driver, elementName) => {
     return driver.executeAsyncScript(`
       const cb = arguments[arguments.length - 1];
