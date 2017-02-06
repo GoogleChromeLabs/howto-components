@@ -21,7 +21,8 @@ describe('dash-tab-panel', function() {
       .executeScript(`window.firstTab = document.activeElement;`);
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     const rightFocus = await this.driver.executeScript(`
-      return window.firstTab.nextElementSibling === document.activeElement;
+      return window.firstTab !== document.activeElement &&
+        !!document.activeElement.getAttribute('aria-role')
     `);
     expect(rightFocus).to.equal(true);
   });

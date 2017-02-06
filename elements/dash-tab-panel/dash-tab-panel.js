@@ -63,7 +63,7 @@ class TabPanel extends HTMLElement {
 
     // Next, we switch to the selected tab. `selectTab` takes care of marking
     // all other tabs as deselected and hiding all other panels.
-    this.selectTab(selectedTab);
+    this._selectTab(selectedTab);
   }
 
   /**
@@ -89,7 +89,7 @@ class TabPanel extends HTMLElement {
    * `selectTab` marks the given tab as selected.
    * Additionally, it unhides the panel corresponding to the given tab.
    */
-  selectTab(newTab) {
+  _selectTab(newTab) {
     // Deselect all tabs and hide all panels.
     this.reset();
 
@@ -158,7 +158,7 @@ class TabPanel extends HTMLElement {
         return;
     }
     // Select the new tab, that has been determined in the switch-case.
-    this.selectTab(newTab);
+    this._selectTab(newTab);
     // The browser might have some native functionality bound to the arrow
     // keys. Prevent the browser from taking any actions.
     event.preventDefault();
@@ -172,7 +172,7 @@ class TabPanel extends HTMLElement {
     // it was a click inside the a panel or on empty space. Nothing to do.
     if (!event.target.getAttribute('aria-role', 'tab')) return;
     // If it was on a tab element, though, select that tab.
-    this.selectTab(event.target);
+    this._selectTab(event.target);
   }
 }
 

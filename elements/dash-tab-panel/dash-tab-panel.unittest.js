@@ -21,40 +21,36 @@ describe('dash-tab-panel', function() {
     this.panels = Array.from(
       this.container.querySelectorAll('[aria-role="tabpanel"]')
     );
+    return dashElements.waitForElement('dash-tab-panel');
   });
 
-  it('should only have one visible panel initially',
-    dashElements.elementTest('dash-tab-panel', function() {
-      expect(this.panels.filter(p => !p.classList.contains('hidden')))
-        .to.have.lengthOf(1);
-    })
-  );
+  it('should only have one visible panel initially', function() {
+    expect(this.panels.filter(panel => !panel.classList.contains('hidden')))
+      .to.have.lengthOf(1);
+  });
 
-  it('should have one selected tab initially',
-    dashElements.elementTest('dash-tab-panel', function() {
-      expect(this.tabs.filter(p => p.classList.contains('selected')))
-        .to.have.lengthOf(1);
-    })
-  );
+  it('should have one selected tab initially', function() {
+    expect(this.tabs.filter(panel => panel.classList.contains('selected')))
+      .to.have.lengthOf(1);
+  });
 
-  it('should switch visibility when calling `selectTab()`',
-    dashElements.elementTest('dash-tab-panel', function() {
-      const selectedTab = this.tabs.find(t => t.classList.contains('selected'));
-      const selectedPanel =
-        this.panels.find(p =>
-          p.id === selectedTab.getAttribute('aria-controls'));
-      const otherTab = this.tabs.find(p => p !== selectedTab);
-      const otherPanel =
-        this.panels.find(p =>
-          p.id === otherTab.getAttribute('aria-controls'));
+  it('should switch visibility when calling `_selectTab()`', function() {
+    const selectedTab =
+      this.tabs.find(tab => tab.classList.contains('selected'));
+    const selectedPanel =
+      this.panels.find(panel =>
+        panel.id === selectedTab.getAttribute('aria-controls'));
+    const otherTab = this.tabs.find(tab => tab !== selectedTab);
+    const otherPanel =
+      this.panels.find(panel =>
+        panel.id === otherTab.getAttribute('aria-controls'));
 
-      expect(otherTab.classList.contains('selected')).to.equal(false);
-      expect(otherPanel.classList.contains('hidden')).to.equal(true);
-      this.tabpanel.selectTab(otherTab);
-      expect(otherTab.classList.contains('selected')).to.equal(true);
-      expect(otherPanel.classList.contains('hidden')).to.equal(false);
-      expect(selectedTab.classList.contains('selected')).to.equal(false);
-      expect(selectedPanel.classList.contains('hidden')).to.equal(true);
-    })
-  );
+    expect(otherTab.classList.contains('selected')).to.equal(false);
+    expect(otherPanel.classList.contains('hidden')).to.equal(true);
+    this.tabpanel._selectTab(otherTab);
+    expect(otherTab.classList.contains('selected')).to.equal(true);
+    expect(otherPanel.classList.contains('hidden')).to.equal(false);
+    expect(selectedTab.classList.contains('selected')).to.equal(false);
+    expect(selectedPanel.classList.contains('hidden')).to.equal(true);
+  });
 });

@@ -1,20 +1,12 @@
 window.dashElements = {};
 
 /**
- * `elementTest` is a wrapper for Mocha tests. The wrapper ensures that the
- * custom element has been loaded and all instances have been upgraded before
- * running the test. Additionally, wrapped functions are allowed to return
- * promises for asynchronous tests.
+ * `waitForElement` waits for the browser to load the definition of the custom
+ * element with the name `elementName`.
+ * @returns a promise that resolves when the element has been defined.
  */
-window.dashElements.elementTest = function(elementName, f) {
-  return function(done) {
-    customElements.whenDefined(elementName)
-      .then(_ => {
-        Promise.resolve(f.call(this))
-          .then(_ => done())
-          .catch(err => done(err));
-      });
-  };
+window.dashElements.waitForElement = function(elementName) {
+  return customElements.whenDefined(elementName);
 };
 
 /**

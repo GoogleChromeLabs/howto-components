@@ -4,11 +4,19 @@ const express = require('express');
 const seleniumAssistant = require('selenium-assistant');
 const Mocha = require('mocha');
 
+/**
+ * `browserFilter` is used as an argument to `Array.prototype.filter` to filter
+ * which browsers are used to run the e2e tests.
+ */
 function browserFilter(browser) {
   return browser.getReleaseName() === 'stable'
     && ['chrome'].includes(browser.getId());
 }
 
+/**
+ * Start a webserver on an OS-chosen port serving the `docs` directory.
+ * @returns A promise that resolves once the server is started.
+ */
 function startServer() {
   return new Promise(resolve => {
     const app = express();
@@ -18,9 +26,16 @@ function startServer() {
   });
 }
 
+/**
+ * `buildMocha` builds a new instance of the Mocha test runner that has sourced
+ * all the e2e test files.
+ * @returns A promise that resolves when Mocha is ready to run.
+ */
 async function buildMocha() {
   const mocha = new Mocha();
+  // Get all element names we have
   const elements = await fs.readdir('elements');
+  // Replace element name with empty string if it doesn’t have e2e tests.
   const filteredElements = await Promise.all(
     elements.map(async element => {
       const files = await fs.readdir(`elements/${element}/`);
@@ -31,9 +46,10 @@ async function buildMocha() {
     })
   );
   filteredElements
+    // Filter out empty strings from the list (empty string is false-y).
     .filter(name => !!name)
-    .forEach(name =>
-      mocha.addFile(`./elements/${name}/${name}.e2etest`));
+    // Load e2e tests into Mocha instance.
+    .forEach(name => mocha.addFile(`./elements/${name}/${name}.e2etest`));
   mocha.suite.timeout(60000);
   return new Promise(resolve => mocha.loadFiles(resolve))
     .then(_ => mocha);
@@ -45,6 +61,7 @@ function unsandboxChrome(browser) {
   if (!isChrome) return browser;
   browser
     .getSeleniumOptions()
+    // Disabling sandboxing is needed for Chrome to run in Docker (and Travis)
     .addArguments('--no-sandbox');
   return browser;
 }
@@ -67,7 +84,7 @@ async function main() {
         }),
     ]);
 
-  // We let the OS choose the port, so we assemble the URL here
+  // We let the OS choose the port, so we need to assemble the URL here.
   const address = `http://localhost:${server.address().port}`;
 
   let err = null;
@@ -94,11 +111,15 @@ function runMocha(mocha) {
 }
 
 async function runTests(address, drivers) {
+  // Walk through all our drivers and run the suite on each of them.
+  // We use `reduce()` to build a promise chain, which ensures that the tests
+  // are run sequentially.
   return drivers
     .reduce(
       async (chain, driver) => {
         await chain;
         const mocha = await buildMocha();
+        // Inject driver and server address into the test context
         mocha.suite.suites.forEach(s => {
           s.ctx.driver = driver;
           s.ctx.address = address;
@@ -110,6 +131,8 @@ async function runTests(address, drivers) {
 }
 
 main()
+  // FIXME: Awkward return value handling as node seems to be strugging with
+  // throws inside async/await currently.
   .then(err => {
     if (err) process.exit(1);
     console.log('e2e tests done.');
