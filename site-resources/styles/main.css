@@ -134,6 +134,15 @@ ul.literate > li:last-of-type > aside {
   ul.literate > li:first-of-type > aside {
     padding-top: 0em;
   }
+  ul.literate aside.empty {
+    display: none;
+  }
+  ul.literate aside.empty + code {
+    padding-top: 0;
+  }
+  ul.literate li.blockcomment {
+    border-top: 1px solid transparent;
+  }
 }
 
 .intro {
