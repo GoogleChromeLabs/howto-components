@@ -207,9 +207,9 @@ function parse(str) {
         case 'BlockComment':
           segment.text =
             segment.text
-              .replace(/^\s*\/\**\s*$/m, '')
+              .replace(/^\s*\/\**\s*/m, '')
               .replace(/^\s*\*[ \t]*/mg, '')
-              .replace(/^\s*\**\/$/m, '');
+              .replace(/\s*\**\/$/m, '');
           break;
       }
       return segment;
