@@ -4,6 +4,9 @@
     "es6": true,
     "mocha": true
   },
+  "parserOptions": {
+    "ecmaVersion": "2017"
+  },
   "extends": "google",
   "rules": {
     "arrow-parens": 0,

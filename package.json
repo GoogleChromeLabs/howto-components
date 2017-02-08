@@ -5,11 +5,11 @@
   "scripts": {
     "build": "node build-documentation.js",
     "docker-build": "docker build -t googlechrome/dash-elements .",
-    "docker-test": "docker run googlechrome/dash-elements",
+    "docker-test": "docker run -e TRAVIS=$TRAVIS googlechrome/dash-elements",
     "docker": "npm run docker-build && npm run docker-test",
     "test-lint": "eslint elements site-resources *.js",
     "test-unit": "karma start",
-    "test": "npm run test-lint && npm run test-unit"
+    "test": "npm run test-lint && npm run test-unit && node --harmony-async-await run-e2e-tests.js"
   },
   "author": "Google",
   "contributors": [
@@ -35,11 +35,14 @@
     "chai": "^3.5.0",
     "eslint": "^3.13.1",
     "eslint-config-google": "^0.7.1",
+    "express": "^4.14.0",
     "karma": "^1.4.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-firefox-launcher": "^1.0.0",
     "karma-mocha": "^1.3.0",
     "karma-safari-launcher": "^1.0.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "selenium-assistant": "^5.0.4",
+    "selenium-webdriver": "^3.0.1"
   }
 }

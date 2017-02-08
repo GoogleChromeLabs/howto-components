@@ -7,4 +7,4 @@ RUN apt-get install -y google-chrome-stable xvfb
 ENV INSIDE_DOCKER true
 ENV CHROME_BIN /usr/bin/google-chrome
 ENV DISPLAY :99.0
-CMD Xvfb $DISPLAY & npm test
+CMD Xvfb $DISPLAY & npm run build && npm test
