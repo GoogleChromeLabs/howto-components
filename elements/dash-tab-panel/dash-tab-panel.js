@@ -22,8 +22,8 @@
 class TabPanel extends HTMLElement {
 
   /**
-   * The constructor does work that needs to be executed _exactly_
-   * once.
+   * The constructor hooks up the event handlers. Since only events on the
+   * element itself are handled, this can take place in the constructor.
    */
   constructor() {
     super();
@@ -34,10 +34,8 @@ class TabPanel extends HTMLElement {
   }
 
   /**
-   * `connectedCallback` is a life cycle callback defined by CustomElements v1
-   * that gets called when an instance of the element gets inserted into the
-   * DOM. Theoretically, `connectedCallback` could be called multiple
-   * times when an element gets moved around.
+   * `connectedCallback` groups tabs and panels by reordering and makes sure
+   * exactly one tab is active.
    */
   connectedCallback() {
     // Acquire all tabs and panels inside the element

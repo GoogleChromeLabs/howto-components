@@ -22,10 +22,8 @@ class DashTooltip extends HTMLElement {
   }
 
   /**
-   * `connectedCallback` is a lifecycle callback defined by CustomElements v1
-   * that gets called when an instance of the element gets inserted into the
-   * DOM. Theoretically, `connectedCallback` could be called multiple
-   * times when an element gets moved around.
+   * `connectedCallback` gets the element that triggers the tooltip and
+   * sets up the event listeners on it.
    */
   connectedCallback() {
     // A tooltip should always set its `role` to `tooltip`
@@ -52,10 +50,8 @@ class DashTooltip extends HTMLElement {
   }
 
   /**
-   * `disconnectedCallback` is a lifecycle callback defined by
-   * Custom Elements v1 that gets called when an instance of the element gets
-   * removed from the DOM. Theoretically, `connectedCallback` could be called
-   * multiple times when an element gets moved around.
+   * `disconnectedCallback` unregisters the event listeners that were set up in
+   * `connectedCallback`.
    */
   disconnectedCallback() {
     if (!this._target)
