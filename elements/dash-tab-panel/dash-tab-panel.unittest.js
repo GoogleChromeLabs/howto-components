@@ -1,27 +1,27 @@
 const expect = chai.expect;
 
-describe('dash-tab-panel', function() {
+describe('dash-tablist', function() {
   before(dashElements.before());
   after(dashElements.after());
   beforeEach(function() {
     this.container.innerHTML = `
-      <dash-tab-panel>
-        <header aria-role="tab" aria-controls="tab1">Tab 1</header>
-        <section id="tab1" aria-role="tabpanel">Content 1</section>
-        <header aria-role="tab" aria-controls="tab2">Tab 2</header>
-        <section id="tab2" aria-role="tabpanel">Content 2</section>
-        <header aria-role="tab" aria-controls="tab3">Tab 3</header>
-        <section id="tab3" aria-role="tabpanel">Content 3</section>
-      </dash-tab-panel>
+      <dash-tablist>
+        <header role="tab" id="tab1" aria-controls="panel1">Tab 1</header>
+        <section id="panel1" role="tabpanel">Content 1</section>
+        <header role="tab" id="tab2" aria-controls="panel2">Tab 2</header>
+        <section id="panel2" role="tabpanel">Content 2</section>
+        <header role="tab" id="tab3" aria-controls="panel3">Tab 3</header>
+        <section id="panel3" role="tabpanel">Content 3</section>
+      </dash-tablist>
     `;
-    this.tabpanel = this.container.querySelector('dash-tab-panel');
+    this.tabpanel = this.container.querySelector('dash-tablist');
     this.tabs = Array.from(
-      this.container.querySelectorAll('[aria-role="tab"]')
+      this.container.querySelectorAll('[role="tab"]')
     );
     this.panels = Array.from(
-      this.container.querySelectorAll('[aria-role="tabpanel"]')
+      this.container.querySelectorAll('[role="tabpanel"]')
     );
-    return dashElements.waitForElement('dash-tab-panel');
+    return dashElements.waitForElement('dash-tablist');
   });
 
   it('should only have one visible panel initially', function() {

@@ -2,10 +2,10 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const Key = require('selenium-webdriver').Key;
 
-describe('dash-tab-panel', function() {
+describe('dash-tablist', function() {
   beforeEach(function() {
     return this.driver.get(`${this.address}/dash-tab-panel_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-tab-panel'));
+      .then(_ => helper.waitForElement(this.driver, 'dash-tablist'));
   });
 
   it('should focus the next element on [arrow right]', async function() {
@@ -13,7 +13,7 @@ describe('dash-tab-panel', function() {
       await helper.pressKeyUntil(
         this.driver,
         Key.TAB,
-        `return document.activeElement.getAttribute('aria-role') === 'tab';`
+        `return document.activeElement.getAttribute('role') === 'tab';`
       );
     expect(found).to.equal(true);
 
@@ -22,7 +22,7 @@ describe('dash-tab-panel', function() {
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     const rightFocus = await this.driver.executeScript(`
       return window.firstTab !== document.activeElement &&
-        !!document.activeElement.getAttribute('aria-role')
+        !!document.activeElement.getAttribute('role')
     `);
     expect(rightFocus).to.equal(true);
   });
