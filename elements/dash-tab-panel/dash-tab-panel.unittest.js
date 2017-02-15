@@ -24,6 +24,12 @@ describe('dash-tablist', function() {
     return dashElements.waitForElement('dash-tablist');
   });
 
+  it('should add `aria-labelledby` to panels', function() {
+    this.panels.forEach(panel => {
+      expect(panel.getAttribute('aria-labelledby')).to.have.length.above(0);
+    });
+  });
+
   it('should only have one visible panel initially', function() {
     expect(this.panels.filter(panel => !panel.classList.contains('hidden')))
       .to.have.lengthOf(1);

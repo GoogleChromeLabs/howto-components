@@ -70,6 +70,15 @@
       tabs.forEach(tab => this.appendChild(tab));
       panels.forEach(panel => this.appendChild(panel));
 
+      // Give each panel a `aria-labelledby` attribute that refers to the tab
+      // that controls it.
+      tabs.forEach(tab => {
+        const panelId = tab.getAttribute('aria-controls');
+        const panel = panels.find(panel => panel.id === panelId);
+        if (tab.id)
+          panel.setAttribute('aria-labelledby', tab.id);
+      });
+
       // The element checks if any of the tabs have been marked as selected. If
       // not, the first tab is now selected.
       const selectedTab =
@@ -96,10 +105,10 @@
 
       panels.forEach(panel => {
         panel.classList.add('hidden');
-        // The element applies `aria-hidden=true` to make sure the element is
-        // hidden from the accessibility tree. The `.hidden` class might apply
-        // `display:none`, but this way the element works when other hiding
-        // mechanism are used.
+        // The `.hidden` class might apply `display: none`, which would remove
+        // the element from the accessibility tree anyway, but this way the
+        // element works when other hiding mechanisms (like animations) are
+        // used.
         panel.setAttribute('aria-hidden', 'true');
       });
     }
