@@ -4,7 +4,7 @@
  * _all_ corresponding tabs are always visible. To switch from one panel
  * to another, the corresponding tab has to be selected.
  *
- * Invisible panels are hidden with `display: none` and `aria-hidden`.
+ * Invisible panels are have the `aria-hidden` attribute.
  * By either clicking or by using the arrow keys the user changes the
  * selection.
  *
@@ -29,8 +29,8 @@
    *
    * Children of the `TabList` with `role=tab` are considered tabs. The
    * associated panel that they control is specified by using that panel’s ID
-   * for the `aria-controls` attribute. The selected tab has the `.selected`
-   * class.
+   * for the `aria-controls` attribute. The selected tab has the `aria-selected`
+   * attribute.
    *
    * Children of the `TabList` with `role=tabpanel` attribute are panels.
    */
@@ -102,17 +102,11 @@
       const panels = Array.from(this.querySelectorAll('[role=tabpanel]'));
 
       tabs.forEach(tab => {
-        tab.classList.remove('selected');
         tab.tabIndex = -1;
         tab.setAttribute('aria-selected', 'false');
       });
 
       panels.forEach(panel => {
-        panel.classList.add('hidden');
-        // The `.hidden` class might apply `display: none`, which would remove
-        // the element from the accessibility tree anyway, but this way the
-        // element works when other hiding mechanisms (like animations) are
-        // used.
         panel.setAttribute('aria-hidden', 'true');
       });
     }
@@ -142,10 +136,8 @@
       if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
 
       // Unhide the panel and mark the tab as active.
-      newPanel.classList.remove('hidden');
       newPanel.setAttribute('aria-hidden', 'false');
 
-      newTab.classList.add('selected');
       newTab.setAttribute('aria-selected', 'true');
       newTab.tabIndex = 0;
       newTab.focus();
@@ -179,7 +171,8 @@
           // selected element and subtracts one to get the index of the previous
           // element.
           newIdx =
-            tabs.findIndex(tab => tab.classList.contains('selected')) - 1;
+            tabs.findIndex(tab =>
+              tab.getAttribute('aria-selected') === 'true') - 1;
           // We add `tabs.length` to make sure the index is a positive number
           // and get the modulus to wrap around if necessary.
           newTab = tabs[(newIdx + tabs.length) % tabs.length];
@@ -189,7 +182,8 @@
         case KEYCODE.RIGHT:
         case KEYCODE.DOWN:
           newIdx =
-            tabs.findIndex(tab => tab.classList.contains('selected')) + 1;
+            tabs.findIndex(tab =>
+              tab.getAttribute('aria-selected') === 'true') + 1;
           newTab = tabs[(newIdx + tabs.length) % tabs.length];
           break;
 

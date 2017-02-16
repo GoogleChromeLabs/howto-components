@@ -31,18 +31,20 @@ describe('dash-tablist', function() {
   });
 
   it('should only have one visible panel initially', function() {
-    expect(this.panels.filter(panel => !panel.classList.contains('hidden')))
-      .to.have.lengthOf(1);
+    expect(
+      this.panels.filter(panel => panel.getAttribute('aria-hidden') !== 'true')
+    ).to.have.lengthOf(1);
   });
 
   it('should have one selected tab initially', function() {
-    expect(this.tabs.filter(panel => panel.classList.contains('selected')))
-      .to.have.lengthOf(1);
+    expect(
+      this.tabs.filter(panel => panel.getAttribute('aria-selected') === 'true')
+    ).to.have.lengthOf(1);
   });
 
   it('should switch visibility when calling `_selectTab()`', function() {
     const selectedTab =
-      this.tabs.find(tab => tab.classList.contains('selected'));
+      this.tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
     const selectedPanel =
       this.panels.find(panel =>
         panel.id === selectedTab.getAttribute('aria-controls'));
@@ -51,12 +53,12 @@ describe('dash-tablist', function() {
       this.panels.find(panel =>
         panel.id === otherTab.getAttribute('aria-controls'));
 
-    expect(otherTab.classList.contains('selected')).to.equal(false);
-    expect(otherPanel.classList.contains('hidden')).to.equal(true);
+    expect(otherTab.getAttribute('aria-selected')).to.equal('false');
+    expect(otherPanel.getAttribute('aria-hidden')).to.equal('true');
     this.tabpanel._selectTab(otherTab);
-    expect(otherTab.classList.contains('selected')).to.equal(true);
-    expect(otherPanel.classList.contains('hidden')).to.equal(false);
-    expect(selectedTab.classList.contains('selected')).to.equal(false);
-    expect(selectedPanel.classList.contains('hidden')).to.equal(true);
+    expect(otherTab.getAttribute('aria-selected')).to.equal('true');
+    expect(otherPanel.getAttribute('aria-hidden')).to.equal('false');
+    expect(selectedTab.getAttribute('aria-selected')).to.equal('false');
+    expect(selectedPanel.getAttribute('aria-hidden')).to.equal('true');
   });
 });
