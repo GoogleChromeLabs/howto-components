@@ -42,10 +42,6 @@
      */
     constructor() {
       super();
-      // The element needs to do some manual input event handling to allow
-      // switching with arrow keys and Home/End.
-      this.addEventListener('keydown', this._onKeyDown);
-      this.addEventListener('click', this._onClick);
     }
 
     /**
@@ -53,12 +49,17 @@
      * exactly one tab is active.
      */
     connectedCallback() {
+      // The element needs to do some manual input event handling to allow
+      // switching with arrow keys and Home/End.
+      this.addEventListener('keydown', this._onKeyDown);
+      this.addEventListener('click', this._onClick);
+
       this.setAttribute('role', 'tablist');
       // Acquire all tabs and panels inside the element
       const tabs = Array.from(this.querySelectorAll('[role=tab]'));
       const panels = Array.from(this.querySelectorAll('[role=tabpanel]'));
       // If there are no tabs, there is no way to switch between panels. Abort.
-      if (tabs.length === 0) return;
+      if (!tabs.length) return;
 
       // For progressive enhancement, the markup should alternate between tabs
       // and panels. If JavaScript is disabled, all panels are
@@ -77,6 +78,9 @@
         const panel = panels.find(panel => panel.id === panelId);
         if (tab.id)
           panel.setAttribute('aria-labelledby', tab.id);
+        else
+          console.warn(`The tab that controls panel #${panelId} has no id, ` +
+            `but needs one for ARIA.`);
       });
 
       // The element checks if any of the tabs have been marked as selected. If
@@ -114,6 +118,15 @@
     }
 
     /**
+     * `disconnectedCallback` removes the event listeners that
+     * `connectedCallback` added.
+     */
+    disconnectedCallback() {
+      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('click', this._onClick);
+    }
+
+    /**
      * `selectTab` marks the given tab as selected.
      * Additionally, it unhides the panel corresponding to the given tab.
      */
@@ -148,7 +161,7 @@
       // If the keypress did not originate from a tab element itself,
       // it was a keypress inside the a panel or on empty space. Nothing to do.
       if (event.target.getAttribute('role') !== 'tab') return;
-      // TODO: Why are we skipping on alt?
+      // Don’t handle modifier shortcuts typically used by assistive devices.
       if (event.altKey) return;
 
       let newIdx;
