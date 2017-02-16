@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "node build-documentation.js",
+    "build": "node build-documentation.js && cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts/",
     "docker-build": "docker build -t googlechrome/dash-elements .",
     "docker-test": "docker run -e TRAVIS=$TRAVIS googlechrome/dash-elements",
     "docker": "npm run docker-build && npm run docker-test",

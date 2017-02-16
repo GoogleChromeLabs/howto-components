@@ -7,16 +7,28 @@
 {{=it.demo}}
 
 <script>
-  if (!document.location.search.includes('nojs')) {
-    const s = document.createElement('script');
-    s.src = '{{=it.title}}.js';
-    document.head.appendChild(s);
-    customElements.whenDefined('{{=it.title}}').then(_ => {
-      sendSize();
+  function loadScript(src) {
+    return new Promise(resolve => {
+      const s = document.createElement('script');
+      s.onload = resolve;
+      s.src = src;
+      document.head.appendChild(s);
     });
   }
+  if (!document.location.search.includes('nojs')) {
+    const whenScriptsLoaded = [
+      'scripts/custom-elements.min.js',
+      '{{=it.title}}.js',
+    ].reduce((chain, src) =>
+      chain.then(_ => loadScript(src)),
+      Promise.resolve()
+    );
+    whenScriptsLoaded
+      .then(_ => customElements.whenDefined('{{=it.title}}'))
+      .then(_ => sendSize());
+  }
   function sendSize() {
-    window.parent.postMessage(document.scrollingElement.scrollHeight, '*');
+    window.parent.postMessage(document.documentElement.getBoundingClientRect().height, '*');
   }
   window.addEventListener('resize', sendSize);
   window.addEventListener('message', sendSize);
