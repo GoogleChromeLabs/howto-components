@@ -1,6 +1,6 @@
 <!doctype html>
 <style>
-  dash-tablist {
+  dash-tabs {
     /**
      * The element uses flex box to line up the tabs in the first line
      * and wraps if necessary.
@@ -8,40 +8,40 @@
     display: flex;
     flex-wrap: wrap;
   }
-  dash-tablist header {
+  dash-tab {
     border: 1px solid black;
     padding: 20px;
   }
-  dash-tablist section {
+  dash-tabpanel {
     /**
-     * Each section has a base size of 100%, forcing it to be in its
+     * Each panel has a base size of 100%, forcing it to be in its
      * own row.
      */
     flex-basis: 100%;
     padding: 20px;
     background-color: lightgray;
   }
-  [role="tabpanel"][aria-hidden="true"] {
+  dash-tabpanel[aria-hidden="true"] {
     display: none;
   }
-  [role="tab"][aria-selected="true"] {
+  dash-tab[aria-selected="true"] {
     background-color: bisque;
   }
 
   /**
    * If JavaScript does not run, the element will stay `:unresolved`.
-   * In that case this style adds spacing between tabs and panel.
+   * In that case this style adds spacing between tabs and previous panel.
    */
-  dash-tablist:unresolved header {
+  dash-tabs:unresolved dash-tab:unresolved {
     margin-top: 10px;
   }
 </style>
 
-<dash-tablist>
-  <header role="tab" id="tab1" aria-controls="panel1">Tab 1</header>
-  <section id="panel1" role="tabpanel">Content 1</section>
-  <header role="tab" id="tab2" aria-controls="panel2">Tab 2</header>
-  <section id="panel2" role="tabpanel">Content 2</section>
-  <header role="tab" id="tab3" aria-controls="panel3">Tab 3</header>
-  <section id="panel3" role="tabpanel">Content 3</section>
-</dash-tablist>
+<dash-tabs>
+  <dash-tab role="heading" id="tab1" aria-controls="panel1">Tab 1</dash-tab>
+  <dash-tabpanel id="panel1">Content 1</dash-tabpanel>
+  <dash-tab role="heading" id="tab2" aria-controls="panel2">Tab 2</dash-tab>
+  <dash-tabpanel id="panel2">Content 2</dash-tabpanel>
+  <dash-tab role="heading" id="tab3" aria-controls="panel3">Tab 3</dash-tab>
+  <dash-tabpanel id="panel3">Content 3</dash-tabpanel>
+</dash-tabs>

@@ -4,9 +4,8 @@
  * _all_ corresponding tabs are always visible. To switch from one panel
  * to another, the corresponding tab has to be selected.
  *
- * Invisible panels are have the `aria-hidden` attribute.
  * By either clicking or by using the arrow keys the user changes the
- * selection.
+ * selection of the active tab.
  *
  * If JavaScript is disabled, all panels are shown interleaved with the
  * respective tabs. The tabs now function as headings.
@@ -25,21 +24,16 @@
   };
 
   /**
-   * `TabList` is a container element for tabs and panels.
+   * `DashTabs` is a container element for tabs and panels.
    *
-   * Children of the `TabList` with `role=tab` are considered tabs. The
-   * associated panel that they control is specified by using that panel’s ID
-   * for the `aria-controls` attribute. The selected tab has the `aria-selected`
-   * attribute.
+   * All children of `<dash-tabs>` should be either `<dash-tab>` or
+   * `<dash-tabpanel>`. This element is stateless, meaning that no values are
+   * cached and therefore, changes during runtime work.
    *
-   * Children of the `TabList` with `role=tabpanel` attribute are panels.
+   * Because both the tabs and the panels link to each other semantically, every
+   * tab and every panel _must_ have a unique ID.
    */
-  class TabList extends HTMLElement {
-
-    /**
-     * The constructor hooks up the event handlers. Since only events on the
-     * element itself are handled, this can take place in the constructor.
-     */
+  class DashTabs extends HTMLElement {
     constructor() {
       super();
     }
@@ -64,10 +58,10 @@
       // For progressive enhancement, the markup should alternate between tabs
       // and panels. If JavaScript is disabled, all panels are
       // visible with their respective tab right above them.
-      // If JavaScript is enabled, the element reorders all children into
-      // their two groups. First all the tabs, then all the panels.
+      // If JavaScript is enabled, the element groups all children by type.
+      // First all the tabs, then all the panels.
       // Calling `appendChild` on an already inserted element _moves_ the
-      // element to the last child position.
+      // element to the last position.
       tabs.forEach(tab => this.appendChild(tab));
       panels.forEach(panel => this.appendChild(panel));
 
@@ -97,17 +91,18 @@
      * memoize the result if the DOM queries ever become a performance issue.
      * The downside of memoization is that dynamically added tabs and panels
      * will not be handled.
-     * This is a function and not getter, because a getter implies that it is
+     *
+     * This is a method and not a getter, because a getter implies that it is
      * cheap to read.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('[role=tabpanel]'));
+      return Array.from(this.querySelectorAll('dash-tabpanel'));
     }
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
     _allTabs() {
-      return Array.from(this.querySelectorAll('[role=tab]'));
+      return Array.from(this.querySelectorAll('dash-tab'));
     }
 
     /**
@@ -181,13 +176,13 @@
       // Deselect all tabs and hide all panels.
       this.reset();
 
+      // Get the panel that the `newTab` is associated with.
       const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
       if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
 
       // Unhide the panel and mark the tab as active.
       newPanel.setAttribute('aria-hidden', 'false');
-
       newTab.setAttribute('aria-selected', 'true');
       newTab.tabIndex = 0;
       newTab.focus();
@@ -197,28 +192,23 @@
      * `_onKeyDown` handles key presses inside the tab panel.
      */
     _onKeyDown(event) {
-      // The browser might have some native functionality bound to the arrow
-      // keys. Prevent the browser from taking any actions.
-      event.preventDefault();
       // If the keypress did not originate from a tab element itself,
       // it was a keypress inside the a panel or on empty space. Nothing to do.
       if (event.target.getAttribute('role') !== 'tab') return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
 
-      let newTab;
-
       // The switch-case will determine which tab should be marked as active
       // depending on the key that was pressed.
+      let newTab;
       switch (event.keyCode) {
-        // When up or left is pressed, the previous tab is selected. If the
-        // first tab is reached, the element loops around to the last tab.
+        // When up or left is pressed, the previous tab is selected.
         case KEYCODE.LEFT:
         case KEYCODE.UP:
           newTab = this._prevTab();
           break;
 
-        // Same goes for right and down, but in the other direction.
+        // When right or down is pressed, it’s the next tab.
         case KEYCODE.RIGHT:
         case KEYCODE.DOWN:
           newTab = this._nextTab();
@@ -238,6 +228,11 @@
         default:
           return;
       }
+
+      // The browser might have some native functionality bound to the arrow
+      // keys, home or end. The element calls `preventDefault` to prevent the
+      // browser from taking any actions.
+      event.preventDefault();
       // Select the new tab, that has been determined in the switch-case.
       this._selectTab(newTab);
     }
@@ -248,11 +243,51 @@
     _onClick(event) {
       // If the click was not targeted on a tab element itself,
       // it was a click inside the a panel or on empty space. Nothing to do.
-      if (!event.target.getAttribute('role', 'tab')) return;
+      if (event.target.getAttribute('role') !== 'tab') return;
       // If it was on a tab element, though, select that tab.
       this._selectTab(event.target);
     }
   }
+  window.customElements.define('dash-tabs', DashTabs);
 
-  window.customElements.define('dash-tablist', TabList);
+  /**
+   * `DashTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tab>` should
+   * always be used with `role=heading` in the markup so that the semantics
+   * remain useable when JavaScript is failing.
+   *
+   * A `<dash-tab>` declares which `<dash-tabpanel>` it belongs to by using
+   * that panel’s ID as the value for the `aria-controls` attribute.
+   */
+  class DashTab extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      // If this is executed, JavaScript is working and the element
+      // changes its role to `tab`.
+      this.setAttribute('role', 'tab');
+      if (!this.id) console.warn('All DashTabs must have an ID');
+      if (!this.getAttribute('aria-controls'))
+        console.warn(`The tab #${this.id} has no aria-controls attribute`);
+    }
+  }
+  window.customElements.define('dash-tab', DashTab);
+
+  /**
+   * `DashTabpanel` is a panel for a `<dash-tabs>` tab panel.
+   */
+  class DashTabpanel extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      this.setAttribute('role', 'panel');
+      if (!this.id) console.warn('All DashTabpanels must have an ID');
+    }
+  }
+  window.customElements.define('dash-tabpanel', DashTabpanel);
 })();
+
+
