@@ -2,10 +2,10 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe('dash-tablist', function() {
+describe('dash-tabs', function() {
   beforeEach(function() {
-    return this.driver.get(`${this.address}/dash-tab-panel_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-tablist'));
+    return this.driver.get(`${this.address}/dash-tabs_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'dash-tabs'));
   });
 
   it('should focus the next tab on [arrow right]',
