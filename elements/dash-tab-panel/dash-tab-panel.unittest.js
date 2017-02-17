@@ -42,6 +42,18 @@ describe('dash-tablist', function() {
     ).to.have.lengthOf(1);
   });
 
+  it('should know about all the tabs', function() {
+    expect(
+      this.tabpanel._allTabs()
+    ).to.have.length(this.tabs.length);
+  });
+
+  it('should know about all the panels', function() {
+    expect(
+      this.tabpanel._allPanels()
+    ).to.have.length(this.panels.length);
+  });
+
   it('should switch visibility when calling `_selectTab()`', function() {
     const selectedTab =
       this.tabs.find(tab => tab.getAttribute('aria-selected') === 'true');

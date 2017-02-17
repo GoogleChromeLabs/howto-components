@@ -56,8 +56,8 @@
 
       this.setAttribute('role', 'tablist');
       // Acquire all tabs and panels inside the element
-      const tabs = Array.from(this.querySelectorAll('[role=tab]'));
-      const panels = Array.from(this.querySelectorAll('[role=tabpanel]'));
+      const tabs = this._allTabs();
+      const panels = this._allPanels();
       // If there are no tabs, there is no way to switch between panels. Abort.
       if (!tabs.length) return;
 
@@ -74,10 +74,8 @@
       // Give each panel a `aria-labelledby` attribute that refers to the tab
       // that controls it.
       tabs.forEach(tab => {
-        const panelId = tab.getAttribute('aria-controls');
-        const panel = panels.find(panel => panel.id === panelId);
         if (tab.id)
-          panel.setAttribute('aria-labelledby', tab.id);
+          this._panelForTab(tab).setAttribute('aria-labelledby', tab.id);
         else
           console.warn(`The tab that controls panel #${panelId} has no id, ` +
             `but needs one for ARIA.`);
@@ -95,11 +93,66 @@
     }
 
     /**
+     * `_allPanels` returns all the panels in the tab panel. This function could
+     * memoize the result if the DOM queries ever become a performance issue.
+     * The downside of memoization is that dynamically added tabs and panels
+     * will not be handled.
+     * This is a function and not getter, because a getter implies that it is
+     * cheap to read.
+     */
+    _allPanels() {
+      return Array.from(this.querySelectorAll('[role=tabpanel]'));
+    }
+    /**
+     * `_allTabs` returns all the tabs in the tab panel.
+     */
+    _allTabs() {
+      return Array.from(this.querySelectorAll('[role=tab]'));
+    }
+
+    /**
+     * `_panelForTab` returns the panel that the given tab controls.
+     */
+    _panelForTab(tab) {
+      const panelId = tab.getAttribute('aria-controls');
+      return this._allPanels().find(panel => panel.id === panelId);
+    }
+
+    /**
+     * `_prevTab` gets the tab that comes before the currently selected one,
+     * wrapping around when reaching the first one.
+     */
+    _prevTab() {
+      const tabs = this._allTabs();
+      // Use `findIndex` to find the index of the currently
+      // selected element and subtracts one to get the index of the previous
+      // element.
+      let newIdx =
+        tabs.findIndex(tab =>
+          tab.getAttribute('aria-selected') === 'true') - 1;
+      // Add `tabs.length` to make sure the index is a positive number
+      // and get the modulus to wrap around if necessary.
+      return tabs[(newIdx + tabs.length) % tabs.length];
+    }
+
+    /**
+     * `_nextTab` gets the tab that comes after the currently selected one,
+     * wrapping around when reaching the last tab.
+     */
+    _nextTab() {
+      const tabs = this._allTabs();
+      let newIdx =
+        tabs.findIndex(tab =>
+          tab.getAttribute('aria-selected') === 'true') + 1;
+      return tabs[newIdx % tabs.length];
+    }
+
+    /**
      * `reset` marks all tabs as deselected and hides all the panels.
      */
     reset() {
-      const tabs = Array.from(this.querySelectorAll('[role=tab]'));
-      const panels = Array.from(this.querySelectorAll('[role=tabpanel]'));
+      const tabs = this._allTabs();
+      const panels = this._allPanels();
 
       tabs.forEach(tab => {
         tab.tabIndex = -1;
@@ -121,17 +174,14 @@
     }
 
     /**
-     * `selectTab` marks the given tab as selected.
+     * `_selectTab` marks the given tab as selected.
      * Additionally, it unhides the panel corresponding to the given tab.
      */
     _selectTab(newTab) {
       // Deselect all tabs and hide all panels.
       this.reset();
 
-      const panels = Array.from(this.querySelectorAll('[role=tabpanel]'));
-      // Get the panel that corresponds to the given tab.
-      const newPanelId = newTab.getAttribute('aria-controls');
-      const newPanel = panels.find(panel => panel.id === newPanelId);
+      const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
       if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
 
@@ -153,12 +203,10 @@
       // If the keypress did not originate from a tab element itself,
       // it was a keypress inside the a panel or on empty space. Nothing to do.
       if (event.target.getAttribute('role') !== 'tab') return;
-      // Don’t handle modifier shortcuts typically used by assistive devices.
+      // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
 
-      let newIdx;
       let newTab;
-      const tabs = Array.from(this.querySelectorAll('[role=tab]'));
 
       // The switch-case will determine which tab should be marked as active
       // depending on the key that was pressed.
@@ -167,33 +215,23 @@
         // first tab is reached, the element loops around to the last tab.
         case KEYCODE.LEFT:
         case KEYCODE.UP:
-          // The element uses `findIndex` to find the index of the currently
-          // selected element and subtracts one to get the index of the previous
-          // element.
-          newIdx =
-            tabs.findIndex(tab =>
-              tab.getAttribute('aria-selected') === 'true') - 1;
-          // We add `tabs.length` to make sure the index is a positive number
-          // and get the modulus to wrap around if necessary.
-          newTab = tabs[(newIdx + tabs.length) % tabs.length];
+          newTab = this._prevTab();
           break;
 
         // Same goes for right and down, but in the other direction.
         case KEYCODE.RIGHT:
         case KEYCODE.DOWN:
-          newIdx =
-            tabs.findIndex(tab =>
-              tab.getAttribute('aria-selected') === 'true') + 1;
-          newTab = tabs[(newIdx + tabs.length) % tabs.length];
+          newTab = this._nextTab();
           break;
 
         // The home button always selects the first tab.
         case KEYCODE.HOME:
-          newTab = tabs[0];
+          newTab = this._allTabs()[0];
           break;
 
         // And end always selects the last one.
         case KEYCODE.END:
+          const tabs = this._allTabs();
           newTab = tabs[tabs.length - 1];
           break;
         // Any other key press is ignored and passed back to the browser.
