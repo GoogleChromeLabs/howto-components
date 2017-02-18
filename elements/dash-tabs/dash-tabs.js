@@ -12,7 +12,7 @@
  */
 (function() {
   /**
-   * Define keycodes to help with handling keyboard events.
+   * Define key codes to help with handling keyboard events.
    */
   const KEYCODE = {
     DOWN: 40,
@@ -29,9 +29,6 @@
    * All children of `<dash-tabs>` should be either `<dash-tab>` or
    * `<dash-tabpanel>`. This element is stateless, meaning that no values are
    * cached and therefore, changes during runtime work.
-   *
-   * Because both the tabs and the panels link to each other semantically, every
-   * tab and every panel _must_ have a unique ID.
    */
   class DashTabs extends HTMLElement {
     constructor() {
@@ -49,41 +46,51 @@
       this.addEventListener('click', this._onClick);
 
       this.setAttribute('role', 'tablist');
-      // Acquire all tabs and panels inside the element
-      const tabs = this._allTabs();
-      const panels = this._allPanels();
-      // If there are no tabs, there is no way to switch between panels. Abort.
-      if (!tabs.length) return;
 
-      // For progressive enhancement, the markup should alternate between tabs
-      // and panels. If JavaScript is disabled, all panels are
-      // visible with their respective tab right above them.
-      // If JavaScript is enabled, the element groups all children by type.
-      // First all the tabs, then all the panels.
-      // Calling `appendChild` on an already inserted element _moves_ the
-      // element to the last position.
-      tabs.forEach(tab => this.appendChild(tab));
-      panels.forEach(panel => this.appendChild(panel));
+      // Before the elements starts booting, it waits for
+      // the both `<dash-tab>` and `<dash-tabpanel>` to load.
+      Promise.all([
+        customElements.whenDefined('dash-tab'),
+        customElements.whenDefined('dash-tabpanel'),
+      ]).then(_ => {
+        // Acquire all tabs and panels inside the element
+        const tabs = this._allTabs();
+        const panels = this._allPanels();
+        // If there are no tabs, there is no way to switch between panels.
+        // Abort.
+        if (tabs.length === 0) return;
 
-      // Give each panel a `aria-labelledby` attribute that refers to the tab
-      // that controls it.
-      tabs.forEach(tab => {
-        if (tab.id)
-          this._panelForTab(tab).setAttribute('aria-labelledby', tab.id);
-        else
-          console.warn(`The tab that controls panel #${panelId} has no id, ` +
-            `but needs one for ARIA.`);
+        // For progressive enhancement, the markup should alternate between tabs
+        // and panels. If JavaScript is disabled, all panels are
+        // visible with their respective tab right above them.
+        // If JavaScript is enabled, the element groups all children by type.
+        // First all the tabs, then all the panels.
+        // Calling `appendChild` on an already inserted element _moves_ the
+        // element to the last position.
+        tabs.forEach(tab => this.appendChild(tab));
+        panels.forEach(panel => this.appendChild(panel));
+
+        // Give each panel a `aria-labelledby` attribute that refers to the tab
+        // that controls it.
+        tabs.forEach(tab => {
+          const panel = this._panelForTab(tab);
+          if(panel)
+            panel.setAttribute('aria-labelledby', tab.id);
+          else
+            console.warn(`Tab #${tab.id} does not have a valid panel` +
+            `associated with it.`);
+        });
+
+        // The element checks if any of the tabs have been marked as selected.
+        // If not, the first tab is now selected.
+        const selectedTab =
+          tabs.find(tab =>
+            tab.getAttribute('aria-selected') === 'true') || tabs[0];
+
+        // Next, we switch to the selected tab. `selectTab` takes care of
+        // marking all other tabs as deselected and hiding all other panels.
+        this._selectTab(selectedTab);
       });
-
-      // The element checks if any of the tabs have been marked as selected. If
-      // not, the first tab is now selected.
-      const selectedTab =
-        tabs.find(tab =>
-          tab.getAttribute('aria-selected') === 'true') || tabs[0];
-
-      // Next, we switch to the selected tab. `selectTab` takes care of marking
-      // all other tabs as deselected and hiding all other panels.
-      this._selectTab(selectedTab);
     }
 
     /**
@@ -110,11 +117,11 @@
      */
     _panelForTab(tab) {
       const panelId = tab.getAttribute('aria-controls');
-      return this._allPanels().find(panel => panel.id === panelId);
+      return this.querySelector(`#${panelId}`);
     }
 
     /**
-     * `_prevTab` gets the tab that comes before the currently selected one,
+     * `_prevTab` returns the tab that comes before the currently selected one,
      * wrapping around when reaching the first one.
      */
     _prevTab() {
@@ -128,6 +135,22 @@
       // Add `tabs.length` to make sure the index is a positive number
       // and get the modulus to wrap around if necessary.
       return tabs[(newIdx + tabs.length) % tabs.length];
+    }
+
+    /**
+     * `_firstTab` returns the first tab.
+     */
+    _firstTab() {
+      const tabs = this._allTabs();
+      return tabs[0];
+    }
+
+    /**
+     * `_lastTab` returns the last tab.
+     */
+    _lastTab() {
+      const tabs = this._allTabs();
+      return tabs[tabs.length - 1];
     }
 
     /**
@@ -202,27 +225,22 @@
       // depending on the key that was pressed.
       let newTab;
       switch (event.keyCode) {
-        // When up or left is pressed, the previous tab is selected.
         case KEYCODE.LEFT:
         case KEYCODE.UP:
           newTab = this._prevTab();
           break;
 
-        // When right or down is pressed, it’s the next tab.
         case KEYCODE.RIGHT:
         case KEYCODE.DOWN:
           newTab = this._nextTab();
           break;
 
-        // The home button always selects the first tab.
         case KEYCODE.HOME:
-          newTab = this._allTabs()[0];
+          newTab = this._firstTab();
           break;
 
-        // And end always selects the last one.
         case KEYCODE.END:
-          const tabs = this._allTabs();
-          newTab = tabs[tabs.length - 1];
+          newTab = this._lastTab();
           break;
         // Any other key press is ignored and passed back to the browser.
         default:
@@ -250,6 +268,9 @@
   }
   window.customElements.define('dash-tabs', DashTabs);
 
+  // `dashTabCounter` counts the number of `<dash-tab>` instances created. The
+  // number is used to generated new, unique IDs.
+  let dashTabCounter = 0;
   /**
    * `DashTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tab>` should
    * always be used with `role=heading` in the markup so that the semantics
@@ -257,6 +278,9 @@
    *
    * A `<dash-tab>` declares which `<dash-tabpanel>` it belongs to by using
    * that panel’s ID as the value for the `aria-controls` attribute.
+   *
+   * A `<dash-tab>` will automatically generate a unique ID if none
+   * is specified.
    */
   class DashTab extends HTMLElement {
     constructor() {
@@ -267,7 +291,8 @@
       // If this is executed, JavaScript is working and the element
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
-      if (!this.id) console.warn('All DashTabs must have an ID');
+      if (!this.id)
+        this.id = `dash-tab-generated-${dashTabCounter++}`;
       if (!this.getAttribute('aria-controls'))
         console.warn(`The tab #${this.id} has no aria-controls attribute`);
     }
@@ -284,7 +309,8 @@
 
     connectedCallback() {
       this.setAttribute('role', 'panel');
-      if (!this.id) console.warn('All DashTabpanels must have an ID');
+      if (!this.id)
+        console.warn(`A tabpanel without an ID will never be activated`);
     }
   }
   window.customElements.define('dash-tabpanel', DashTabpanel);

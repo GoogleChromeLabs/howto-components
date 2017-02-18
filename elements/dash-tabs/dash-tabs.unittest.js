@@ -14,14 +14,16 @@ describe('dash-tabs', function() {
       <dash-tabpanel id="panel3">Content 3</dash-tabpanel>
     </dash-tabs>
     `;
-    this.tabpanel = this.container.querySelector('dash-tabs');
-    this.tabs = Array.from(this.container.querySelectorAll('dash-tab'));
-    this.panels = Array.from(this.container.querySelectorAll('dash-tabpanel'));
     return Promise.all([
       dashElements.waitForElement('dash-tabs'),
       dashElements.waitForElement('dash-tab'),
       dashElements.waitForElement('dash-tabpanel'),
-    ]);
+    ]).then(_ => {
+      this.tabpanel = this.container.querySelector('dash-tabs');
+      this.tabs = Array.from(this.container.querySelectorAll('dash-tab'));
+      this.panels =
+        Array.from(this.container.querySelectorAll('dash-tabpanel'));
+    });
   });
 
   it('should know about all the tabs', function() {
