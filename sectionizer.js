@@ -115,11 +115,11 @@ function parseBlockComment(ss) {
 function parseCode(ss) {
   if (ss.sneakPeek.startsWith('class ')) {
     ss.meta.objectType = 'class';
-    ss.meta.objectName = /class\s*([^\s]*)/.exec(ss.sneakPeek)[1];
+    ss.meta.objectName = /class\s*([^\s]*)/m.exec(ss.sneakPeek)[1];
     while (ss.current !== '{') ss.next();
   } else if (ss.sneakPeek.startsWith('function ')) {
     ss.meta.objectType = 'function';
-    ss.meta.objectName = /function\s*([^\s]*).+$/.exec(ss.sneakPeek)[1];
+    ss.meta.objectName = /function\s*([^\s]*).+$/m.exec(ss.sneakPeek)[1];
     while (ss.current !== '{') ss.next();
   }
 
