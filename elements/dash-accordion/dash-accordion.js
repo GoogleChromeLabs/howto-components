@@ -7,6 +7,11 @@
  * selection of the active heading. With enter or space the active headings
  * can be toggled between expanded and collapsed state.
  *
+ * The panels have the classes `expanded` or `collapsed` assigned to them
+ * depending on their state. However, these classes are only applied when the
+ * the animation is done. For most purposes, the `aria-expanded` attribute of
+ * the associated heading should be used as an indicator of the current state.
+ *
  * If JavaScript is disabled, all panels are shown interleaved with the
  * respective headings.
  */
@@ -179,6 +184,8 @@
      * the panel that is associated with the heading the even originated from.
      */
     _onAccordionExpand(event) {
+      // If the element is already animating, don’t do anything.
+      if (this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
       heading.setAttribute('aria-expanded', 'true');
@@ -190,6 +197,8 @@
      * the panel that is associated with the heading the even originated from.
      */
     _onAccordionCollapse(event) {
+      // If the element is already animating, don’t do anything.
+      if (this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
       heading.setAttribute('aria-expanded', 'false');
@@ -229,21 +238,135 @@
     }
 
     /**
-     * `_expandPanel` expands the given panel.
+     * `_expandPanel` expands the given panel. This function also triggers the
+     * animation.
      */
     _expandPanel(panel) {
+      // Unhide the contents from the accessibility _immediately_, even if there
+      // might be animation going on.
       panel.setAttribute('aria-hidden', 'false');
-      panel.classList.add('expanded');
       panel.classList.remove('collapsed');
+      // This `animation` class is a marker if the element is currently
+      // animating. It can be used to change styles if needed but is also
+      // used to discard additional expand/collapse commands while the animation
+      // is still ongoing.
+      this.classList.add('animating');
+
+      // Wait for next frame for the new styles to get applied.
+      requestAnimationFramePromise()
+        // Animate the panels and headings to reveal the newly activated panel.
+        .then(_ => this._animateIn(panel))
+        .then(_ => {
+          this.classList.remove('animating');
+          panel.classList.add('expanded');
+        });
     }
 
+
     /**
-     * `_collapsePanel` collapses the given panel.
+     * `_collapsePanel` collapses the given panel. The logic is the exact same
+     * as `_expandPanel`, but with the reversed animation.
      */
     _collapsePanel(panel) {
       panel.setAttribute('aria-hidden', 'true');
       panel.classList.remove('expanded');
-      panel.classList.add('collapsed');
+      this.classList.add('animating');
+
+      requestAnimationFramePromise()
+        .then(_ => this._animateOut(panel))
+        .then(_ => {
+          this.classList.remove('animating');
+          panel.classList.add('collapsed');
+        });
+    }
+
+    /**
+     * `_animateIn` determines the height of the panel and uses that value for
+     * the animation.
+     */
+    _animateIn(panel) {
+      panel.classList.add('expanded');
+      const height = panel.getBoundingClientRect().height;
+      panel.classList.remove('expanded');
+
+      return this._animate(panel, -height, 0);
+    }
+
+    /**
+     * Same as `_animateIn` but in the other direction.
+     */
+    _animateOut(panel) {
+      panel.classList.add('expanded');
+      const height = panel.getBoundingClientRect().height;
+      panel.classList.remove('expanded');
+
+      return this._animate(panel, 0, -height);
+    }
+
+    /**
+     * `_animate` animates a translation on the Y axis from one offset to
+     * another. It takes care of promoting all the elements, making sure they
+     * will be painted in the right order during animation and cleans up
+     * afterwards.
+     */
+    _animate(panel, startOffset, endOffset) {
+      // Turn the list of children into a proper array with all the helper
+      // functions defined on it.
+      const children = Array.from(this.children);
+      // Find the index of the panel that is being animated.
+      const idx = children.indexOf(panel);
+      // Only that panel and all the headings and panels _after_ the given panel
+      // need to be animated.
+      const animatedChildren = children.slice(idx);
+
+      // All following styles are only set for the duration of the animation.
+
+      // `<dash-accordion>` will be switched to `overflow: hidden`.
+      // Some children will be translated
+      // to the top of the page and might peek out behind the first heading
+      // without this attribute.
+      this.style.overflow = 'hidden';
+      // All children will be set to `position: relative` so that the accordion
+      // has full control over paint order using `z-index`.
+      children.forEach(child => {
+        child.style.position = 'relative';
+        // All children _before_ the animated ones need to be painted _over_
+        // all the animated children. Therefore, all the non-animated children
+        // get `z-index: 2`;
+        child.style.zIndex = 2;
+      });
+
+      // All the animated children get `z-index: 0` and get translated to the
+      // start position. Because this is a CSS transition we don’t need to
+      // use `will-change`.
+      animatedChildren.forEach(child => {
+        child.style.position = 'relative';
+        child.style.zIndex = 1;
+        child.style.transform = `translateY(${startOffset}px)`;
+      });
+      // Wait a frame to apply the styles.
+      return requestAnimationFramePromise()
+        .then(_ => {
+          // Set all animated children to their end position.
+          animatedChildren.forEach(child => {
+            child.style.transition = `transform 0.2s`;
+            child.style.transform = `translateY(${endOffset}px)`;
+          });
+        })
+        // Wait for the transition to finish
+        .then(_ => transitionEndPromise(panel))
+        .then(_ => {
+          // Clean up all the temporary styles
+          animatedChildren.forEach(child => {
+            child.style.transition = '';
+            child.style.transform = '';
+          });
+          children.forEach(child => {
+            child.style.position = '';
+            child.style.zIndex = '';
+          });
+          this.style.overflow = '';
+        });
     }
   }
   window.customElements.define('dash-accordion', DashAccordion);
@@ -385,6 +508,21 @@
     }
   }
   window.customElements.define('dash-accordion-panel', DashAccordionPanel);
+
+  // These functions help make animations easier.
+  // Read https://dassur.ma/things/raf-promise/ for more details.
+  function transitionEndPromise(element) {
+    return new Promise(resolve => {
+      element.addEventListener('transitionend', function f() {
+        element.removeEventListener('transitionend', f);
+        resolve();
+      });
+    });
+  }
+
+  function requestAnimationFramePromise() {
+    return new Promise(resolve => requestAnimationFrame(resolve));
+  }
 })();
 
 

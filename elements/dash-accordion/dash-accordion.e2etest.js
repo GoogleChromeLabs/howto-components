@@ -21,82 +21,82 @@ describe('dash-accordion', function() {
       await this.driver
         .executeScript(`window.firstHeading = document.activeElement;`);
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-      const focusedSomeTab = await this.driver.executeScript(`
+      const focusedSomeHeading = await this.driver.executeScript(`
         return window.firstHeading !== document.activeElement &&
           document.activeElement.getAttribute('role') === 'heading';
       `);
-      expect(focusedSomeTab).to.equal(true);
+      expect(focusedSomeHeading).to.equal(true);
     }
   );
 
-//   it('should focus the prev tab on [arrow left]',
-//     async function() {
-//       const found =
-//         await helper.pressKeyUntil(
-//           this.driver,
-//           Key.TAB,
-//           `return document.activeElement.getAttribute('role') === 'tab';`
-//         );
-//       expect(found).to.equal(true);
+  it('should focus the prev heading on [arrow left]',
+    async function() {
+      const found =
+        await helper.pressKeyUntil(
+          this.driver,
+          Key.TAB,
+          `return document.activeElement.getAttribute('role') === 'heading';`
+        );
+      expect(found).to.equal(true);
 
-//       await this.driver
-//         .executeScript(`window.firstTab = document.activeElement;`);
-//       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-//       const focusedAnotherTab = await this.driver.executeScript(`
-//         return window.firstTab !== document.activeElement &&
-//           document.activeElement.getAttribute('role') === 'tab';
-//       `);
-//       expect(focusedAnotherTab).to.equal(true);
-//     }
-//   );
+      await this.driver
+        .executeScript(`window.firstHeading = document.activeElement;`);
+      await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
+      const focusedAnotherHeading = await this.driver.executeScript(`
+        return window.firstHeading !== document.activeElement &&
+          document.activeElement.getAttribute('role') === 'heading';
+      `);
+      expect(focusedAnotherHeading).to.equal(true);
+    }
+  );
 
-//   it('should focus the last tab on [end]',
-//     async function() {
-//       const found =
-//         await helper.pressKeyUntil(
-//           this.driver,
-//           Key.TAB,
-//           `return document.activeElement.getAttribute('role') === 'tab';`
-//         );
-//       expect(found).to.equal(true);
-//       await this.driver
-//         .executeScript(`window.firstTab = document.activeElement;`);
+  it('should focus the last tab on [end]',
+    async function() {
+      const found =
+        await helper.pressKeyUntil(
+          this.driver,
+          Key.TAB,
+          `return document.activeElement.getAttribute('role') === 'heading';`
+        );
+      expect(found).to.equal(true);
+      await this.driver
+        .executeScript(`window.firstHeading = document.activeElement;`);
 
-//       await this.driver.actions().sendKeys(Key.END).perform();
-//       const focusedSomeTab = await this.driver.executeScript(`
-//         return window.firstTab !== document.activeElement &&
-//           document.activeElement.getAttribute('role') === 'tab';
-//       `);
-//       expect(focusedSomeTab).to.equal(true);
+      await this.driver.actions().sendKeys(Key.END).perform();
+      const focusedSomeHeading = await this.driver.executeScript(`
+        return window.firstHeading !== document.activeElement &&
+          document.activeElement.getAttribute('role') === 'heading';
+      `);
+      expect(focusedSomeHeading).to.equal(true);
 
-//       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-//       const nextTabWasFirstTab = await this.driver.executeScript(`
-//         return window.firstTab === document.activeElement;
-//       `);
-//       expect(nextTabWasFirstTab).to.equal(true);
-//     }
-//   );
+      await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
+      const nextHeadingWasFirstHeading = await this.driver.executeScript(`
+        return window.firstHeading === document.activeElement;
+      `);
+      expect(nextHeadingWasFirstHeading).to.equal(true);
+    }
+  );
 
-//   it('should focus the first tab on [home]',
-//     async function() {
-//       const found =
-//         await helper.pressKeyUntil(
-//           this.driver,
-//           Key.TAB,
-//           `return document.activeElement.getAttribute('role') === 'tab';`
-//         );
-//       expect(found).to.equal(true);
-//       await this.driver
-//         .executeScript(`window.firstTab = document.activeElement;`);
+  it('should focus the first tab on [home]',
+    async function() {
+      const found =
+        await helper.pressKeyUntil(
+          this.driver,
+          Key.TAB,
+          `return document.activeElement.getAttribute('role') === 'heading';`
+        );
+      expect(found).to.equal(true);
+      await this.driver
+        .executeScript(`window.firstHeading = document.activeElement;`);
 
-//       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-//       await this.driver.actions().sendKeys(Key.HOME).perform();
-//       const focusedSomeTab = await this.driver.executeScript(`
-//         return window.firstTab === document.activeElement;
-//       `);
-//       expect(focusedSomeTab).to.equal(true);
-//     }
-//   );
+      await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
+      await this.driver.actions().sendKeys(Key.HOME).perform();
+      const focusedFirstHeading = await this.driver.executeScript(`
+        return window.firstHeading === document.activeElement;
+      `);
+      expect(focusedFirstHeading).to.equal(true);
+    }
+  );
 
  it('should focus a tab on click',
     async function() {
