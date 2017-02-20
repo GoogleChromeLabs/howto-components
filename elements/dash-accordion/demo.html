@@ -1,0 +1,41 @@
+<!doctype html>
+<style>
+  dash-accordion {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  dash-accordion-heading {
+    border: 1px solid black;
+    padding: 20px;
+  }
+  dash-accordion-heading[aria-expanded="true"] {
+    background-color: bisque;
+  }
+  dash-accordion-panel {
+    padding: 20px;
+    background-color: lightgray;
+  }
+  dash-accordion-panel.collapsed {
+    display: none;
+  }
+  dash-accordion-panel.expanded {
+    display: block;
+  }
+</style>
+
+<dash-accordion>
+  <dash-accordion-heading role="heading" aria-controls="panel1">
+    Tab 1
+  </dash-accordion-heading>
+  <dash-accordion-panel id="panel1">Content 1</dash-accordion-panel>
+  <dash-accordion-heading role="heading" aria-controls="panel2">
+    Tab 2
+  </dash-accordion-heading>
+  <dash-accordion-panel id="panel2">Content 2</dash-accordion-panel>
+  <dash-accordion-heading role="heading" aria-controls="panel3">
+    Tab 3
+  </dash-accordion-heading>
+  <dash-accordion-panel id="panel3">Content 3</dash-accordion-panel>
+</dash-accordion>
