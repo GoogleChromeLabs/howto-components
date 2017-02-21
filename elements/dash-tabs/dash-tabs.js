@@ -60,6 +60,19 @@
         // Abort.
         if (tabs.length === 0) return;
 
+        // Give each panel a `aria-labelledby` attribute that refers to the tab
+        // that controls it.
+        tabs.forEach(tab => {
+          const panel = tab.nextElementSibling;
+          if(panel.tagName !== 'DASH-TABPANEL') {
+            console.error(`Tab #${tab.id} is not sibling of a <dash-tabpanel>`);
+            return;
+          }
+
+          tab.setAttribute('aria-controls', panel.id);
+          panel.setAttribute('aria-labelledby', tab.id);
+        });
+
         // For progressive enhancement, the markup should alternate between tabs
         // and panels. If JavaScript is disabled, all panels are
         // visible with their respective tab right above them.
@@ -70,16 +83,6 @@
         tabs.forEach(tab => this.appendChild(tab));
         panels.forEach(panel => this.appendChild(panel));
 
-        // Give each panel a `aria-labelledby` attribute that refers to the tab
-        // that controls it.
-        tabs.forEach(tab => {
-          const panel = this._panelForTab(tab);
-          if(panel)
-            panel.setAttribute('aria-labelledby', tab.id);
-          else
-            console.warn(`Tab #${tab.id} does not have a valid panel` +
-            `associated with it.`);
-        });
 
         // The element checks if any of the tabs have been marked as selected.
         // If not, the first tab is now selected.
@@ -293,12 +296,11 @@
       this.setAttribute('role', 'tab');
       if (!this.id)
         this.id = `dash-tab-generated-${dashTabCounter++}`;
-      if (!this.getAttribute('aria-controls'))
-        console.warn(`The tab #${this.id} has no aria-controls attribute`);
     }
   }
   window.customElements.define('dash-tab', DashTab);
 
+  let dashPanelCounter = 0;
   /**
    * `DashTabpanel` is a panel for a `<dash-tabs>` tab panel.
    */
@@ -310,7 +312,7 @@
     connectedCallback() {
       this.setAttribute('role', 'panel');
       if (!this.id)
-        console.warn(`A tabpanel without an ID will never be activated`);
+        this.id = `dash-tabpanel-generated-${dashPanelCounter++}`;
     }
   }
   window.customElements.define('dash-tabpanel', DashTabpanel);
