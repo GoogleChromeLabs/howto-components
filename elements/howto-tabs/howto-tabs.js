@@ -64,7 +64,7 @@
         // that controls it.
         tabs.forEach(tab => {
           const panel = tab.nextElementSibling;
-          if(panel.tagName !== 'HOWTO-TABS-PANEL') {
+          if(!panel || panel.tagName !== 'HOWTO-TABS-PANEL') {
             console.error(`Tab #${tab.id} is not a` +
               `sibling of a <howto-tabs-panel>`);
             return;

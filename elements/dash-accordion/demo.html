@@ -6,6 +6,12 @@
     flex-direction: column;
     align-items: stretch;
   }
+  /* Children get the `animating` class assigned if they are about to be
+  animated. The implementation relies on the `transitionend` event, so this
+  class _must_ define a transition on the `transform` property.*/
+  dash-accordion > *.animating {
+    transition: transform 0.3s ease-in-out;
+  }
   /* Headings need a background color so they are not transparent. Otherwise
   the content will shine through during the animation. */
   dash-accordion-heading {

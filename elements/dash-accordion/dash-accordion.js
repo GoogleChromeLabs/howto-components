@@ -66,15 +66,17 @@
         // Abort.
         if (headings.length === 0) return;
 
-        // Give each panel a `aria-labelledby` attribute that refers to the
-        // heading that controls it.
+        // Set up `aria-controls` and `aria-labelledby` on headings and panels.
         headings.forEach(heading => {
-          const panel = this._panelForHeading(heading);
-          if(panel)
-            panel.setAttribute('aria-labelledby', heading.id);
-          else
-            console.warn(`Heading #${heading.id} does not have a valid panel` +
-            'associated with it.');
+          const panel = heading.nextElementSibling;
+          if(!panel || panel.tagName !== 'DASH-ACCORDION-PANEL') {
+            console.error(`Tab #${heading.id} is not sibling` +
+              `of a <dash-accordion-panel>`);
+            return;
+          }
+
+          heading.setAttribute('aria-controls', panel.id);
+          panel.setAttribute('aria-labelledby', heading.id);
         });
 
         // Set all the panels to the collapsed state. This is done directly
@@ -349,8 +351,8 @@
         .then(_ => {
           // Set all animated children to their end position.
           animatedChildren.forEach(child => {
-            child.style.transition = `transform 0.2s`;
             child.style.transform = `translateY(${endOffset}px)`;
+            child.classList.add('animating');
           });
         })
         // Wait for the transition to finish
@@ -358,8 +360,8 @@
         .then(_ => {
           // Clean up all the temporary styles
           animatedChildren.forEach(child => {
-            child.style.transition = '';
             child.style.transform = '';
+            child.classList.remove('animating');
           });
           children.forEach(child => {
             child.style.position = '';
@@ -407,8 +409,6 @@
       if (!this.id)
         this.id =
           `dash-accordion-heading-generated-${dashAccordionHeadingCounter++}`;
-      if (!this.getAttribute('aria-controls'))
-        console.warn(`The heading #${this.id} has no aria-controls attribute`);
     }
 
     /**
@@ -491,6 +491,7 @@
   }
   window.customElements.define('dash-accordion-heading', DashAccordionHeading);
 
+  let dashAccordionPanelCounter = 0;
   /**
    * `DashAccordionPanel` is a panel for a `<dash-accordion>`.
    */
@@ -503,8 +504,8 @@
       this.setAttribute('role', 'region');
       this.setAttribute('aria-hidden', 'true');
       if (!this.id)
-        console.warn('An accordion panel without an ID' +
-          'will never be activated');
+        this.id =
+          `dash-accordion-panel-generated-${dashAccordionPanelCounter++}`;
     }
   }
   window.customElements.define('dash-accordion-panel', DashAccordionPanel);
