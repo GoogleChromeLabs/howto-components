@@ -1,0 +1,97 @@
+<style>
+  dash-tree {
+    font-family: 'Courier New', Courier, monospace;
+  }
+  dash-tree,
+  dash-treeitem {
+    display: block;
+  }
+  dash-treegroup {
+    padding-left: 20px;
+  }
+  dash-treeitem[aria-expanded="false"] > span::before {
+    content: '+';
+  }
+  dash-treeitem[aria-expanded="true"] > span::before {
+    content: '-';
+  }
+  dash-treeitem[aria-expanded="true"] > dash-treegroup {
+    display: block;
+  }
+  dash-treeitem[aria-expanded="false"] > dash-treegroup {
+    display: none;
+  }
+  .active {
+    background: lightgrey;
+    outline: 2px solid black;
+  }
+  .selected {
+    background: hotpink;
+  }
+</style>
+
+<!-- Possible PE: Upgrade from list/listem to tree/treeitem -->
+<h3 id="file-tree-lbl">File Tree</h3>
+<dash-tree aria-labelledby="file-tree-lbl">
+  <dash-treeitem>Project1</dash-treeitem>
+  <dash-treeitem>Project2</dash-treeitem>
+  <dash-treeitem>Project3</dash-treeitem>
+  <dash-treeitem>
+    <span>Project 4</span>
+    <dash-treegroup>
+      <dash-treeitem>File1</dash-treeitem>
+      <dash-treeitem>File2</dash-treeitem>
+      <dash-treeitem>File3</dash-treeitem>
+      <dash-treeitem>
+        <span>Subproject 1</span>
+        <dash-treegroup>
+          <dash-treeitem>Subfile1</dash-treeitem>
+          <dash-treeitem>Subfile2</dash-treeitem>
+          <dash-treeitem>Subfile3</dash-treeitem>
+          <dash-treeitem aria-expanded="true">
+            <span>Subsubproject 1</span>
+            <dash-treegroup>
+              <dash-treeitem>Subsubfile1</dash-treeitem>
+              <dash-treeitem>Subsubfile2</dash-treeitem>
+              <dash-treeitem>Subsubfile3</dash-treeitem>
+            </dash-treegroup>
+          </dash-treeitem>
+        </dash-treegroup>
+      </dash-treeitem>
+    </dash-treegroup>
+  </dash-treeitem>
+  <dash-treeitem>Project 5</dash-treeitem>
+  <dash-treeitem aria-expanded="true">
+    <span>Project 6</span>
+    <dash-treegroup>
+      <dash-treeitem>File1</dash-treeitem>
+      <dash-treeitem>File2</dash-treeitem>
+      <dash-treeitem>File3</dash-treeitem>
+      <dash-treeitem aria-expanded="true">
+        <span>Subproject 2</span>
+        <dash-treegroup>
+          <dash-treeitem>Subfile1</dash-treeitem>
+          <dash-treeitem>Subfile2</dash-treeitem>
+          <dash-treeitem>Subfile3</dash-treeitem>
+          <dash-treeitem>
+            <span>Subsubproject 2</span>
+            <dash-treegroup>
+              <dash-treeitem>Subsubfile1</dash-treeitem>
+              <dash-treeitem>Subsubfile2</dash-treeitem>
+              <dash-treeitem>Subsubfile3</dash-treeitem>
+            </dash-treegroup>
+          </dash-treeitem>
+        </dash-treegroup>
+      </dash-treeitem>
+    </dash-treegroup>
+  </dash-treeitem>
+  <dash-treeitem>Project 7</dash-treeitem>
+  <dash-treeitem aria-expanded="false">
+    <span>Project 8</span>
+    <dash-treegroup>
+      <dash-treeitem>File1</dash-treeitem>
+      <dash-treeitem>File2</dash-treeitem>
+      <dash-treeitem>File3</dash-treeitem>
+    </dash-treegroup>
+  </dash-treeitem>
+</dash-tree>
