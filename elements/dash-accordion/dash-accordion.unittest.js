@@ -7,18 +7,24 @@
     beforeEach(function() {
       this.container.innerHTML = `
       <dash-accordion>
-        <dash-accordion-heading role="heading" id="lol" aria-controls="panel1">
+        <dash-accordion-heading role="heading" id="lol">
           Tab 1
         </dash-accordion-heading>
-        <dash-accordion-panel id="panel1">Content 1</dash-accordion-panel>
-        <dash-accordion-heading role="heading" aria-controls="panel2">
+        <dash-accordion-panel role="region">
+          Content 1
+        </dash-accordion-panel>
+        <dash-accordion-heading role="heading">
           Tab 2
         </dash-accordion-heading>
-        <dash-accordion-panel id="panel2">Content 2</dash-accordion-panel>
-        <dash-accordion-heading role="heading" aria-controls="panel3">
+        <dash-accordion-panel role="region">
+          Content 2
+        </dash-accordion-panel>
+        <dash-accordion-heading role="heading">
           Tab 3
         </dash-accordion-heading>
-        <dash-accordion-panel id="panel3">Content 3</dash-accordion-panel>
+        <dash-accordion-panel role="region">
+          Content 3
+        </dash-accordion-panel>
       </dash-accordion>>
       `;
       return Promise.all([

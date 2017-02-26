@@ -44,7 +44,7 @@
     }
 
     connectedCallback() {
-      // The headings emit elements depending on how they get interacted with.
+      // The headings emit events depending on how they get interacted with.
       this.addEventListener('accordion-expand', this._onAccordionExpand);
       this.addEventListener('accordion-collapse', this._onAccordionCollapse);
       this.addEventListener('accordion-previous', this._onAccordionPrevious);
@@ -52,8 +52,8 @@
       this.addEventListener('accordion-first', this._onAccordionFirst);
       this.addEventListener('accordion-last', this._onAccordionLast);
 
-      // Before the elements starts booting, it waits for
-      // the both `<dash-accordion-heading>` and `<dash-accordion-panel>` to
+      // Before the element starts booting, it waits for
+      // both `<dash-accordion-heading>` and `<dash-accordion-panel>` to
       // load.
       Promise.all([
         customElements.whenDefined('dash-accordion-heading'),
@@ -79,13 +79,10 @@
           panel.setAttribute('aria-labelledby', heading.id);
         });
 
-        // Set all the panels to the collapsed state. This is done directly
-        // (and not using `_collapsePanel()`) to skip the animation.
-        panels.forEach(panel => {
-          panel.classList.remove('expanded');
-          panel.classList.add('collapsed');
-          panel.setAttribute('aria-hidden', 'true');
-        });
+        // Set all the panels to the collapsed state to have a well-defined
+        // initial state
+        panels.forEach(panel => this._collapsePanel(panel, {animate: false}));
+
         // Check if any of the headings have been marked as
         // expanded. If so, all the associated panels get expanded.
         headings
@@ -118,7 +115,7 @@
      * will not be handled.
      *
      * This is a method and not a getter, because a getter implies that it is
-     * cheap to read.
+     * cheap to read while this method queries the DOM on every call.
      */
     _allPanels() {
       return Array.from(this.querySelectorAll('dash-accordion-panel'));
@@ -243,11 +240,18 @@
      * `_expandPanel` expands the given panel. This function also triggers the
      * animation.
      */
-    _expandPanel(panel) {
+    _expandPanel(panel, opts = {animate: true}) {
       // Unhide the contents from the accessibility _immediately_, even if there
       // might be animation going on.
       panel.setAttribute('aria-hidden', 'false');
       panel.classList.remove('collapsed');
+
+      // Early return if animation is supposed to be skipped.
+      if (!opts.animate) {
+        panel.classList.add('expanded');
+        return;
+      }
+
       // This `animation` class is a marker if the element is currently
       // animating. It can be used to change styles if needed but is also
       // used to discard additional expand/collapse commands while the animation
@@ -269,9 +273,16 @@
      * `_collapsePanel` collapses the given panel. The logic is the exact same
      * as `_expandPanel`, but with the reversed animation.
      */
-    _collapsePanel(panel) {
+    _collapsePanel(panel, opts = {animate: true}) {
       panel.setAttribute('aria-hidden', 'true');
       panel.classList.remove('expanded');
+
+      // Early return if animation is supposed to be skipped.
+      if (!opts.animate) {
+        panel.classList.add('collapsed');
+        return;
+      }
+
       this.classList.add('animating');
 
       requestAnimationFramePromise()
@@ -396,6 +407,8 @@
 
     connectedCallback() {
       // In contrast to `<dash-tabs>`, the children handle the input events.
+      // Both approaches are valid but may yield different benefits in bigger
+      // components or architectures.
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
 
