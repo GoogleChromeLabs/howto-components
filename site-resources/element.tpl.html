@@ -22,9 +22,9 @@ limitations under the License.
   {{=it.intro}}
 </section>
 <h2>Demo</h2>
-<iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="section"></iframe>
+<iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
 <h2>Example usage</h2>
-<ul class="literate demo" id="{{=it.title}}">
+<ul class="literate demo" id="{{=it.title}}_demo">
   {{ for (let section of it.demoSections) { }}
   <li class="{{=section.commentType.toLowerCase()}}">
     <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</aside>
@@ -33,7 +33,7 @@ limitations under the License.
   {{ } }}
 </ul>
 <h2>Code</h2>
-<ul class="literate code" id="{{=it.title}}">
+<ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
   <li class="{{=section.commentType.toLowerCase()}}">
     <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</aside>
