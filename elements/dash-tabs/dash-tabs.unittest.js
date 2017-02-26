@@ -5,37 +5,37 @@ describe('dash-tabs', function() {
   after(dashElements.after());
   beforeEach(function() {
     this.container.innerHTML = `
-    <dash-tabs>
-      <dash-tab role="heading" id="tab1" aria-controls="panel1">Tab 1</dash-tab>
-      <dash-tabpanel id="panel1">Content 1</dash-tabpanel>
-      <dash-tab role="heading" id="tab2" aria-controls="panel2">Tab 2</dash-tab>
-      <dash-tabpanel id="panel2">Content 2</dash-tabpanel>
-      <dash-tab role="heading" id="tab3" aria-controls="panel3">Tab 3</dash-tab>
-      <dash-tabpanel id="panel3">Content 3</dash-tabpanel>
-    </dash-tabs>
+      <dash-tabs>
+        <dash-tabs-tab role="heading">Tab 1</dash-tabs-tab>
+        <dash-tabs-panel role="region">Content 1</dash-tabs-panel>
+        <dash-tabs-tab role="heading">Tab 2</dash-tabs-tab>
+        <dash-tabs-panel role="region">Content 2</dash-tabs-panel>
+        <dash-tabs-tab role="heading">Tab 3</dash-tabs-tab>
+        <dash-tabs-panel role="region">Content 3</dash-tabs-panel>
+      </dash-tabs>
     `;
     return Promise.all([
       dashElements.waitForElement('dash-tabs'),
-      dashElements.waitForElement('dash-tab'),
-      dashElements.waitForElement('dash-tabpanel'),
+      dashElements.waitForElement('dash-tabs-tab'),
+      dashElements.waitForElement('dash-tabs-panel'),
     ]).then(_ => {
       this.tabpanel = this.container.querySelector('dash-tabs');
-      this.tabs = Array.from(this.container.querySelectorAll('dash-tab'));
+      this.tabs = Array.from(this.container.querySelectorAll('dash-tabs-tab'));
       this.panels =
-        Array.from(this.container.querySelectorAll('dash-tabpanel'));
+        Array.from(this.container.querySelectorAll('dash-tabs-panel'));
     });
   });
 
   it('should know about all the tabs', function() {
     expect(
       this.tabpanel._allTabs()
-    ).to.have.length(this.container.querySelectorAll('dash-tab').length);
+    ).to.have.length(this.container.querySelectorAll('dash-tabs-tab').length);
   });
 
   it('should know about all the panels', function() {
     expect(
       this.tabpanel._allPanels()
-    ).to.have.length(this.container.querySelectorAll('dash-tabpanel').length);
+    ).to.have.length(this.container.querySelectorAll('dash-tabs-panel').length);
   });
 
   it('should add `aria-labelledby` to panels', function() {

@@ -8,11 +8,11 @@
     display: flex;
     flex-wrap: wrap;
   }
-  dash-tab {
+  dash-tabs-tab {
     border: 1px solid black;
     padding: 20px;
   }
-  dash-tabpanel {
+  dash-tabs-panel {
     /**
      * Each panel has a base size of 100%, forcing it to be in its
      * own row.
@@ -21,10 +21,10 @@
     padding: 20px;
     background-color: lightgray;
   }
-  dash-tabpanel[aria-hidden="true"] {
+  dash-tabs-panel[aria-hidden="true"] {
     display: none;
   }
-  dash-tab[aria-selected="true"] {
+  dash-tabs-tab[aria-selected="true"] {
     background-color: bisque;
   }
 
@@ -32,16 +32,16 @@
    * If JavaScript does not run, the element will stay `:unresolved`.
    * In that case this style adds spacing between tabs and previous panel.
    */
-  dash-tabs:unresolved dash-tab:unresolved {
+  dash-tabs:unresolved dash-tabs-tab:unresolved {
     margin-top: 10px;
   }
 </style>
 
 <dash-tabs>
-  <dash-tab role="heading">Tab 1</dash-tab>
-  <dash-tabpanel role="region">Content 1</dash-tabpanel>
-  <dash-tab role="heading">Tab 2</dash-tab>
-  <dash-tabpanel role="region">Content 2</dash-tabpanel>
-  <dash-tab role="heading">Tab 3</dash-tab>
-  <dash-tabpanel role="region">Content 3</dash-tabpanel>
+  <dash-tabs-tab role="heading">Tab 1</dash-tabs-tab>
+  <dash-tabs-panel role="region">Content 1</dash-tabs-panel>
+  <dash-tabs-tab role="heading">Tab 2</dash-tabs-tab>
+  <dash-tabs-panel role="region">Content 2</dash-tabs-panel>
+  <dash-tabs-tab role="heading">Tab 3</dash-tabs-tab>
+  <dash-tabs-panel role="region">Content 3</dash-tabs-panel>
 </dash-tabs>

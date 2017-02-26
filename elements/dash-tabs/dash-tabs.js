@@ -50,8 +50,8 @@
       // Before the elements starts booting, it waits for
       // the both `<dash-tab>` and `<dash-tabpanel>` to load.
       Promise.all([
-        customElements.whenDefined('dash-tab'),
-        customElements.whenDefined('dash-tabpanel'),
+        customElements.whenDefined('dash-tabs-tab'),
+        customElements.whenDefined('dash-tabs-panel'),
       ]).then(_ => {
         // Acquire all tabs and panels inside the element
         const tabs = this._allTabs();
@@ -64,8 +64,9 @@
         // that controls it.
         tabs.forEach(tab => {
           const panel = tab.nextElementSibling;
-          if(panel.tagName !== 'DASH-TABPANEL') {
-            console.error(`Tab #${tab.id} is not sibling of a <dash-tabpanel>`);
+          if(panel.tagName !== 'DASH-TABS-PANEL') {
+            console.error(`Tab #${tab.id} is not a` +
+              `sibling of a <dash-tabs-panel>`);
             return;
           }
 
@@ -106,13 +107,13 @@
      * cheap to read.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('dash-tabpanel'));
+      return Array.from(this.querySelectorAll('dash-tabs-panel'));
     }
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
     _allTabs() {
-      return Array.from(this.querySelectorAll('dash-tab'));
+      return Array.from(this.querySelectorAll('dash-tabs-tab'));
     }
 
     /**
@@ -275,17 +276,17 @@
   // number is used to generated new, unique IDs.
   let dashTabCounter = 0;
   /**
-   * `DashTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tab>` should
-   * always be used with `role=heading` in the markup so that the semantics
-   * remain useable when JavaScript is failing.
+   * `DashTabsTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tabs-tab>`
+   * should always be used with `role=heading` in the markup so that the
+   * semantics remain useable when JavaScript is failing.
    *
-   * A `<dash-tab>` declares which `<dash-tabpanel>` it belongs to by using
-   * that panel’s ID as the value for the `aria-controls` attribute.
+   * A `<dash-tabs-tab>` declares which `<dash-tabs=panel>` it belongs to by
+   * using that panel’s ID as the value for the `aria-controls` attribute.
    *
-   * A `<dash-tab>` will automatically generate a unique ID if none
+   * A `<dash-tabs-tab>` will automatically generate a unique ID if none
    * is specified.
    */
-  class DashTab extends HTMLElement {
+  class DashTabsTab extends HTMLElement {
     constructor() {
       super();
     }
@@ -295,16 +296,16 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `dash-tab-generated-${dashTabCounter++}`;
+        this.id = `dash-tabs-tab-generated-${dashTabCounter++}`;
     }
   }
-  window.customElements.define('dash-tab', DashTab);
+  window.customElements.define('dash-tabs-tab', DashTabsTab);
 
   let dashPanelCounter = 0;
   /**
-   * `DashTabpanel` is a panel for a `<dash-tabs>` tab panel.
+   * `DashTabsPanel` is a panel for a `<dash-tabs>` tab panel.
    */
-  class DashTabpanel extends HTMLElement {
+  class DashTabsPanel extends HTMLElement {
     constructor() {
       super();
     }
@@ -312,10 +313,10 @@
     connectedCallback() {
       this.setAttribute('role', 'panel');
       if (!this.id)
-        this.id = `dash-tabpanel-generated-${dashPanelCounter++}`;
+        this.id = `dash-tabs-panel-generated-${dashPanelCounter++}`;
     }
   }
-  window.customElements.define('dash-tabpanel', DashTabpanel);
+  window.customElements.define('dash-tabs-panel', DashTabsPanel);
 })();
 
 
