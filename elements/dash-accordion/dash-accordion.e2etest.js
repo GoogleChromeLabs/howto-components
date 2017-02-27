@@ -11,73 +11,73 @@ describe('dash-accordion', function() {
 
   it('should handle arrow keys',
     async function() {
-      await this.driver.executeScript(`
+      await this.driver.executeScript(_ => {
         window.expectedFirstHeading =
           document.querySelector('[role=heading]:nth-of-type(1)');
         window.expectedSecondHeading =
           document.querySelector('[role=heading]:nth-of-type(2)');
-      `);
+      });
 
       success = await helper.pressKeyUntil(this.driver, Key.TAB,
-        `return document.activeElement === window.expectedFirstHeading;`
+        _ => document.activeElement === window.expectedFirstHeading
       );
       expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-      success = await this.driver.executeScript(`
-        return document.activeElement === window.expectedSecondHeading;
-      `);
+      success = await this.driver.executeScript(
+        _ => document.activeElement === window.expectedSecondHeading
+      );
       expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-      success = await this.driver.executeScript(`
-        return document.activeElement === window.expectedFirstHeading;
-      `);
+      success = await this.driver.executeScript(
+        _ => document.activeElement === window.expectedFirstHeading
+      );
       expect(success).to.equal(true);
     }
   );
 
   it('should focus the last tab on [end]',
     async function() {
-      await this.driver.executeScript(`
+      await this.driver.executeScript(_ => {
         window.expectedFirstHeading =
           document.querySelector('[role=heading]:nth-of-type(1)');
         window.expectedLastHeading =
           document.querySelector('[role=heading]:last-of-type');
-      `);
+      });
 
       success = await helper.pressKeyUntil(this.driver, Key.TAB,
-        `return document.activeElement === window.expectedFirstHeading;`
+        _ => document.activeElement === window.expectedFirstHeading
       );
       expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.END).perform();
-      success = await this.driver.executeScript(`
-        return document.activeElement === window.expectedLastHeading;
-      `);
+      success = await this.driver.executeScript(
+        _ => document.activeElement === window.expectedLastHeading
+      );
       expect(success).to.equal(true);
     }
   );
 
   it('should focus the first tab on [home]',
     async function() {
-      await this.driver.executeScript(`
+      await this.driver.executeScript(_ => {
         window.expectedFirstHeading =
           document.querySelector('[role=heading]:nth-of-type(1)');
         window.expectedLastHeading =
           document.querySelector('[role=heading]:last-of-type');
-      `);
+      });
 
       success = await helper.pressKeyUntil(this.driver, Key.TAB,
-        `return document.activeElement === window.expectedFirstHeading;`
+        _ => document.activeElement === window.expectedFirstHeading
       );
       expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
       await helper.pressKeyUntil(this.driver, Key.TAB,
-        `return document.activeElement === window.expectedLastHeading;`
+        _ => document.activeElement === window.expectedLastHeading
       );
       expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.HOME).perform();
-      success = await this.driver.executeScript(`
-        return document.activeElement === window.expectedFirstHeading;
-      `);
+      success = await this.driver.executeScript(
+        _ => document.activeElement === window.expectedFirstHeading
+      );
       expect(success).to.equal(true);
     }
   );
