@@ -87,12 +87,7 @@ async function main() {
   // We let the OS choose the port, so we need to assemble the URL here.
   const address = `http://localhost:${server.address().port}`;
 
-  let err = null;
-  try {
-    err = await runTests(address, drivers);
-  } catch (e) {
-    err = e.stack;
-  }
+  await runTests(address, drivers);
 
   console.log('Killing all browser instances...');
   await Promise.all(
@@ -100,13 +95,12 @@ async function main() {
   );
   server.close();
   console.log('Done.');
-  return err;
 }
 
 function runMocha(mocha) {
   return new Promise((resolve, reject) =>
     mocha.run(code =>
-      code === 0?resolve():reject()
+      code === 0?resolve():reject('Some tests failed')
   ));
 }
 
@@ -124,20 +118,16 @@ async function runTests(address, drivers) {
           s.ctx.driver = driver;
           s.ctx.address = address;
         });
-        return await runMocha(mocha).then(_ => {});
+        await runMocha(mocha).then(_ => {});
       },
       Promise.resolve()
     );
 }
 
 main()
-  // FIXME: Awkward return value handling as node seems to be strugging with
-  // throws inside async/await currently.
-  .then(err => {
-    if (err) process.exit(1);
-    console.log('e2e tests done.');
-  })
+  .then(_ => console.log('e2e tests done.'))
   .catch(err => {
-    console.error(err.stack);
+    console.error(err);
+    if (err.stack) console.error(err.stack);
     process.exit(1);
   });
