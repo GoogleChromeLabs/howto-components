@@ -3,98 +3,82 @@ const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
 describe('dash-accordion', function() {
+  let success;
   beforeEach(function() {
     return this.driver.get(`${this.address}/dash-accordion_demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'dash-accordion'));
   });
 
-  it('should focus the next heading on [arrow right]',
+  it('should handle arrow keys',
     async function() {
-      const found =
-        await helper.pressKeyUntil(
-          this.driver,
-          Key.TAB,
-          `return document.activeElement.getAttribute('role') === 'heading';`
-        );
-      expect(found).to.equal(true);
+      await this.driver.executeScript(`
+        window.expectedFirstHeading =
+          document.querySelector('[role=heading]:nth-of-type(1)');
+        window.expectedSecondHeading =
+          document.querySelector('[role=heading]:nth-of-type(2)');
+      `);
 
-      await this.driver
-        .executeScript(`window.firstHeading = document.activeElement;`);
+      success = await helper.pressKeyUntil(this.driver, Key.TAB,
+        `return document.activeElement === window.expectedFirstHeading;`
+      );
+      expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-      const focusedSomeHeading = await this.driver.executeScript(`
-        return window.firstHeading !== document.activeElement &&
-          document.activeElement.getAttribute('role') === 'heading';
+      success = await this.driver.executeScript(`
+        return document.activeElement === window.expectedSecondHeading;
       `);
-      expect(focusedSomeHeading).to.equal(true);
-    }
-  );
-
-  it('should focus the prev heading on [arrow left]',
-    async function() {
-      const found =
-        await helper.pressKeyUntil(
-          this.driver,
-          Key.TAB,
-          `return document.activeElement.getAttribute('role') === 'heading';`
-        );
-      expect(found).to.equal(true);
-
-      await this.driver
-        .executeScript(`window.firstHeading = document.activeElement;`);
+      expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-      const focusedAnotherHeading = await this.driver.executeScript(`
-        return window.firstHeading !== document.activeElement &&
-          document.activeElement.getAttribute('role') === 'heading';
+      success = await this.driver.executeScript(`
+        return document.activeElement === window.expectedFirstHeading;
       `);
-      expect(focusedAnotherHeading).to.equal(true);
+      expect(success).to.equal(true);
     }
   );
 
   it('should focus the last tab on [end]',
     async function() {
-      const found =
-        await helper.pressKeyUntil(
-          this.driver,
-          Key.TAB,
-          `return document.activeElement.getAttribute('role') === 'heading';`
-        );
-      expect(found).to.equal(true);
-      await this.driver
-        .executeScript(`window.firstHeading = document.activeElement;`);
+      await this.driver.executeScript(`
+        window.expectedFirstHeading =
+          document.querySelector('[role=heading]:nth-of-type(1)');
+        window.expectedLastHeading =
+          document.querySelector('[role=heading]:last-of-type');
+      `);
 
+      success = await helper.pressKeyUntil(this.driver, Key.TAB,
+        `return document.activeElement === window.expectedFirstHeading;`
+      );
+      expect(success).to.equal(true);
       await this.driver.actions().sendKeys(Key.END).perform();
-      const focusedSomeHeading = await this.driver.executeScript(`
-        return window.firstHeading !== document.activeElement &&
-          document.activeElement.getAttribute('role') === 'heading';
+      success = await this.driver.executeScript(`
+        return document.activeElement === window.expectedLastHeading;
       `);
-      expect(focusedSomeHeading).to.equal(true);
-
-      await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-      const nextHeadingWasFirstHeading = await this.driver.executeScript(`
-        return window.firstHeading === document.activeElement;
-      `);
-      expect(nextHeadingWasFirstHeading).to.equal(true);
+      expect(success).to.equal(true);
     }
   );
 
   it('should focus the first tab on [home]',
     async function() {
-      const found =
-        await helper.pressKeyUntil(
-          this.driver,
-          Key.TAB,
-          `return document.activeElement.getAttribute('role') === 'heading';`
-        );
-      expect(found).to.equal(true);
-      await this.driver
-        .executeScript(`window.firstHeading = document.activeElement;`);
-
-      await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-      await this.driver.actions().sendKeys(Key.HOME).perform();
-      const focusedFirstHeading = await this.driver.executeScript(`
-        return window.firstHeading === document.activeElement;
+      await this.driver.executeScript(`
+        window.expectedFirstHeading =
+          document.querySelector('[role=heading]:nth-of-type(1)');
+        window.expectedLastHeading =
+          document.querySelector('[role=heading]:last-of-type');
       `);
-      expect(focusedFirstHeading).to.equal(true);
+
+      success = await helper.pressKeyUntil(this.driver, Key.TAB,
+        `return document.activeElement === window.expectedFirstHeading;`
+      );
+      expect(success).to.equal(true);
+      await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
+      await helper.pressKeyUntil(this.driver, Key.TAB,
+        `return document.activeElement === window.expectedLastHeading;`
+      );
+      expect(success).to.equal(true);
+      await this.driver.actions().sendKeys(Key.HOME).perform();
+      success = await this.driver.executeScript(`
+        return document.activeElement === window.expectedFirstHeading;
+      `);
+      expect(success).to.equal(true);
     }
   );
 
