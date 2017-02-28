@@ -14,7 +14,7 @@
     HOME: 36,
     END: 35,
     SPACE: 32,
-    ENTER: 13
+    ENTER: 13,
   };
 
   /**
@@ -32,8 +32,8 @@
     return node.getAttribute('aria-expanded') === 'true';
   }
 
-  // `dashTreeItemCounter` counts the number of `<dash-treeitem>` instances created. The
-  // number is used to generated new, unique IDs.
+  // `dashTreeItemCounter` counts the number of `<dash-treeitem>` instances
+  // created. The number is used to generated new, unique IDs.
   let dashTreeItemCounter = 0;
 
   class DashTreeItem extends HTMLElement {
@@ -61,12 +61,12 @@
           // set it to closed.
           if (!isExpanded(this))
             this.setAttribute('aria-expanded', false);
-          
-          // Set the `aria-label` to the first bit of text. Otherwise the label for this
-          // element will be computed based on its text content plus the text content
-          // of all of its children. Making it so verbose as to be unusable.
-          // This first child should ideally be a `<span>` element, but it may also
-          // just be a line of text.
+
+          // Set the `aria-label` to the first bit of text. Otherwise the label
+          // for this element will be computed based on its text content plus
+          // the text content of all of its children. Making it so verbose as to
+          // be unusable. This first child should ideally be a `<span>` element,
+          // but it may also just be a line of text.
           if (!this.hasAttribute('aria-label'))
             this.setAttribute('aria-label', this.firstChild.textContent.trim());
       }
@@ -113,7 +113,7 @@
       // the `<dash-treeitem>` and `<dash-treegroup>` to load.
       Promise.all([
         customElements.whenDefined('dash-treeitem'),
-        customElements.whenDefined('dash-treegroup')
+        customElements.whenDefined('dash-treegroup'),
       ]).then(_ => {
         // Acquire all treeitems inside the element
         const treeItems = this._allTreeItems();
@@ -134,7 +134,8 @@
         let el = node.firstElementChild;
         while (el) {
           // Ignore children like `<span>` and `<dash-treegroup>`.
-          // If the element has children, descend into them looking for more treeitems.
+          // If the element has children, descend into them looking for
+          // more treeitems.
           if (!isTreeItem(el)) {
             if (el.firstElementChild) {
               findTreeitems(el, isVisible);
@@ -222,7 +223,8 @@
     }
 
     /**
-     * `_nextTreeItem` gets the treeitem that comes after the currently active one.
+     * `_nextTreeItem` gets the treeitem that comes after the currently active
+     * one.
      */
     _focusNextTreeItem() {
       const treeItems = this._allTreeItems();
@@ -243,7 +245,8 @@
     }
 
     /**
-     * `_prevTreeItem` gets the treeitem that comes before the currently selected one.
+     * `_prevTreeItem` gets the treeitem that comes before the currently
+     * selected one.
      */
     _focusPrevTreeItem() {
       const treeItems = this._allTreeItems();
@@ -271,7 +274,8 @@
     }
 
     /**
-     * Focus the last `<dash-treeitem>` in the tree that is focusable without opening a node.
+     * Focus the last `<dash-treeitem>` in the tree that is focusable without
+     * opening a node.
      */
     _focusLastTreeItem() {
       const treeItems = this._allTreeItems();
@@ -289,7 +293,7 @@
      */
     _focusTreeItem(treeItem) {
       this.setAttribute('aria-activedescendant', treeItem.id);
-      
+
       // There can be only one active item at a time.
       // Find any previous active item and remove its active class.
       const activeItem = this.querySelector('.active');
@@ -306,8 +310,8 @@
 
     /**
      * If focus is on an open node, closes the node.
-     * If focus is on a child node that is also either an end node or a closed node, move focus
-     * to its parent node.
+     * If focus is on a child node that is also either an end node or a closed
+     * node, move focus to its parent node.
      */
     _collapseTreeItem() {
       const treeItem = this._currentTreeItem();
@@ -377,9 +381,9 @@
       // TODO: How do you deep link a Medium post???
       dispatchEvent(new CustomEvent('dash-tree-item-selected', {
         detail: {
-          item: treeItem
+          item: treeItem,
         },
-        bubbles: false
+        bubbles: false,
       }));
     }
 
