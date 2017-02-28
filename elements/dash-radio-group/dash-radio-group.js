@@ -29,6 +29,8 @@
     RIGHT: 39,
     SPACE: 32,
     UP: 38,
+    HOME: 36,
+    END: 35,
   };
 
   /**
@@ -127,6 +129,16 @@
         case KEYCODE.RIGHT:
           e.preventDefault();
           this._setCheckedToNextButton();
+          break;
+
+        case KEYCODE.HOME:
+          e.preventDefault();
+          this._setChecked(this.firstRadioButton);
+          break;
+
+        case KEYCODE.END:
+          e.preventDefault();
+          this._setChecked(this.lastRadioButton);
           break;
 
         default:
