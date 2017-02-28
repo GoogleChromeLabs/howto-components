@@ -8,31 +8,58 @@
 {{=it.demo}}
 
 <script>
-  function loadScript(src) {
-    return new Promise(resolve => {
-      const s = document.createElement('script');
-      s.onload = resolve;
-      s.src = src;
-      document.head.appendChild(s);
-    });
-  }
-  if (!document.location.search.includes('nojs')) {
-    const whenScriptsLoaded = [
-      'scripts/custom-elements.min.js',
-      '{{=it.title}}.js',
-    ].reduce((chain, src) =>
-      chain.then(_ => loadScript(src)),
-      Promise.resolve()
-    );
-    whenScriptsLoaded
-      .then(_ => customElements.whenDefined('{{=it.title}}'))
-      .then(_ => sendSize());
-  }
-  function sendSize() {
-    window.parent.postMessage(document.documentElement.getBoundingClientRect().height, '*');
-  }
-  window.addEventListener('resize', sendSize);
-  window.addEventListener('message', sendSize);
-  sendSize();
+  (function() {
+    // Loads a script asynchronously and returns a promise that resolves when
+    // when the script has loaded.
+    function loadScript(src) {
+      return new Promise(resolve => {
+        const s = document.createElement('script');
+        s.onload = resolve;
+        s.src = src;
+        document.head.appendChild(s);
+      });
+    }
+
+    // Sends a message to the parent window with the current size of document.
+    // If this page is embedded in an iframe, the parent page has the choice
+    // to adapt the size of the iframe to accommodate the contents.
+    function sendSize() {
+      window.parent.postMessage(document.documentElement.getBoundingClientRect().height, '*');
+    }
+
+    // The parents window can query the iframe’s document size at any time by
+    // sending any message.
+    window.addEventListener('message', sendSize);
+
+    // If there’s a `nojs` in the URL’s query string, don’t load the elements,
+    // somewhat emulating disabled JavaScript.
+    if (!document.location.search.includes('nojs')) {
+      const whenScriptsLoaded = [
+        'scripts/custom-elements.min.js',
+        '{{=it.title}}.js',
+      ].reduce((chain, src) =>
+        chain.then(_ => loadScript(src)),
+        Promise.resolve()
+      );
+      whenScriptsLoaded
+        .then(_ => customElements.whenDefined('{{=it.title}}'))
+        .then(_ => sendSize());
+    }
+
+    // Hook up ResizeObserver for dynamic size adjustments
+    loadScript('scripts/resizeobserver.min.js')
+      .then(_ => {
+        const ResizeObserver =
+          self.ResizeObserver || self.ResizeObserverPolyfill;
+        const ro = new ResizeObserver(_ => sendSize());
+        // One of them’s gotta be the right one, right?
+        ro.observe(document.documentElement);
+        ro.observe(document.body);
+        ro.observe(document.scrollingElement);
+      });
+
+    // Send size after loading is done
+    requestAnimationFrame(_ => sendSize());
+  })();
 </script>
 </html>
