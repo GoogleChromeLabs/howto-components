@@ -65,8 +65,9 @@
         if (!this.hasAttribute('aria-label')) {
           let label = this.querySelector('span');
           if (!label) {
-            console.error(`The first child of a <dash-treeitem> that contains a` +
-              `<dash-treegroup> must be a <span> containing label text.`);
+            console.error(`The first child of a <dash-treeitem> that ` +
+              `contains a <dash-treegroup> must be a <span> containing label ` +
+               `text.`);
           } else {
             this.setAttribute('aria-label', label.textContent.trim());
           }
