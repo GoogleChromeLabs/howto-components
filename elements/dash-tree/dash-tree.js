@@ -42,33 +42,35 @@
     }
 
     connectedCallback() {
-      // The element needs to do some manual input event handling to allow
-      // switching with arrow keys and Home/End.
-      this.addEventListener('keydown', this._onKeyDown);
-      this.addEventListener('click', this._onClick);
-
       this.setAttribute('role', 'treeitem');
 
       // If the element doesn't already have an ID, generate one for it.
       // This will make it easier to set the element as active using
-      // aria-activedescendant.
+      // `aria-activedescendant`.
       if (!this.id)
         this.id = `dash-treeitem-generated-${dashTreeItemCounter++}`;
 
-      // If the element contains a child then it's a parent node
-      if (this.firstElementChild) {
-          // If the element is not explicitly already expanded by the user, then
-          // set it to closed.
-          if (!isExpanded(this))
-            this.setAttribute('aria-expanded', false);
+      // If the element contains a `<dash-treegroup>` then it's a parent node
+      if (this.querySelector('dash-treegroup')) {
+        // If the element is not explicitly already expanded by the user, then
+        // set it to closed.
+        if (!isExpanded(this))
+          this.setAttribute('aria-expanded', false);
 
-          // Set the `aria-label` to the first bit of text. Otherwise the label
-          // for this element will be computed based on its text content plus
-          // the text content of all of its children. Making it so verbose as to
-          // be unusable. This first child should ideally be a `<span>` element,
-          // but it may also just be a line of text.
-          if (!this.hasAttribute('aria-label'))
-            this.setAttribute('aria-label', this.firstChild.textContent.trim());
+        // Set the `aria-label` to the first bit of text. Otherwise the label
+        // for this element will be computed based on its text content plus
+        // the text content of all of its children. Making it so verbose as to
+        // be unusable. This first child should ideally be a `<span>` element,
+        // but it may also just be a line of text.
+        if (!this.hasAttribute('aria-label')) {
+          let label = this.querySelector('span');
+          if (!label) {
+            console.error(`The first child of a <dash-treeitem> that contains a` +
+              `<dash-treegroup> must be a <span> containing label text.`);
+          } else {
+            this.setAttribute('aria-label', label.textContent.trim());
+          }
+        }
       }
     }
   }
@@ -126,11 +128,11 @@
 
     _allTreeItems() {
       const treeItems = [];
-      // A recursive function that visits every child and builds a tree
+      // A recursive function that visits every child and builds a list
       // This produces the same results as calling querySelectorAll,
-      // but writing the tree ourselves lets us toggle which elements
+      // but writing the list ourselves lets us toggle which elements
       // are visible.
-      function findTreeitems(node, isVisible) {
+      function findTreeItems(node, isVisible) {
         let el = node.firstElementChild;
         while (el) {
           // Ignore children like `<span>` and `<dash-treegroup>`.
@@ -138,7 +140,7 @@
           // more treeitems.
           if (!isTreeItem(el)) {
             if (el.firstElementChild) {
-              findTreeitems(el, isVisible);
+              findTreeItems(el, isVisible);
               return;
             }
           }
@@ -150,14 +152,14 @@
             // from then on, set all descendants to visible=false.
             // Otherwise, set immediate descendants' visibility to whatever
             // expanded state this parent element currently has.
-            findTreeitems(el, isVisible && isExpanded(el));
+            findTreeItems(el, isVisible && isExpanded(el));
           }
 
           // Look for sibling elements and continue tree walking.
           el = el.nextElementSibling;
         }
       }
-      findTreeitems(this, true);
+      findTreeItems(this, true);
       return treeItems;
     }
 
@@ -207,6 +209,22 @@
       // keys, home or end. The element calls `preventDefault` to prevent the
       // browser from taking any actions.
       event.preventDefault();
+    }
+
+    _onClick(event) {
+      let treeItem = undefined;
+      function findTreeItem(node) {
+        if (node.getAttribute('role') !== 'treeitem') {
+          node = node.parentElement;
+          findTreeItem(node);
+        } else {
+          treeItem = node;
+        }
+      }
+      findTreeItem(event.target);
+
+      this._focusTreeItem(treeItem);
+      this._selectTreeItem();
     }
 
     /**
