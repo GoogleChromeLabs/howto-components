@@ -67,7 +67,7 @@
           if (!label) {
             console.error(`The first child of a <dash-treeitem> that ` +
               `contains a <dash-treegroup> must be a <span> containing label ` +
-               `text.`);
+              `text.`);
           } else {
             this.setAttribute('aria-label', label.textContent.trim());
           }
@@ -130,12 +130,11 @@
     _allTreeItems() {
       const treeItems = [];
       // A recursive function that visits every child and builds a list
-      // This produces the same results as calling querySelectorAll,
-      // but writing the list ourselves lets us toggle which elements
-      // are visible.
+      // This produces similar results to calling querySelectorAll,
+      // but allows for filtering of the children based on whether or not
+      // their parent is currently visible.
       function findTreeItems(node, isVisible) {
-        let el = node.firstElementChild;
-        while (el) {
+        for (let el of node.children) {
           // Ignore children like `<span>` and `<dash-treegroup>`.
           // If the element has children, descend into them looking for
           // more treeitems.
@@ -146,18 +145,16 @@
             }
           }
 
-          if (isTreeItem(el)) {
+          // Verify the element is a treeitem, and assert that it's visible
+          // before adding it to the list.
+          if (isTreeItem(el) && isVisible) {
             treeItems.push(el);
-            el.visible = isVisible;
-            // If at any point we hit a parent with aria-expanded=false
-            // from then on, set all descendants to visible=false.
-            // Otherwise, set immediate descendants' visibility to whatever
-            // expanded state this parent element currently has.
-            findTreeItems(el, isVisible && isExpanded(el));
+            // If you hit an element with `aria-expanded=true`, continue to 
+            // walk its children and add them to the list.
+            if (isExpanded(el)) {
+              findTreeItems(el, isVisible);
+            }
           }
-
-          // Look for sibling elements and continue tree walking.
-          el = el.nextElementSibling;
         }
       }
       findTreeItems(this, true);
@@ -212,6 +209,10 @@
       event.preventDefault();
     }
 
+    /**
+     * Find the `<dash-treeitem>` for the element that was clicked.
+     * Focus the treeitem and make it the current selected item as well.
+     */
     _onClick(event) {
       let treeItem = undefined;
       function findTreeItem(node) {
@@ -229,11 +230,11 @@
     }
 
     /**
-     * Return the current activedescendant if there is one. Otherwise,
+     * Return the current `aria-activedescendant` if there is one. Otherwise,
      * return null.
      */
     _currentTreeItem() {
-      const activeDescendant = this.getAttribute('aria-activeDescendant');
+      const activeDescendant = this.getAttribute('aria-activedescendant');
       if (activeDescendant) {
         return this.querySelector(`#${activeDescendant}`);
       }
@@ -248,19 +249,8 @@
     _focusNextTreeItem() {
       const treeItems = this._allTreeItems();
       const currentItem = this._currentTreeItem();
-
-      let next = undefined;
-      for (let i = treeItems.length - 1; i >= 0; i--) {
-        let treeItem = treeItems[i];
-        if (treeItem === currentItem) {
-          break;
-        }
-        if (treeItem.visible) {
-          next = treeItem;
-        }
-      }
-      if (next)
-        this._focusTreeItem(next);
+      const idx = treeItems.lastIndexOf(currentItem) + 1;
+      if (idx < treeItems.length) this._focusTreeItem(treeItems[idx]);
     }
 
     /**
@@ -270,26 +260,15 @@
     _focusPrevTreeItem() {
       const treeItems = this._allTreeItems();
       const currentItem = this._currentTreeItem();
-
-      let prev = undefined;
-      for (let i = 0; i < treeItems.length; i++) {
-        let treeItem = treeItems[i];
-        if (treeItem === currentItem) {
-          break;
-        }
-        if (treeItem.visible) {
-          prev = treeItem;
-        }
-      }
-      if (prev)
-        this._focusTreeItem(prev);
+      const idx = treeItems.lastIndexOf(currentItem) - 1;
+      if (idx >= 0) this._focusTreeItem(treeItems[idx]);
     }
 
     /**
      * Focus the first `<dash-treeitem>` in the tree.
      */
     _focusFirstTreeItem() {
-      this._focusTreeItem(this.querySelector('dash-treeitem'));
+      this._focusTreeItem(this.querySelector('dash-treeitem:first-of-type'));
     }
 
     /**
@@ -298,13 +277,7 @@
      */
     _focusLastTreeItem() {
       const treeItems = this._allTreeItems();
-      for (let i = treeItems.length - 1; i >= 0; i--) {
-        let treeItem = treeItems[i];
-        if (treeItem.visible) {
-          this._focusTreeItem(treeItem);
-          break;
-        }
-      }
+      this._focusTreeItem(treeItems[treeItems.length - 1]);
     }
 
     /**
@@ -334,6 +307,7 @@
      */
     _collapseTreeItem() {
       const treeItem = this._currentTreeItem();
+      // TODO: Do I need this firstElementChild check?
       if (treeItem.firstElementChild && isExpanded(treeItem)) {
         treeItem.setAttribute('aria-expanded', 'false');
         return;
@@ -366,33 +340,29 @@
      * the file based on the item's name.
      */
     _selectTreeItem() {
-      // Set the item to aria-selected and remove aria-selected from
-      // any other nodes
+      // There can only be one selected element at time.
+      // Look at all the children and remove aria-selected and the selected
+      // class from any element that has them.
       const treeItem = this._currentTreeItem();
       const treeItems = this.querySelectorAll('dash-treeitem');
-      for (let i = 0; i < treeItems.length; i++) {
-        treeItems[i].removeAttribute('aria-selected');
-      }
+      treeItems.forEach(item => {
+        item.removeAttribute('aria-selected');
+        item.classList.remove('selected');
+      });
       treeItem.setAttribute('aria-selected', 'true');
 
-      // There can be only one selected item at a time.
-      // Find any previous selected item and remove its selected class.
-      const selectedItem = this.querySelector('.selected');
-      if (selectedItem)
-        selectedItem.classList.remove('selected');
-
+      // For styling purposes, check to see if the item is expanded or closed,
+      // and set the selected class on its `<span>` label if it has one.
       if (treeItem.hasAttribute('aria-expanded')) {
         if (isExpanded(treeItem)) {
           this._collapseTreeItem();
         } else {
           this._expandTreeItem();
         }
-        // Since this is an expandable element, set the selected class
-        // on its `<span>` label.
-        treeItem.firstElementChild.classList.add('selected');
-        return;
+        treeItem.querySelector('span').classList.add('selected');
+      } else {
+        treeItem.classList.add('selected');
       }
-      treeItem.classList.add('selected');
 
       // Dispatch a non-bubbling event containing a reference to the selected
       // node. The reason to choose non-bubbling is explained in this post
