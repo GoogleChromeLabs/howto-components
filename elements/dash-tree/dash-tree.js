@@ -257,20 +257,14 @@
      * Focus the treeitem and make it the current selected item as well.
      */
     _onClick(event) {
-      let treeItem = undefined;
-      // A recursive function that will work its way upward until it finds
+      // A loop that will work its way upward until it finds
       // the `DashTreeItem` associated with the event target. This allows
       // clicking on a `<label>` or `DashTreeGroup` within a `DashTreeItem` and
       // ensures the right element is always being focused/selected.
-      function findTreeItem(node) {
-        if (node.getAttribute('role') !== 'treeitem') {
-          node = node.parentElement;
-          findTreeItem(node);
-        } else {
-          treeItem = node;
-        }
+      let treeItem = event.target;
+      while (treeItem && treeItem.getAttribute('role') !== 'treeitem') {
+        treeItem = treeItem.parentElement;
       }
-      findTreeItem(event.target);
 
       this._focusTreeItem(treeItem);
       this._selectTreeItem();
@@ -356,7 +350,6 @@
      */
     _collapseTreeItem() {
       const treeItem = this._currentTreeItem();
-      // TODO: Do I need this firstElementChild check?
       if (treeItem.firstElementChild && isExpanded(treeItem)) {
         treeItem.setAttribute('aria-expanded', 'false');
         return;
