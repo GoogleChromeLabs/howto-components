@@ -2,7 +2,7 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe.only('dash-radio-group', function() {
+describe('dash-radio-group', function() {
   let success;
   beforeEach(function() {
     return this.driver.get(`${this.address}/dash-radio-group_demo.html`)
