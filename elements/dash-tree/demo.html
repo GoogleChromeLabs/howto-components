@@ -3,24 +3,24 @@
     font-family: 'Courier New', Courier, monospace;
   }
   dash-tree,
-  dash-treeitem,
-  dash-treegroup,
+  dash-tree-item,
+  dash-tree-group,
   label {
     display: block;
   }
-  dash-treegroup {
+  dash-tree-group {
     padding-left: 20px;
   }
-  dash-treeitem[aria-expanded="false"] > label::before {
+  dash-tree-item[aria-expanded="false"] > label::before {
     content: '+';
   }
-  dash-treeitem[aria-expanded="true"] > label::before {
+  dash-tree-item[aria-expanded="true"] > label::before {
     content: '-';
   }
-  dash-treeitem[aria-expanded="true"] > dash-treegroup {
+  dash-tree-item[aria-expanded="true"] > dash-tree-group {
     display: block;
   }
-  dash-treeitem[aria-expanded="false"] > dash-treegroup {
+  dash-tree-item[aria-expanded="false"] > dash-tree-group {
     display: none;
   }
   .active:not([aria-expanded]),
@@ -39,67 +39,67 @@
 <!-- Possible PE: Upgrade from list/listem to tree/treeitem -->
 <h3 id="file-tree-lbl">File Tree</h3>
 <dash-tree aria-labelledby="file-tree-lbl">
-  <dash-treeitem>Project1</dash-treeitem>
-  <dash-treeitem>Project2</dash-treeitem>
-  <dash-treeitem>Project3</dash-treeitem>
-  <dash-treeitem>
+  <dash-tree-item>Project1</dash-tree-item>
+  <dash-tree-item>Project2</dash-tree-item>
+  <dash-tree-item>Project3</dash-tree-item>
+  <dash-tree-item>
     <label>Project 4</label>
-    <dash-treegroup>
-      <dash-treeitem>File1</dash-treeitem>
-      <dash-treeitem>File2</dash-treeitem>
-      <dash-treeitem>File3</dash-treeitem>
-      <dash-treeitem>
+    <dash-tree-group>
+      <dash-tree-item>File1</dash-tree-item>
+      <dash-tree-item>File2</dash-tree-item>
+      <dash-tree-item>File3</dash-tree-item>
+      <dash-tree-item>
         <label>Subproject 1</label>
-        <dash-treegroup>
-          <dash-treeitem>Subfile1</dash-treeitem>
-          <dash-treeitem>Subfile2</dash-treeitem>
-          <dash-treeitem>Subfile3</dash-treeitem>
-          <dash-treeitem aria-expanded="true">
+        <dash-tree-group>
+          <dash-tree-item>Subfile1</dash-tree-item>
+          <dash-tree-item>Subfile2</dash-tree-item>
+          <dash-tree-item>Subfile3</dash-tree-item>
+          <dash-tree-item aria-expanded="true">
             <label>Subsubproject 1</label>
-            <dash-treegroup>
-              <dash-treeitem>Subsubfile1</dash-treeitem>
-              <dash-treeitem>Subsubfile2</dash-treeitem>
-              <dash-treeitem>Subsubfile3</dash-treeitem>
-            </dash-treegroup>
-          </dash-treeitem>
-        </dash-treegroup>
-      </dash-treeitem>
-    </dash-treegroup>
-  </dash-treeitem>
-  <dash-treeitem>Project 5</dash-treeitem>
-  <dash-treeitem aria-expanded="true">
+            <dash-tree-group>
+              <dash-tree-item>Subsubfile1</dash-tree-item>
+              <dash-tree-item>Subsubfile2</dash-tree-item>
+              <dash-tree-item>Subsubfile3</dash-tree-item>
+            </dash-tree-group>
+          </dash-tree-item>
+        </dash-tree-group>
+      </dash-tree-item>
+    </dash-tree-group>
+  </dash-tree-item>
+  <dash-tree-item>Project 5</dash-tree-item>
+  <dash-tree-item aria-expanded="true">
     <label>Project 6</label>
-    <dash-treegroup>
-      <dash-treeitem>File1</dash-treeitem>
-      <dash-treeitem>File2</dash-treeitem>
-      <dash-treeitem>File3</dash-treeitem>
-      <dash-treeitem aria-expanded="true">
+    <dash-tree-group>
+      <dash-tree-item>File1</dash-tree-item>
+      <dash-tree-item>File2</dash-tree-item>
+      <dash-tree-item>File3</dash-tree-item>
+      <dash-tree-item aria-expanded="true">
         <label>Subproject 2</label>
-        <dash-treegroup>
-          <dash-treeitem>Subfile1</dash-treeitem>
-          <dash-treeitem>Subfile2</dash-treeitem>
-          <dash-treeitem>Subfile3</dash-treeitem>
-          <dash-treeitem>
+        <dash-tree-group>
+          <dash-tree-item>Subfile1</dash-tree-item>
+          <dash-tree-item>Subfile2</dash-tree-item>
+          <dash-tree-item>Subfile3</dash-tree-item>
+          <dash-tree-item>
             <label>Subsubproject 2</label>
-            <dash-treegroup>
-              <dash-treeitem>Subsubfile1</dash-treeitem>
-              <dash-treeitem>Subsubfile2</dash-treeitem>
-              <dash-treeitem>Subsubfile3</dash-treeitem>
-            </dash-treegroup>
-          </dash-treeitem>
-        </dash-treegroup>
-      </dash-treeitem>
-    </dash-treegroup>
-  </dash-treeitem>
-  <dash-treeitem>Project 7</dash-treeitem>
-  <dash-treeitem aria-expanded="false">
+            <dash-tree-group>
+              <dash-tree-item>Subsubfile1</dash-tree-item>
+              <dash-tree-item>Subsubfile2</dash-tree-item>
+              <dash-tree-item>Subsubfile3</dash-tree-item>
+            </dash-tree-group>
+          </dash-tree-item>
+        </dash-tree-group>
+      </dash-tree-item>
+    </dash-tree-group>
+  </dash-tree-item>
+  <dash-tree-item>Project 7</dash-tree-item>
+  <dash-tree-item aria-expanded="false">
     <label>Project 8</label>
-    <dash-treegroup>
-      <dash-treeitem>File1</dash-treeitem>
-      <dash-treeitem>File2</dash-treeitem>
-      <dash-treeitem>File3</dash-treeitem>
-    </dash-treegroup>
-  </dash-treeitem>
+    <dash-tree-group>
+      <dash-tree-item>File1</dash-tree-item>
+      <dash-tree-item>File2</dash-tree-item>
+      <dash-tree-item>File3</dash-tree-item>
+    </dash-tree-group>
+  </dash-tree-item>
 </dash-tree>
 
 <script src="dash-tree.js"></script>

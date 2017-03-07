@@ -41,7 +41,7 @@
    * A helper to quickly identify `DashTreeItem` nodes
    */
   function isTreeItem(node) {
-    return node.nodeName.toLowerCase() === 'dash-treeitem';
+    return node.nodeName.toLowerCase() === 'dash-tree-item';
   }
 
   /**
@@ -52,7 +52,7 @@
     return node.getAttribute('aria-expanded') === 'true';
   }
 
-  // `dashTreeItemCounter` counts the number of `<dash-treeitem>` instances
+  // `dashTreeItemCounter` counts the number of `<dash-tree-item>` instances
   // created. The number is used to generated new, unique IDs.
   let dashTreeItemCounter = 0;
 
@@ -68,10 +68,10 @@
       // This will make it easier to set the element as active using
       // `aria-activedescendant`.
       if (!this.id)
-        this.id = `dash-treeitem-generated-${dashTreeItemCounter++}`;
+        this.id = `dash-tree-item-generated-${dashTreeItemCounter++}`;
 
-      // If the element contains a `<dash-treegroup>` then it's a parent node
-      if (this.querySelector('dash-treegroup')) {
+      // If the element contains a `<dash-tree-group>` then it's a parent node
+      if (this.querySelector('dash-tree-group')) {
         // If the element is not explicitly already expanded by the user, then
         // set it to closed.
         if (!isExpanded(this))
@@ -87,8 +87,8 @@
         if (!this.hasAttribute('aria-label')) {
           let label = this.querySelector('label');
           if (!label) {
-            console.error(`The first child of a <dash-treeitem> that ` +
-              `contains a <dash-treegroup> must be a <label>.`);
+            console.error(`The first child of a <dash-tree-item> that ` +
+              `contains a <dash-tree-group> must be a <label>.`);
           } else {
             this.setAttribute('aria-label', label.textContent.trim());
           }
@@ -98,10 +98,10 @@
   }
 
   /**
-   * Define a custom element, `<dash-treeitem>`, and associate it with the
+   * Define a custom element, `<dash-tree-item>`, and associate it with the
    * `DashTreeItem` class.
    */
-  window.customElements.define('dash-treeitem', DashTreeItem);
+  window.customElements.define('dash-tree-item', DashTreeItem);
 
   /**
    * `DashTreeGroup` is a simple container that holds the children of a
@@ -118,10 +118,10 @@
   }
 
   /**
-   * Define a custom element, `<dash-treegroup>`, and associate it with the
+   * Define a custom element, `<dash-tree-group>`, and associate it with the
    * `DashTreeGroup` class.
    */
-  window.customElements.define('dash-treegroup', DashTreeGroup);
+  window.customElements.define('dash-tree-group', DashTreeGroup);
 
   /**
    * `DashTree` is responsible for handling user input and updating the
@@ -143,12 +143,12 @@
       this.setAttribute('tabindex', 0);
 
       // Before the elements starts booting, it waits for both
-      // the `<dash-treeitem>` and `<dash-treegroup>` to load.
+      // the `<dash-tree-item>` and `<dash-tree-group>` to load.
       Promise.all([
-        customElements.whenDefined('dash-treeitem'),
-        customElements.whenDefined('dash-treegroup'),
+        customElements.whenDefined('dash-tree-item'),
+        customElements.whenDefined('dash-tree-group'),
       ]).then(_ => {
-        // Acquire all treeitems inside the element
+        // Acquire all `DashTreeItem` instances inside the element
         const treeItems = this._allTreeItems();
         // If there are no treeItems, then the tree is empty. Abort.
         if (treeItems.length === 0) return;
@@ -181,7 +181,7 @@
       // their parent is currently expanded.
       function findTreeItems(node) {
         for (let el of node.children) {
-          // Ignore children like `<label>`, and `<dash-treegroup>`.
+          // Ignore children like `<label>`, and `<dash-tree-group>`.
           // If the element has children, descend into them looking for
           // more treeitems.
           if (!isTreeItem(el) && el.firstElementChild) {
@@ -312,7 +312,7 @@
      * presses the [home] key.
      */
     _focusFirstTreeItem() {
-      this._focusTreeItem(this.querySelector('dash-treeitem:first-of-type'));
+      this._focusTreeItem(this.querySelector('dash-tree-item:first-of-type'));
     }
 
     /**
@@ -363,7 +363,7 @@
         treeItem.setAttribute('aria-expanded', 'false');
         return;
       }
-      // Walk up the tree till you find the parent `<dash-treeitem>`.
+      // Walk up the tree till you find the parent `<dash-tree-item>`.
       // If this is a root node, do nothing. Otherwise, collapse the parent
       // and move focus to it.
       let parent = treeItem.parentElement;
