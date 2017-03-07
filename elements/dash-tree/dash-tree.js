@@ -3,9 +3,8 @@
  * is represented as a `DashTreeItem` element. If a `DashTreeItem` contains only
  * text it is considered an "end node". If a `DashTreeItem` contains children,
  * it is considered a "parent node". If a `DashTreeItem` is a parent node, its
- * first child should be a `<span>` which will act as a label. Its second child
- * should be a `DashTreeGroup` element, which will hold all of its
- * `DashTreeItem` children.
+ * first child should be a `<label>`. Its second child should be a
+ * `DashTreeGroup` element, which will hold all of its `DashTreeItem` children.
  *
  * Parent nodes can be either collapsed or expanded to reveal their children.
  * The state of the parent node is conveyed through the use of a `aria-expanded`
@@ -78,17 +77,18 @@
         if (!isExpanded(this))
           this.setAttribute('aria-expanded', false);
 
-        // Set the `aria-label` to the first bit of text. Otherwise the label
-        // for this element will be computed based on its text content plus
-        // the text content of all of its children. Making it so verbose as to
-        // be unusable. This first child should ideally be a `<span>` element,
-        // but it may also just be a line of text.
+        // This first child should be a `<label>` element. Custom Elements are
+        // not currently supported by the `<label>` element, but hopefully
+        // they will be in the future. In the meantime, set the `aria-label`
+        // for the `DashTreeItem`, equal to the `<label>` text.
+        // Without this labeling, the element's name will be computed based on
+        // its text content plus the text content of all of its children, making
+        // it so verbose as to be unusable.
         if (!this.hasAttribute('aria-label')) {
-          let label = this.querySelector('span');
+          let label = this.querySelector('label');
           if (!label) {
             console.error(`The first child of a <dash-treeitem> that ` +
-              `contains a <dash-treegroup> must be a <span> containing label ` +
-              `text.`);
+              `contains a <dash-treegroup> must be a <label>.`);
           } else {
             this.setAttribute('aria-label', label.textContent.trim());
           }
@@ -178,17 +178,15 @@
       // A recursive function that visits every child and builds a list
       // This produces similar results to calling querySelectorAll,
       // but allows for filtering of the children based on whether or not
-      // their parent is currently visible.
+      // their parent is currently expanded.
       function findTreeItems(node) {
         for (let el of node.children) {
-          // Ignore children like `<span>` and `<dash-treegroup>`.
+          // Ignore children like `<label>`, and `<dash-treegroup>`.
           // If the element has children, descend into them looking for
           // more treeitems.
-          if (!isTreeItem(el)) {
-            if (el.firstElementChild) {
-              findTreeItems(el);
-              return;
-            }
+          if (!isTreeItem(el) && el.firstElementChild) {
+            findTreeItems(el);
+            return;
           }
 
           // Verify the element is a treeitem before adding it to the list.
@@ -262,7 +260,7 @@
       let treeItem = undefined;
       // A recursive function that will work its way upward until it finds
       // the `DashTreeItem` associated with the event target. This allows
-      // clicking on a `<span>` or `DashTreeGroup` within a `DashTreeItem` and
+      // clicking on a `<label>` or `DashTreeGroup` within a `DashTreeItem` and
       // ensures the right element is always being focused/selected.
       function findTreeItem(node) {
         if (node.getAttribute('role') !== 'treeitem') {
@@ -342,10 +340,10 @@
       const activeItem = this.querySelector('.active');
       if (activeItem)
         activeItem.classList.remove('active');
-      // If the element is expandable then it should have a <span> label
-      // as an immediate child. Put the `active` class on that child instead.
+      // If the element is expandable then it should have a <label> as an
+      // immediate child. Put the `active` class on that child instead.
       if (treeItem.hasAttribute('aria-expanded')) {
-        treeItem.firstElementChild.classList.add('active');
+        treeItem.querySelector('label').classList.add('active');
         return;
       }
       treeItem.classList.add('active');
@@ -395,25 +393,27 @@
      */
     _selectTreeItem() {
       // There can only be one selected element at time.
-      // Look at all the children and remove aria-selected and the selected
+      // Look at all the children and remove `aria-selected` and the `.selected`
       // class from any element that has them.
+      this.querySelectorAll('[aria-selected], .selected')
+        .forEach(item => {
+          item.removeAttribute('aria-selected');
+          item.classList.remove('selected');
+        });
+
       const treeItem = this._currentTreeItem();
-      const treeItems = this.querySelectorAll('dash-treeitem');
-      treeItems.forEach(item => {
-        item.removeAttribute('aria-selected');
-        item.classList.remove('selected');
-      });
       treeItem.setAttribute('aria-selected', 'true');
 
       // For styling purposes, check to see if the item is expanded or closed,
-      // and set the selected class on its `<span>` label if it has one.
+      // and set the selected class on its `<label>` if it has one. Otherwise
+      // set it on the treeitem itself.
       if (treeItem.hasAttribute('aria-expanded')) {
         if (isExpanded(treeItem)) {
           this._collapseTreeItem();
         } else {
           this._expandTreeItem();
         }
-        treeItem.querySelector('span').classList.add('selected');
+        treeItem.querySelector('label').classList.add('selected');
       } else {
         treeItem.classList.add('selected');
       }
@@ -421,7 +421,7 @@
       // Dispatch a non-bubbling event containing a reference to the selected
       // node. The reason to choose non-bubbling is explained in this post
       // https://medium.com/dev-channel/custom-elements-that-work-anywhere-898e1dd2bc48#.w6ww4mgfc
-      dispatchEvent(new CustomEvent('dash-tree-item-selected', {
+      this.dispatchEvent(new CustomEvent('dash-tree-item-selected', {
         detail: {
           item: treeItem,
         },

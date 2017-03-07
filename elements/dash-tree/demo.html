@@ -10,10 +10,10 @@
   dash-treegroup {
     padding-left: 20px;
   }
-  dash-treeitem[aria-expanded="false"] > span::before {
+  dash-treeitem[aria-expanded="false"] > label::before {
     content: '+';
   }
-  dash-treeitem[aria-expanded="true"] > span::before {
+  dash-treeitem[aria-expanded="true"] > label::before {
     content: '-';
   }
   dash-treeitem[aria-expanded="true"] > dash-treegroup {
@@ -38,19 +38,19 @@
   <dash-treeitem>Project2</dash-treeitem>
   <dash-treeitem>Project3</dash-treeitem>
   <dash-treeitem>
-    <span>Project 4</span>
+    <label>Project 4</label>
     <dash-treegroup>
       <dash-treeitem>File1</dash-treeitem>
       <dash-treeitem>File2</dash-treeitem>
       <dash-treeitem>File3</dash-treeitem>
       <dash-treeitem>
-        <span>Subproject 1</span>
+        <label>Subproject 1</label>
         <dash-treegroup>
           <dash-treeitem>Subfile1</dash-treeitem>
           <dash-treeitem>Subfile2</dash-treeitem>
           <dash-treeitem>Subfile3</dash-treeitem>
           <dash-treeitem aria-expanded="true">
-            <span>Subsubproject 1</span>
+            <label>Subsubproject 1</label>
             <dash-treegroup>
               <dash-treeitem>Subsubfile1</dash-treeitem>
               <dash-treeitem>Subsubfile2</dash-treeitem>
@@ -63,19 +63,19 @@
   </dash-treeitem>
   <dash-treeitem>Project 5</dash-treeitem>
   <dash-treeitem aria-expanded="true">
-    <span>Project 6</span>
+    <label>Project 6</label>
     <dash-treegroup>
       <dash-treeitem>File1</dash-treeitem>
       <dash-treeitem>File2</dash-treeitem>
       <dash-treeitem>File3</dash-treeitem>
       <dash-treeitem aria-expanded="true">
-        <span>Subproject 2</span>
+        <label>Subproject 2</label>
         <dash-treegroup>
           <dash-treeitem>Subfile1</dash-treeitem>
           <dash-treeitem>Subfile2</dash-treeitem>
           <dash-treeitem>Subfile3</dash-treeitem>
           <dash-treeitem>
-            <span>Subsubproject 2</span>
+            <label>Subsubproject 2</label>
             <dash-treegroup>
               <dash-treeitem>Subsubfile1</dash-treeitem>
               <dash-treeitem>Subsubfile2</dash-treeitem>
@@ -88,7 +88,7 @@
   </dash-treeitem>
   <dash-treeitem>Project 7</dash-treeitem>
   <dash-treeitem aria-expanded="false">
-    <span>Project 8</span>
+    <label>Project 8</label>
     <dash-treegroup>
       <dash-treeitem>File1</dash-treeitem>
       <dash-treeitem>File2</dash-treeitem>
