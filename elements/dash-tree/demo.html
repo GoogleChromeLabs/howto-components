@@ -4,7 +4,8 @@
   }
   dash-tree,
   dash-treeitem,
-  dash-treegroup {
+  dash-treegroup,
+  label {
     display: block;
   }
   dash-treegroup {
@@ -22,11 +23,15 @@
   dash-treeitem[aria-expanded="false"] > dash-treegroup {
     display: none;
   }
-  .active {
+  .active:not([aria-expanded]),
+  .active:not([aria-expanded="true"]),
+  .active[aria-expanded="true"] > label {
     background: lightgrey;
     outline: 2px solid black;
   }
-  .selected {
+  .selected:not([aria-expanded]),
+  .selected:not([aria-expanded="true"]),
+  .selected[aria-expanded="true"] > label {
     background: hotpink;
   }
 </style>

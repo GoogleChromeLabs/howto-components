@@ -238,6 +238,7 @@
 
         case KEYCODE.SPACE:
         case KEYCODE.ENTER:
+          this._toggleTreeItem();
           this._selectTreeItem();
           break;
 
@@ -267,6 +268,7 @@
       }
 
       this._focusTreeItem(treeItem);
+      this._toggleTreeItem();
       this._selectTreeItem();
     }
 
@@ -334,13 +336,20 @@
       const activeItem = this.querySelector('.active');
       if (activeItem)
         activeItem.classList.remove('active');
-      // If the element is expandable then it should have a <label> as an
-      // immediate child. Put the `active` class on that child instead.
-      if (treeItem.hasAttribute('aria-expanded')) {
-        treeItem.querySelector('label').classList.add('active');
-        return;
-      }
+
       treeItem.classList.add('active');
+    }
+
+    /**
+     * Flip the `DashTreeItem` between open and closed states.
+     */
+    _toggleTreeItem() {
+      const treeItem = this._currentTreeItem();
+      if (isExpanded(treeItem)) {
+        this._collapseTreeItem();
+      } else {
+        this._expandTreeItem();
+      }
     }
 
     /**
@@ -396,20 +405,7 @@
 
       const treeItem = this._currentTreeItem();
       treeItem.setAttribute('aria-selected', 'true');
-
-      // For styling purposes, check to see if the item is expanded or closed,
-      // and set the selected class on its `<label>` if it has one. Otherwise
-      // set it on the treeitem itself.
-      if (treeItem.hasAttribute('aria-expanded')) {
-        if (isExpanded(treeItem)) {
-          this._collapseTreeItem();
-        } else {
-          this._expandTreeItem();
-        }
-        treeItem.querySelector('label').classList.add('selected');
-      } else {
-        treeItem.classList.add('selected');
-      }
+      treeItem.classList.add('selected');
 
       // Dispatch a non-bubbling event containing a reference to the selected
       // node. The reason to choose non-bubbling is explained in this post
