@@ -1,0 +1,41 @@
+<!doctype html>
+<style>
+dash-combobox {
+  display: block;
+  position: relative;
+}
+dash-combobox-suggestions {
+  position: absolute;
+  display: none;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.54);
+}
+dash-combobox[aria-expanded="true"] dash-combobox-suggestions {
+  display: block;
+}
+dash-combobox-suggestion {
+  display: block;
+  padding: 10px;
+}
+dash-combobox-suggestion:hover,
+dash-combobox-suggestion[aria-selected="true"] {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+/* FIXME: Find a better solution */
+dash-combobox {
+  padding-bottom: 400px;
+}
+</style>
+
+<dash-combobox>
+  <input type="text">
+  <dash-combobox-suggestions>
+    <dash-combobox-suggestion>Apple</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Banana</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Cherry</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Date</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Elderberry</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Fig</dash-combobox-suggestion>
+    <dash-combobox-suggestion>Grape</dash-combobox-suggestion>
+  </dash-combobox-suggestions>
+</dash-combobox>

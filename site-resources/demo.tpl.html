@@ -30,7 +30,7 @@
 
     // The parents window can query the iframe’s document size at any time by
     // sending any message.
-    window.addEventListener('message', sendSize);
+    window.addEventListener('message', _ => sendSize());
 
     // If there’s a `nojs` in the URL’s query string, don’t load the elements,
     // somewhat emulating disabled JavaScript.
