@@ -6,16 +6,16 @@
  * first child should be a `<span>` which will act as a label. Its second child
  * should be a `DashTreeGroup` element, which will hold all of its
  * `DashTreeItem` children.
- * 
+ *
  * Parent nodes can be either collapsed or expanded to reveal their children.
  * The state of the parent node is conveyed through the use of a `aria-expanded`
  * attribute.
- * 
- * Depending on the implementation, trees can support either single or 
+ *
+ * Depending on the implementation, trees can support either single or
  * multi selection. The `DashTree` element supports single selection, so
  * there can only be one selected element at a time. The currently selected
  * element is indicated by the `aria-selected` attribute.
- * 
+ *
  * Unlike the `DashRadioGroup`, which uses roving tabindex to indicate which
  * child is currently active, the `DashTree` uses `aria-activedescendant` and
  * the `id` of the currently active child. The effect is similar to using roving
@@ -104,7 +104,7 @@
   window.customElements.define('dash-treeitem', DashTreeItem);
 
   /**
-   * `DashTreeGroup` is a simple container that holds the children of a 
+   * `DashTreeGroup` is a simple container that holds the children of a
    * `DashTreeItem` parent node.
    */
   class DashTreeGroup extends HTMLElement {
@@ -159,7 +159,7 @@
         const selectedTreeItem =
           treeItems.find(treeItem =>
             treeItem.getAttribute('aria-selected') === 'true');
-        
+
         if (selectedTreeItem) {
           this._focusTreeItem(selectedTreeItem);
           this._selectTreeItem();
