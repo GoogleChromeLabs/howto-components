@@ -22,13 +22,13 @@ describe.only('dash-radio-group', function() {
         _ => document.activeElement === window.expectedFirstRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
       success = await this.driver.executeScript(
         _ => document.activeElement === window.expectedSecondRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
       success = await this.driver.executeScript(
         _ => document.activeElement === window.expectedFirstRadio
@@ -62,13 +62,13 @@ describe.only('dash-radio-group', function() {
         _ => document.activeElement === window.expectedFirstRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
       success = await this.driver.executeScript(
         _ => document.activeElement === window.expectedLastRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       success = await this.driver.executeScript(
         _ => document.activeElement === window.expectedFirstRadio
@@ -137,7 +137,7 @@ describe.only('dash-radio-group', function() {
         _ => document.activeElement === window.expectedFirstRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
       success = await this.driver.executeScript(
         _ => window.expectedSecondRadio.getAttribute('aria-checked') === 'true'
@@ -159,7 +159,7 @@ describe.only('dash-radio-group', function() {
         _ => document.activeElement === window.expectedFirstRadio
       );
       expect(success).to.equal(true);
-      
+
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
       // Hold SHIFT, then press TAB
       // Note, Selenium will hold the SHIFT modifier key down till the next
@@ -174,7 +174,7 @@ describe.only('dash-radio-group', function() {
     }
   );
 
- it('should focus and select a radio on click',
+  it('should focus and select a radio on click',
     async function() {
       const secondRadio =
         await this.driver.findElement(By.css('[role=radio]:nth-of-type(2)'));
