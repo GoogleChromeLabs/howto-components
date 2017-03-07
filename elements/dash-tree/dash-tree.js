@@ -179,31 +179,30 @@
       // This produces similar results to calling querySelectorAll,
       // but allows for filtering of the children based on whether or not
       // their parent is currently visible.
-      function findTreeItems(node, isVisible) {
+      function findTreeItems(node) {
         for (let el of node.children) {
           // Ignore children like `<span>` and `<dash-treegroup>`.
           // If the element has children, descend into them looking for
           // more treeitems.
           if (!isTreeItem(el)) {
             if (el.firstElementChild) {
-              findTreeItems(el, isVisible);
+              findTreeItems(el);
               return;
             }
           }
 
-          // Verify the element is a treeitem, and assert that it's visible
-          // before adding it to the list.
-          if (isTreeItem(el) && isVisible) {
+          // Verify the element is a treeitem before adding it to the list.
+          if (isTreeItem(el)) {
             treeItems.push(el);
             // If you hit an element with `aria-expanded=true`, continue to
             // walk its children and add them to the list.
             if (isExpanded(el)) {
-              findTreeItems(el, isVisible);
+              findTreeItems(el);
             }
           }
         }
       }
-      findTreeItems(this, true);
+      findTreeItems(this);
       return treeItems;
     }
 
