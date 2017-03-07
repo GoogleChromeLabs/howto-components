@@ -1,5 +1,26 @@
 /**
- * // TODO: Big tree comment.
+ * A `DashTree` presents a hierarchical list of children. Each node in the tree
+ * is represented as a `DashTreeItem` element. If a `DashTreeItem` contains only
+ * text it is considered an "end node". If a `DashTreeItem` contains children,
+ * it is considered a "parent node". If a `DashTreeItem` is a parent node, its
+ * first child should be a `<span>` which will act as a label. Its second child
+ * should be a `DashTreeGroup` element, which will hold all of its
+ * `DashTreeItem` children.
+ * 
+ * Parent nodes can be either collapsed or expanded to reveal their children.
+ * The state of the parent node is conveyed through the use of a `aria-expanded`
+ * attribute.
+ * 
+ * Depending on the implementation, trees can support either single or 
+ * multi selection. The `DashTree` element supports single selection, so
+ * there can only be one selected element at a time. The currently selected
+ * element is indicated by the `aria-selected` attribute.
+ * 
+ * Unlike the `DashRadioGroup`, which uses roving tabindex to indicate which
+ * child is currently active, the `DashTree` uses `aria-activedescendant` and
+ * the `id` of the currently active child. The effect is similar to using roving
+ * tabindex, and is presented in this case to show an alternative approach to
+ * indicating active children.
  */
 
 (function() {
@@ -18,7 +39,7 @@
   };
 
   /**
-   * A helper to quickly identify `<dash-treeitem>` nodes
+   * A helper to quickly identify `DashTreeItem` nodes
    */
   function isTreeItem(node) {
     return node.nodeName.toLowerCase() === 'dash-treeitem';
@@ -44,7 +65,7 @@
     connectedCallback() {
       this.setAttribute('role', 'treeitem');
 
-      // If the element doesn't already have an ID, generate one for it.
+      // If the element doesn't already have an `id`, generate one for it.
       // This will make it easier to set the element as active using
       // `aria-activedescendant`.
       if (!this.id)
@@ -82,6 +103,10 @@
    */
   window.customElements.define('dash-treeitem', DashTreeItem);
 
+  /**
+   * `DashTreeGroup` is a simple container that holds the children of a 
+   * `DashTreeItem` parent node.
+   */
   class DashTreeGroup extends HTMLElement {
     constructor() {
       super();
@@ -98,6 +123,11 @@
    */
   window.customElements.define('dash-treegroup', DashTreeGroup);
 
+  /**
+   * `DashTree` is responsible for handling user input and updating the
+   * expanded/collapsed and selected state for its children. It also manages
+   * the currently active child using `aria-activedescendant`.
+   */
   class DashTree extends HTMLElement {
     constructor() {
       super();
@@ -123,10 +153,26 @@
         // If there are no treeItems, then the tree is empty. Abort.
         if (treeItems.length === 0) return;
 
-        // TODO: Handle a child that is already aria-selected=true?
+        // The element checks if any child has been marked as selected.
+        // If so, it will mark it as the current `aria-activedescendant`
+        // and mark it with a `.selected` class.
+        const selectedTreeItem =
+          treeItems.find(treeItem =>
+            treeItem.getAttribute('aria-selected') === 'true');
+        
+        if (selectedTreeItem) {
+          this._focusTreeItem(selectedTreeItem);
+          this._selectTreeItem();
+        }
       });
     }
 
+    /**
+     * Returns a list of visible `DashTreeItem` elements. This is useful when
+     * the user wants to try to move to the next or previous item in the list.
+     * If an item is a child of a parent who is set to `aria-expanded=false`
+     * then it is considered invisible and is not added to the list.
+     */
     _allTreeItems() {
       const treeItems = [];
       // A recursive function that visits every child and builds a list
@@ -149,7 +195,7 @@
           // before adding it to the list.
           if (isTreeItem(el) && isVisible) {
             treeItems.push(el);
-            // If you hit an element with `aria-expanded=true`, continue to 
+            // If you hit an element with `aria-expanded=true`, continue to
             // walk its children and add them to the list.
             if (isExpanded(el)) {
               findTreeItems(el, isVisible);
@@ -210,11 +256,15 @@
     }
 
     /**
-     * Find the `<dash-treeitem>` for the element that was clicked.
+     * Find the `DashTreeItem` associated with the element that was clicked.
      * Focus the treeitem and make it the current selected item as well.
      */
     _onClick(event) {
       let treeItem = undefined;
+      // A recursive function that will work its way upward until it finds
+      // the `DashTreeItem` associated with the event target. This allows
+      // clicking on a `<span>` or `DashTreeGroup` within a `DashTreeItem` and
+      // ensures the right element is always being focused/selected.
       function findTreeItem(node) {
         if (node.getAttribute('role') !== 'treeitem') {
           node = node.parentElement;
@@ -234,17 +284,17 @@
      * return null.
      */
     _currentTreeItem() {
-      const activeDescendant = this.getAttribute('aria-activedescendant');
-      if (activeDescendant) {
-        return this.querySelector(`#${activeDescendant}`);
+      const activedescendant = this.getAttribute('aria-activedescendant');
+      if (activedescendant) {
+        return this.querySelector(`#${activedescendant}`);
       }
 
       return null;
     }
 
     /**
-     * `_nextTreeItem` gets the treeitem that comes after the currently active
-     * one.
+     * Attempt to find the next `DashTreeItem` in the list. If one exists,
+     * focus it. Otherwise just ignore the command.
      */
     _focusNextTreeItem() {
       const treeItems = this._allTreeItems();
@@ -254,8 +304,8 @@
     }
 
     /**
-     * `_prevTreeItem` gets the treeitem that comes before the currently
-     * selected one.
+     * Attempt to find the previous `DashTreeItem` in the list. If one exists,
+     * focus it. Otherwise just ignore the command.
      */
     _focusPrevTreeItem() {
       const treeItems = this._allTreeItems();
@@ -265,15 +315,16 @@
     }
 
     /**
-     * Focus the first `<dash-treeitem>` in the tree.
+     * Focus the first `DashTreeItem` in the tree. Useful for when the user
+     * presses the [home] key.
      */
     _focusFirstTreeItem() {
       this._focusTreeItem(this.querySelector('dash-treeitem:first-of-type'));
     }
 
     /**
-     * Focus the last `<dash-treeitem>` in the tree that is focusable without
-     * opening a node.
+     * Focus the last `DashTreeItem` in the tree. Useful for when the user
+     * presses the [end] key.
      */
     _focusLastTreeItem() {
       const treeItems = this._allTreeItems();
@@ -281,7 +332,8 @@
     }
 
     /**
-     * `_focusTreeItem` marks the given treeitem as the new activedescendant.
+     * Mark the passed in element as the new `aria-activedescendant` and give
+     * it an `.active` class for easy styling.
      */
     _focusTreeItem(treeItem) {
       this.setAttribute('aria-activedescendant', treeItem.id);
@@ -325,6 +377,9 @@
       this._focusTreeItem(parent);
     }
 
+    /**
+     * If focus is on a closed node, opens the node.
+     */
     _expandTreeItem() {
       const treeItem = this._currentTreeItem();
       if (treeItem.firstElementChild) {
@@ -367,7 +422,6 @@
       // Dispatch a non-bubbling event containing a reference to the selected
       // node. The reason to choose non-bubbling is explained in this post
       // https://medium.com/dev-channel/custom-elements-that-work-anywhere-898e1dd2bc48#.w6ww4mgfc
-      // TODO: How do you deep link a Medium post???
       dispatchEvent(new CustomEvent('dash-tree-item-selected', {
         detail: {
           item: treeItem,
