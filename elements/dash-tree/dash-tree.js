@@ -52,19 +52,15 @@
     return node.querySelector('dash-tree-group') !== null;
   }
 
-  /**
-   * A helper to quickly identify ARIA states.
-   * Note that ARIA attributes require a literal string value of "true"/"false".
-   */
-  function isExpanded(node) {
-    return node.getAttribute('aria-expanded') === 'true';
-  }
-
   // `dashTreeItemCounter` counts the number of `<dash-tree-item>` instances
   // created. The number is used to generated new, unique `id`s.
   let dashTreeItemCounter = 0;
 
   class DashTreeItem extends HTMLElement {
+    static get observedAttributes() {
+      return ['expanded'];
+    }
+
     constructor() {
       super();
     }
@@ -73,7 +69,7 @@
       this.setAttribute('role', 'treeitem');
 
       // If the element doesn't already have an `id`, generate one for it.
-      // Every node needs an `id` so it can be references by
+      // Every node needs an `id` so it can be referenced by
       // `aria-activedescendant`.
       if (!this.id)
         this.id = `dash-tree-item-generated-${dashTreeItemCounter++}`;
@@ -82,8 +78,7 @@
       if (isParentNode(this)) {
         // If the element is not explicitly already expanded by the user, then
         // set it to closed.
-        if (!isExpanded(this))
-          this.setAttribute('aria-expanded', false);
+        if (!this.hasAttribute('expanded')) this.expanded = false;
 
         // This first child should be a `<label>` element. Custom Elements are
         // not currently supported by the `<label>` element, but hopefully
@@ -104,16 +99,21 @@
       }
     }
 
+    attributeChangedCallback(name, oldValue, newValue) {
+      this.expanded = this.hasAttribute('expanded');
+    }
+
     set expanded(isExpanded) {
+      if (!isParentNode(this)) return;
       if (isExpanded) {
         this.setAttribute('aria-expanded', true);
       } else {
-        this.removeAttribute('aria-expanded');
+        this.setAttribute('aria-expanded', false);
       }
     }
 
     get expanded() {
-      return this.hasAttribute('aria-expanded');
+      return this.getAttribute('aria-expanded') === 'true';
     }
   }
 
@@ -182,7 +182,7 @@
 
         if (selectedTreeItem) {
           this._focusTreeItem(selectedTreeItem);
-          this._selectTreeItem();
+          this._selectTreeItem(selectedTreeItem);
         }
       });
     }
@@ -206,7 +206,7 @@
           // If it is not expanded, don’t descend.
           // This should ignore any children and treat them as if they are
           // invisible.
-          if (isTreeItem(el) && !isExpanded(el)) continue;
+          if (isTreeItem(el) && !el.expanded) continue;
           // Otherwise, if the element is expanded OR we've hit something
           // else like a `DashTreeGroup`, continue to descend and look for
           // more `DashTreeItem`s.
@@ -285,8 +285,8 @@
       }
 
       this._focusTreeItem(treeItem);
-      this._toggleTreeItem();
-      this._selectTreeItem();
+      this._toggleTreeItem(treeItem);
+      this._selectTreeItem(treeItem);
     }
 
     /**
@@ -306,6 +306,8 @@
      * Attempt to find the previous `DashTreeItem` in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
+    // TODO: This and _focusNextTreeItem are relying on undefined/falsey
+    // behavior when the first element is focused.
     _focusPrevTreeItem(currentTreeItem) {
       const treeItems = this._allTreeItems();
       const idx = treeItems.lastIndexOf(currentTreeItem) - 1;
@@ -361,8 +363,8 @@
      * parent node, move focus to its parent node.
      */
     _collapseTreeItem(currentTreeItem) {
-      if (isParentNode(currentTreeItem) && isExpanded(currentTreeItem)) {
-        currentTreeItem.setAttribute('aria-expanded', 'false');
+      if (isParentNode(currentTreeItem) && currentTreeItem.expanded) {
+        currentTreeItem.expanded = false;
         return;
       }
       // Walk up the tree till you find the parent `DashTreeItem`.
@@ -374,7 +376,7 @@
       while (!isTreeItem(parent)) {
         parent = parent.parentElement;
       }
-      parent.setAttribute('aria-expanded', 'false');
+      parent.expanded = false;
       this._focusTreeItem(parent);
     }
 
@@ -383,7 +385,7 @@
      */
     _expandTreeItem(currentTreeItem) {
       if (isParentNode(currentTreeItem)) {
-        currentTreeItem.setAttribute('aria-expanded', 'true');
+        currentTreeItem.expanded = true;
       }
     }
 
@@ -391,7 +393,7 @@
      * Flip the `DashTreeItem` between open and closed states.
      */
     _toggleTreeItem(currentTreeItem) {
-      if (isExpanded(currentTreeItem)) {
+      if (currentTreeItem.expanded) {
         this._collapseTreeItem(currentTreeItem);
       } else {
         this._expandTreeItem(currentTreeItem);
