@@ -1,8 +1,8 @@
 /**
  * A `DashTree` presents a hierarchical list of children. Each node in the tree
  * is represented as a `DashTreeItem` element. If a `DashTreeItem` contains only
- * text it is considered an "end node". If a `DashTreeItem` contains children,
- * it is considered a "parent node". If a `DashTreeItem` is a parent node, its
+ * text it is considered a "leaf" node. If a `DashTreeItem` contains children,
+ * it is considered a "parent" node. If a `DashTreeItem` is a parent node, its
  * first child should be a `<label>`. Its second child should be a
  * `DashTreeGroup` element, which will hold all of its `DashTreeItem` children.
  *
@@ -15,11 +15,11 @@
  * there can only be one selected element at a time. The currently selected
  * element is indicated by the `aria-selected` attribute.
  *
- * Unlike the `DashRadioGroup`, which uses roving tabindex to indicate which
- * child is currently active, the `DashTree` uses `aria-activedescendant` and
- * the `id` of the currently active child. The effect is similar to using roving
- * tabindex, and is presented in this case to show an alternative approach to
- * indicating active children.
+ * Unlike the [`DashRadioGroup`](./dash-radio-group.html), which uses roving
+ * tabindex to indicate which child is currently active, the `DashTree` uses
+ * `aria-activedescendant` and the `id` of the currently active child. The
+ * effect is similar to using roving tabindex, and is presented in this case to
+ * show an alternative approach to indicating active children.
  */
 
 (function() {
@@ -38,10 +38,18 @@
   };
 
   /**
-   * A helper to quickly identify `DashTreeItem` nodes
+   * A helper to quickly identify `DashTreeItem` nodes.
    */
   function isTreeItem(node) {
     return node.nodeName.toLowerCase() === 'dash-tree-item';
+  }
+
+  /**
+   * A helper to quickly identify parent nodes in the tree.
+   * A parent node is a `DashTreeItem` that contains a `DashTreeGroup`.
+   */
+  function isParentNode(node) {
+    return node.querySelector('dash-tree-group') !== null;
   }
 
   /**
@@ -53,7 +61,7 @@
   }
 
   // `dashTreeItemCounter` counts the number of `<dash-tree-item>` instances
-  // created. The number is used to generated new, unique IDs.
+  // created. The number is used to generated new, unique `id`s.
   let dashTreeItemCounter = 0;
 
   class DashTreeItem extends HTMLElement {
@@ -65,13 +73,13 @@
       this.setAttribute('role', 'treeitem');
 
       // If the element doesn't already have an `id`, generate one for it.
-      // This will make it easier to set the element as active using
+      // Every node needs an `id` so it can be references by
       // `aria-activedescendant`.
       if (!this.id)
         this.id = `dash-tree-item-generated-${dashTreeItemCounter++}`;
 
       // If the element contains a `<dash-tree-group>` then it's a parent node
-      if (this.querySelector('dash-tree-group')) {
+      if (isParentNode(this)) {
         // If the element is not explicitly already expanded by the user, then
         // set it to closed.
         if (!isExpanded(this))
@@ -94,6 +102,18 @@
           }
         }
       }
+    }
+
+    set expanded(isExpanded) {
+      if (isExpanded) {
+        this.setAttribute('aria-expanded', true);
+      } else {
+        this.removeAttribute('aria-expanded');
+      }
+    }
+
+    get expanded() {
+      return this.hasAttribute('aria-expanded');
     }
   }
 
@@ -175,29 +195,22 @@
      */
     _allTreeItems() {
       const treeItems = [];
-      // A recursive function that visits every child and builds a list
+      // A recursive function that visits every child and builds a list.
       // This produces similar results to calling querySelectorAll,
       // but allows for filtering of the children based on whether or not
       // their parent is currently expanded.
       function findTreeItems(node) {
         for (let el of node.children) {
-          // Ignore children like `<label>`, and `<dash-tree-group>`.
-          // If the element has children, descend into them looking for
-          // more treeitems.
-          if (!isTreeItem(el) && el.firstElementChild) {
-            findTreeItems(el);
-            return;
-          }
-
-          // Verify the element is a treeitem before adding it to the list.
-          if (isTreeItem(el)) {
-            treeItems.push(el);
-            // If you hit an element with `aria-expanded=true`, continue to
-            // walk its children and add them to the list.
-            if (isExpanded(el)) {
-              findTreeItems(el);
-            }
-          }
+          // If the child is a `DashTreeItem`, add it to the list of results.
+          if (isTreeItem(el)) treeItems.push(el);
+          // If it is not expanded, don’t descend.
+          // This should ignore any children and treat them as if they are
+          // invisible.
+          if (isTreeItem(el) && !isExpanded(el)) continue;
+          // Otherwise, if the element is expanded OR we've hit something
+          // else like a `DashTreeGroup`, continue to descend and look for
+          // more `DashTreeItem`s.
+          findTreeItems(el);
         }
       }
       findTreeItems(this);
@@ -211,21 +224,25 @@
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
 
+      // Grab a reference to the `currentTreeItem` as it's almost always
+      // passed as an argument to one of the actions to be taken.
+      const currentTreeItem = this._currentTreeItem();
+
       switch (event.keyCode) {
         case KEYCODE.UP:
-          this._focusPrevTreeItem();
+          this._focusPrevTreeItem(currentTreeItem);
           break;
 
         case KEYCODE.DOWN:
-          this._focusNextTreeItem();
+          this._focusNextTreeItem(currentTreeItem);
           break;
 
         case KEYCODE.LEFT:
-          this._collapseTreeItem();
+          this._collapseTreeItem(currentTreeItem);
           break;
 
         case KEYCODE.RIGHT:
-          this._expandTreeItem();
+          this._expandTreeItem(currentTreeItem);
           break;
 
         case KEYCODE.HOME:
@@ -238,8 +255,8 @@
 
         case KEYCODE.SPACE:
         case KEYCODE.ENTER:
-          this._toggleTreeItem();
-          this._selectTreeItem();
+          this._toggleTreeItem(currentTreeItem);
+          this._selectTreeItem(currentTreeItem);
           break;
 
         // Any other key press is ignored and passed back to the browser.
@@ -286,25 +303,23 @@
     }
 
     /**
-     * Attempt to find the next `DashTreeItem` in the list. If one exists,
-     * focus it. Otherwise just ignore the command.
-     */
-    _focusNextTreeItem() {
-      const treeItems = this._allTreeItems();
-      const currentItem = this._currentTreeItem();
-      const idx = treeItems.lastIndexOf(currentItem) + 1;
-      if (idx < treeItems.length) this._focusTreeItem(treeItems[idx]);
-    }
-
-    /**
      * Attempt to find the previous `DashTreeItem` in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
-    _focusPrevTreeItem() {
+    _focusPrevTreeItem(currentTreeItem) {
       const treeItems = this._allTreeItems();
-      const currentItem = this._currentTreeItem();
-      const idx = treeItems.lastIndexOf(currentItem) - 1;
+      const idx = treeItems.lastIndexOf(currentTreeItem) - 1;
       if (idx >= 0) this._focusTreeItem(treeItems[idx]);
+    }
+
+    /**
+     * Attempt to find the next `DashTreeItem` in the list. If one exists,
+     * focus it. Otherwise just ignore the command.
+     */
+    _focusNextTreeItem(currentTreeItem) {
+      const treeItems = this._allTreeItems();
+      const idx = treeItems.lastIndexOf(currentTreeItem) + 1;
+      if (idx < treeItems.length) this._focusTreeItem(treeItems[idx]);
     }
 
     /**
@@ -341,32 +356,19 @@
     }
 
     /**
-     * Flip the `DashTreeItem` between open and closed states.
+     * If focus is on an open node, close the node.
+     * If focus is on a child node that is also either a leaf node or a closed
+     * parent node, move focus to its parent node.
      */
-    _toggleTreeItem() {
-      const treeItem = this._currentTreeItem();
-      if (isExpanded(treeItem)) {
-        this._collapseTreeItem();
-      } else {
-        this._expandTreeItem();
-      }
-    }
-
-    /**
-     * If focus is on an open node, closes the node.
-     * If focus is on a child node that is also either an end node or a closed
-     * node, move focus to its parent node.
-     */
-    _collapseTreeItem() {
-      const treeItem = this._currentTreeItem();
-      if (treeItem.firstElementChild && isExpanded(treeItem)) {
-        treeItem.setAttribute('aria-expanded', 'false');
+    _collapseTreeItem(currentTreeItem) {
+      if (isParentNode(currentTreeItem) && isExpanded(currentTreeItem)) {
+        currentTreeItem.setAttribute('aria-expanded', 'false');
         return;
       }
-      // Walk up the tree till you find the parent `<dash-tree-item>`.
+      // Walk up the tree till you find the parent `DashTreeItem`.
       // If this is a root node, do nothing. Otherwise, collapse the parent
       // and move focus to it.
-      let parent = treeItem.parentElement;
+      let parent = currentTreeItem.parentElement;
       if (parent === this)
         return;
       while (!isTreeItem(parent)) {
@@ -379,10 +381,20 @@
     /**
      * If focus is on a closed node, opens the node.
      */
-    _expandTreeItem() {
-      const treeItem = this._currentTreeItem();
-      if (treeItem.firstElementChild) {
-        treeItem.setAttribute('aria-expanded', 'true');
+    _expandTreeItem(currentTreeItem) {
+      if (isParentNode(currentTreeItem)) {
+        currentTreeItem.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    /**
+     * Flip the `DashTreeItem` between open and closed states.
+     */
+    _toggleTreeItem(currentTreeItem) {
+      if (isExpanded(currentTreeItem)) {
+        this._collapseTreeItem(currentTreeItem);
+      } else {
+        this._expandTreeItem(currentTreeItem);
       }
     }
 
@@ -393,7 +405,7 @@
      * a file picker, an application could listen for this event and open
      * the file based on the item's name.
      */
-    _selectTreeItem() {
+    _selectTreeItem(currentTreeItem) {
       // There can only be one selected element at time.
       // Look at all the children and remove `aria-selected` and the `.selected`
       // class from any element that has them.
@@ -403,18 +415,17 @@
           item.classList.remove('selected');
         });
 
-      const treeItem = this._currentTreeItem();
-      treeItem.setAttribute('aria-selected', 'true');
-      treeItem.classList.add('selected');
+      currentTreeItem.setAttribute('aria-selected', 'true');
+      currentTreeItem.classList.add('selected');
 
       // Dispatch a non-bubbling event containing a reference to the selected
-      // node. The reason to choose non-bubbling is explained in this post
-      // https://medium.com/dev-channel/custom-elements-that-work-anywhere-898e1dd2bc48#.w6ww4mgfc
+      // node. The reason to choose non-bubbling is explained in 
+      // [this Medium post.](https://medium.com/dev-channel/custom-elements-that-work-anywhere-898e1dd2bc48#.w6ww4mgfc)
       this.dispatchEvent(new CustomEvent('dash-tree-item-selected', {
         detail: {
-          item: treeItem,
+          item: currentTreeItem,
         },
-        bubbles: false,
+        bubbles: false
       }));
     }
 
