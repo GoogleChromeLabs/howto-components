@@ -5,30 +5,54 @@
   dash-tree,
   dash-tree-item,
   dash-tree-group,
-  label {
+  dash-tree-item label {
     display: block;
+  }
+  dash-tree:focus {
+    outline: none;
   }
   dash-tree-group {
     padding-left: 20px;
   }
+  /*
+    A simple plus or minus sign is used to indicate a `DashTreeItem` that can
+    be expanded or collapsed.
+  */
   dash-tree-item[aria-expanded="false"] > label::before {
     content: '+';
   }
   dash-tree-item[aria-expanded="true"] > label::before {
     content: '-';
   }
-  dash-tree-item[aria-expanded="true"] > dash-tree-group {
-    display: block;
-  }
+  /*
+    By default a `DashTreeItem` is `display: block`. If it's in a collapsed
+    state, hide it with `display: none`.
+  */
   dash-tree-item[aria-expanded="false"] > dash-tree-group {
     display: none;
   }
+  /*
+    The `.active` class indicates which child is the current
+    `aria-activedescendant`. For all intents and purposes this child is
+    "focused", though actual keyboard focus remains on the `<dash-tree>` at all
+    times. This selector will style the background of the `DashTreeItem` that
+    is active, so long as it's closed. If it's opened, the active class will
+    style the tree item's label. This is to prevent an opened `DashTreeItem`
+    from showing a styled background on all of its children.
+  */
   .active:not([aria-expanded]),
   .active:not([aria-expanded="true"]),
   .active[aria-expanded="true"] > label {
     background: lightgrey;
     outline: 2px solid black;
   }
+  /*
+    The `.selected` class indicates which child has been either clicked on with
+    a mouse, or selected via the `[space]` or `[enter]` keys. Similar to the
+    `.active` class selector above, this selector will style the `DashTreeItem`
+    background, unless it is expanded, in which case it will only style its
+    label.
+  */
   .selected:not([aria-expanded]),
   .selected:not([aria-expanded="true"]),
   .selected[aria-expanded="true"] > label {
@@ -36,70 +60,35 @@
   }
 </style>
 
-<!-- Possible PE: Upgrade from list/listem to tree/treeitem -->
 <h3 id="file-tree-lbl">File Tree</h3>
-<dash-tree aria-labelledby="file-tree-lbl">
-  <dash-tree-item>Project1</dash-tree-item>
-  <dash-tree-item>Project2</dash-tree-item>
-  <dash-tree-item>Project3</dash-tree-item>
-  <dash-tree-item>
+<dash-tree aria-labelledby="file-tree-lbl" role="list">
+  <dash-tree-item role="listitem">Project1</dash-tree-item>
+  <dash-tree-item role="listitem">Project2</dash-tree-item>
+  <dash-tree-item role="listitem">Project3</dash-tree-item>
+  <dash-tree-item role="listitem">
     <label>Project 4</label>
-    <dash-tree-group>
-      <dash-tree-item>File1</dash-tree-item>
-      <dash-tree-item>File2</dash-tree-item>
-      <dash-tree-item>File3</dash-tree-item>
-      <dash-tree-item>
+    <dash-tree-group role="list">
+      <dash-tree-item role="listitem">File1</dash-tree-item>
+      <dash-tree-item role="listitem">File2</dash-tree-item>
+      <dash-tree-item role="listitem">File3</dash-tree-item>
+      <dash-tree-item role="listitem">
         <label>Subproject 1</label>
-        <dash-tree-group>
-          <dash-tree-item>Subfile1</dash-tree-item>
-          <dash-tree-item>Subfile2</dash-tree-item>
-          <dash-tree-item>Subfile3</dash-tree-item>
-          <dash-tree-item expanded>
-            <label>Subsubproject 1</label>
-            <dash-tree-group>
-              <dash-tree-item>Subsubfile1</dash-tree-item>
-              <dash-tree-item>Subsubfile2</dash-tree-item>
-              <dash-tree-item>Subsubfile3</dash-tree-item>
-            </dash-tree-group>
-          </dash-tree-item>
+        <dash-tree-group role="list">
+          <dash-tree-item role="listitem">Subfile1</dash-tree-item>
+          <dash-tree-item role="listitem">Subfile2</dash-tree-item>
+          <dash-tree-item role="listitem">Subfile3</dash-tree-item>
         </dash-tree-group>
       </dash-tree-item>
     </dash-tree-group>
   </dash-tree-item>
-  <dash-tree-item>Project 5</dash-tree-item>
-  <dash-tree-item expanded>
+  <dash-tree-item role="listitem">Project 5</dash-tree-item>
+  <dash-tree-item expanded role="listitem">
     <label>Project 6</label>
-    <dash-tree-group>
-      <dash-tree-item>File1</dash-tree-item>
-      <dash-tree-item>File2</dash-tree-item>
-      <dash-tree-item>File3</dash-tree-item>
-      <dash-tree-item expanded>
-        <label>Subproject 2</label>
-        <dash-tree-group>
-          <dash-tree-item>Subfile1</dash-tree-item>
-          <dash-tree-item>Subfile2</dash-tree-item>
-          <dash-tree-item>Subfile3</dash-tree-item>
-          <dash-tree-item>
-            <label>Subsubproject 2</label>
-            <dash-tree-group>
-              <dash-tree-item>Subsubfile1</dash-tree-item>
-              <dash-tree-item>Subsubfile2</dash-tree-item>
-              <dash-tree-item>Subsubfile3</dash-tree-item>
-            </dash-tree-group>
-          </dash-tree-item>
-        </dash-tree-group>
-      </dash-tree-item>
+    <dash-tree-group role="list">
+      <dash-tree-item role="listitem">File1</dash-tree-item>
+      <dash-tree-item role="listitem">File2</dash-tree-item>
+      <dash-tree-item role="listitem">File3</dash-tree-item>
     </dash-tree-group>
   </dash-tree-item>
-  <dash-tree-item>Project 7</dash-tree-item>
-  <dash-tree-item>
-    <label>Project 8</label>
-    <dash-tree-group>
-      <dash-tree-item>File1</dash-tree-item>
-      <dash-tree-item>File2</dash-tree-item>
-      <dash-tree-item>File3</dash-tree-item>
-    </dash-tree-group>
-  </dash-tree-item>
+  <dash-tree-item role="listitem">Project 7</dash-tree-item>
 </dash-tree>
-
-<script src="./dash-tree.js"></script>
