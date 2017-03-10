@@ -18,10 +18,14 @@
       super();
     }
 
+    /**
+     * `connectedCallback` sets the initial role and checks to see if the
+     * user has predefined an `aria-checked` state or `tabindex`.
+     */
     connectedCallback() {
       this.setAttribute('role', 'checkbox');
       if (!this.hasAttribute('aria-checked'))
-        this.setAttribute('aria-checked', 'false');
+        this.checked = false;
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
 
@@ -29,6 +33,9 @@
       this.addEventListener('click', this._onClick);
     }
 
+    /**
+     * `_onKeyDown` handles key presses on the checkbox.
+     */
     _onKeyDown(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
@@ -43,10 +50,18 @@
       }
     }
 
+    /**
+     * `_onClick` handles clicks on the checkbox.
+     */
     _onClick(event) {
       this._toggleChecked();
     }
 
+    /**
+     * `_toggleChecked` calls the checked setter and flips its state.
+     * Because `_toggleChecked` is only caused by a user action, it will
+     * also dispatch a state change event.
+     */
     _toggleChecked() {
       this.checked = !this.checked;
       this.dispatchEvent(new CustomEvent('checked-changed', {
@@ -57,14 +72,27 @@
       }));
     }
 
+    /**
+     * `attributeChangedCallback` watches for changes to the `checked`
+     * attribute and reflects those to the underlying checked property.
+     */
     attributeChangedCallback(name, oldValue, newValue) {
       this.checked = this.hasAttribute('checked');
     }
 
+    /**
+     * The `checked` property reflects its state to the `aria-checked`
+     * attribute.
+     */
     set checked(isChecked) {
       this.setAttribute('aria-checked', isChecked);
     }
 
+    /**
+     * The `checked` getter just returns the current `aria-checked` state.
+     * At no point does the element actually track its own private `checked`
+     * property.
+     */
     get checked() {
       return this.getAttribute('aria-checked') === 'true';
     }
