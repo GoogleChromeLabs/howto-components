@@ -50,7 +50,7 @@
     _toggleChecked() {
       const newState = !this.checked;
       this.checked = newState;
-      this.dispatchEvent(new CustomEvent('check-changed', {
+      this.dispatchEvent(new CustomEvent('checked-changed', {
         detail: {
           checked: newState
         },
