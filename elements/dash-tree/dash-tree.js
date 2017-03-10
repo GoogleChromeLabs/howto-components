@@ -308,6 +308,8 @@
      */
     // TODO: This and _focusNextTreeItem are relying on undefined/falsey
     // behavior when the first element is focused.
+    // TODO: Moving focus into the dash-tree should immediately mark the
+    // first child as active if none are selected.
     _focusPrevTreeItem(currentTreeItem) {
       const treeItems = this._allTreeItems();
       const idx = treeItems.lastIndexOf(currentTreeItem) - 1;
