@@ -158,6 +158,7 @@
       // switching with arrow keys and Home/End.
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
+      this.addEventListener('focus', this._onFocus);
 
       this.setAttribute('role', 'tree');
       this.setAttribute('tabindex', 0);
@@ -215,6 +216,14 @@
       }
       findTreeItems(this);
       return treeItems;
+    }
+
+    /**
+     * When focus moves into the element, if a `DashTreeItem` is not already
+     * active, mark the first `DashTreeItem` as active.
+     */
+    _onFocus(event) {
+      if (!this._currentTreeItem()) this._focusFirstTreeItem();
     }
 
     /**
@@ -306,10 +315,6 @@
      * Attempt to find the previous `DashTreeItem` in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
-    // TODO: This and _focusNextTreeItem are relying on undefined/falsey
-    // behavior when the first element is focused.
-    // TODO: Moving focus into the dash-tree should immediately mark the
-    // first child as active if none are selected.
     _focusPrevTreeItem(currentTreeItem) {
       const treeItems = this._allTreeItems();
       const idx = treeItems.lastIndexOf(currentTreeItem) - 1;
@@ -440,6 +445,7 @@
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
       this.removeEventListener('click', this._onClick);
+      this.removeEventListener('focus', this._onFocus);
     }
   }
 
