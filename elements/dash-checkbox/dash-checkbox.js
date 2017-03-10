@@ -6,7 +6,7 @@
    * Define key codes to help with handling keyboard events.
    */
   const KEYCODE = {
-    SPACE: 32
+    SPACE: 32,
   };
 
   class DashCheckbox extends HTMLElement {
@@ -52,9 +52,9 @@
       this.checked = newState;
       this.dispatchEvent(new CustomEvent('checked-changed', {
         detail: {
-          checked: newState
+          checked: newState,
         },
-        bubbles: false
+        bubbles: false,
       }));
     }
 
