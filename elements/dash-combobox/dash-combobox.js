@@ -41,10 +41,12 @@
     constructor() {
       super();
       this._mutationObserver = new MutationObserver(this._onMutation);
+      this.metric = DashCombobox.prefixMetric;
 
       this._onBlur = this._onBlur.bind(this);
       this._onFocus = this._onFocus.bind(this);
       this._onKeyDown = this._onKeyDown.bind(this);
+      this._onInput = this._onInput.bind(this);
     }
 
     /**
@@ -52,21 +54,22 @@
      * exactly one tab is active.
      */
     connectedCallback() {
-      // The element needs to do some manual input event handling to allow
-      // switching with arrow keys and Home/End.
-      this.setAttribute('role', 'combobox');
-      this.setAttribute('aria-autocomplete', 'inline');
-      this.setAttribute('aria-expanded', 'false');
-
-      this._setupInputField();
-      this._mutationObserver.observe(this, {childList: true});
-
       // Before the elements starts booting, it waits for
       // the both `<dash-tab>` and `<dash-tabpanel>` to load.
       Promise.all([
         customElements.whenDefined('dash-combobox-suggestions'),
         customElements.whenDefined('dash-combobox-suggestion'),
       ]).then(_ => {
+        // The element needs to do some manual input event handling to allow
+        // switching with arrow keys and Home/End.
+        this.setAttribute('role', 'combobox');
+        this.setAttribute('aria-autocomplete', 'inline');
+        this.setAttribute('aria-expanded', 'false');
+
+        this._setupInputField();
+        this._mutationObserver.observe(this, {childList: true});
+
+        this.setAttribute('aria-owns', this._suggestionContainer().id);
       });
     }
     /**
@@ -83,6 +86,7 @@
           node.removeEventListener('blur', this._onBlur);
           node.removeEventListener('focus', this._onFocus);
           node.removeEventListener('keydown', this._onKeyDown);
+          node.removeEventListener('input', this._onInput);
         }
       }
       _setupInputField();
@@ -93,6 +97,9 @@
       node.addEventListener('blur', this._onBlur);
       node.addEventListener('keydown', this._onKeyDown);
       node.addEventListener('focus', this._onFocus);
+      node.addEventListener('input', this._onInput);
+      node.id = 'fixme';
+      this.setAttribute('aria-labelledy', 'fixme');
     }
 
     _selectedSuggestion() {
@@ -103,7 +110,7 @@
     }
 
     _prevSuggestion() {
-      const suggestions = this._suggestions();
+      const suggestions = this._activeSuggestions();
       const idx =
         suggestions.findIndex(
           suggestion => suggestion.getAttribute('aria-selected') === 'true'
@@ -112,7 +119,7 @@
     }
 
     _nextSuggestion() {
-      const suggestions = this._suggestions();
+      const suggestions = this._activeSuggestions();
       const idx =
         suggestions.findIndex(
           suggestion => suggestion.getAttribute('aria-selected') === 'true'
@@ -121,11 +128,11 @@
     }
 
     _firstSuggestion() {
-      return this._suggestions()[0];
+      return this._activeSuggestions()[0];
     }
 
     _lastSuggestion() {
-      return this._suggestions()[0];
+      return this._activeSuggestions()[0];
     }
 
     _deselectAllSuggestions() {
@@ -151,6 +158,7 @@
           break;
 
         case KEYCODE.DOWN:
+          this._showSuggestions();
           newSuggestion = this._nextSuggestion();
           break;
 
@@ -162,18 +170,36 @@
           newSuggestion = this._lastSuggestion();
           break;
 
+        case KEYCODE.ESCAPE:
+          this._hideSuggestions();
+          break;
+
         case KEYCODE.ENTER:
           this._input().value = this._selectedSuggestion().textContent;
+          this._hideSuggestions();
           return;
         default:
           return;
       }
 
-      this._selectSuggestion(newSuggestion);
+      if(newSuggestion) this._selectSuggestion(newSuggestion);
       // The browser might have some native functionality bound to the arrow
       // keys, home or end. The element calls `preventDefault` to prevent the
       // browser from taking any actions.
       event.preventDefault();
+    }
+
+    _updateSuggestions() {
+      const input = this._input().value;
+      const suggestions = this._suggestions();
+      for(let suggestion of suggestions) {
+        const value = this.metric(input, suggestion.textContent);
+        suggestion.style.display = value === -1 ? 'none' : '';
+      }
+    }
+
+    _onInput(event) {
+      this._updateSuggestions();
     }
 
     _onBlur(event) {
@@ -196,10 +222,25 @@
       return Array.from(this.querySelectorAll('dash-combobox-suggestion'));
     }
 
+    _activeSuggestions() {
+      return this._suggestions()
+        .filter(suggestion => suggestion.style.display !== 'none');
+    }
+
+    _isExpanded() {
+      return this.getAttribute('aria-expanded') === 'true';
+    }
+
     _showSuggestions() {
-      const width = this._input().getBoundingClientRect().width;
-      this._suggestionContainer().style.width = `${width}px`;
+      if (this._isExpanded()) return;
+      const container = this._suggestionContainer();
+      const comboRect = this.getBoundingClientRect();
+      const inputRect = this._input().getBoundingClientRect();
+      container.style.width = `${inputRect.width}px`;
+      container.style.left = `${inputRect.left - comboRect.left}px`;
+
       this._deselectAllSuggestions();
+      this._updateSuggestions();
       this.setAttribute('aria-expanded', 'true');
     }
 
@@ -212,7 +253,7 @@
 
   // `dashTabCounter` counts the number of `<dash-tab>` instances created. The
   // number is used to generated new, unique IDs.
-  let dashTabCounter = 0;
+  let dashComboboxSuggestionsCounter = 0;
   /**
    * `DashTabsTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tabs-tab>`
    * should always be used with `role=heading` in the markup so that the
@@ -231,12 +272,13 @@
 
     connectedCallback() {
       this.setAttribute('role', 'listbox');
+      this.id = 'dash-combobox-suggestions-generated-' +
+        dashComboboxSuggestionsCounter++;
     }
   }
   window.customElements
     .define('dash-combobox-suggestions', DashComboboxSuggestions);
 
-  let dashPanelCounter = 0;
   /**
    * `DashTabsPanel` is a panel for a `<dash-tabs>` tab panel.
    */
