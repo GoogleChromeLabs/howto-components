@@ -18,7 +18,7 @@
    */
   class DashCheckbox extends HTMLElement {
     static get observedAttributes() {
-      return ['checked'];
+      return ['checked', 'disabled'];
     }
 
     constructor() {
@@ -64,6 +64,7 @@
      * also dispatch a state change event.
      */
     _toggleChecked() {
+      if (this.disabled) return;
       this.checked = !this.checked;
       this.dispatchEvent(new CustomEvent('checked-changed', {
         detail: {
@@ -78,7 +79,7 @@
      * attribute and reflects those to the underlying checked property.
      */
     attributeChangedCallback(name, oldValue, newValue) {
-      this.checked = this.hasAttribute('checked');
+      this[name] = this.hasAttribute(name);
     }
 
     /**
@@ -96,6 +97,23 @@
      */
     get checked() {
       return this.getAttribute('aria-checked') === 'true';
+    }
+
+    /**
+     * The `disabled` property reflects its state to the `aria-disabled`
+     * attribute. A disabled checkbox will be visible, but no longer operable.
+     */
+    set disabled(isDisabled) {
+      this.setAttribute('aria-disabled', isDisabled);
+    }
+
+    /**
+     * The `disabled` getter just returns the current `aria-disabled` state.
+     * At no point does the element actually track its own private `disabled`
+     * property.
+     */
+    get disabled() {
+      return this.getAttribute('aria-disabled') === 'true';
     }
   }
 

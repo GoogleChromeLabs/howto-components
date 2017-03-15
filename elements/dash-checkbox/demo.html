@@ -12,6 +12,16 @@
     background: url('./images/checked-checkbox.svg') no-repeat;
     background-size: contain;
   }
+
+  dash-checkbox[aria-disabled="true"] {
+    background: url('./images/unchecked-checkbox-disabled.svg') no-repeat;
+    background-size: contain;
+  }
+
+  dash-checkbox[aria-checked="true"][aria-disabled="true"] {
+    background: url('./images/checked-checkbox-disabled.svg') no-repeat;
+    background-size: contain;
+  }
 </style>
 
 <dash-checkbox></dash-checkbox>
