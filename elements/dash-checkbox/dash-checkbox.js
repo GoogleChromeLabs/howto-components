@@ -1,5 +1,7 @@
 /**
- * // TODO
+ * A `DashCheckbox` represents a boolean option in a form. The most common type
+ * of checkbox is a dual-type which allows the user to toggle between two
+ * choices -- checked and unchecked.
  */
 (function() {
   /**
@@ -9,6 +11,11 @@
     SPACE: 32,
   };
 
+  /**
+   * The `DashCheckbox` exposes a single `checked` attribute/property for
+   * toggling its state. Changes to the `checked` property will also be
+   * reflected to an `aria-checked` attribute.
+   */
   class DashCheckbox extends HTMLElement {
     static get observedAttributes() {
       return ['checked'];
@@ -33,9 +40,6 @@
       this.addEventListener('click', this._onClick);
     }
 
-    /**
-     * `_onKeyDown` handles key presses on the checkbox.
-     */
     _onKeyDown(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
@@ -50,9 +54,6 @@
       }
     }
 
-    /**
-     * `_onClick` handles clicks on the checkbox.
-     */
     _onClick(event) {
       this._toggleChecked();
     }
