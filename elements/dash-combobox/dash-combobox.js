@@ -63,8 +63,8 @@
         // The element needs to do some manual input event handling to allow
         // switching with arrow keys and Home/End.
         this.setAttribute('role', 'combobox');
-        this.setAttribute('aria-autocomplete', 'inline');
         this.setAttribute('aria-expanded', 'false');
+        this.setAttribute('aria-haspopup', 'listbox');
 
         this._setupInputField();
         this._mutationObserver.observe(this, {childList: true});
@@ -92,14 +92,18 @@
       _setupInputField();
     }
 
+    _inputField() {
+      return this.querySelector('input');
+    }
+
     _setupInputField() {
-      const node = this.querySelector('input');
+      const node = this._inputField();
+      node.setAttribute('aria-autocomplete', 'list');
+      node.setAttribute('aria-controls', this._suggestionContainer().id);
       node.addEventListener('blur', this._onBlur);
       node.addEventListener('keydown', this._onKeyDown);
       node.addEventListener('focus', this._onFocus);
       node.addEventListener('input', this._onInput);
-      node.id = 'fixme';
-      this.setAttribute('aria-labelledy', 'fixme');
     }
 
     _selectedSuggestion() {
@@ -138,13 +142,19 @@
     _deselectAllSuggestions() {
       this._suggestions()
         .forEach(
-          suggestion => suggestion.setAttribute('aria-selected', 'false')
+          suggestion => {
+            suggestion.setAttribute('aria-selected', 'false');
+            suggestion.id = '';
+          }
         );
     }
 
     _selectSuggestion(suggestion) {
       this._deselectAllSuggestions();
       suggestion.setAttribute('aria-selected', 'true');
+      suggestion.id = `${suggestion.parentElement.id}-activedescendant`;
+
+      this._inputField().setAttribute('aria-activedescendant', suggestion.id);
     }
 
     _onKeyDown(event) {
@@ -246,6 +256,7 @@
 
     _hideSuggestions() {
       this.setAttribute('aria-expanded', 'false');
+      this._inputField().removeAttribute('aria-activedescendant');
     }
 
   }
