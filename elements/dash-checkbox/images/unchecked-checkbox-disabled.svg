@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>unchecked-checkbox</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.54">
+        <g id="unchecked-checkbox">
+            <g id="Material-Design-Stickersheet">
+                <g id="components">
+                    <g id="lists">
+                        <g id="example-with-avatars">
+                            <g id="list">
+                                <g id="row">
+                                    <g id="Material/Light/Checkbox-off">
+                                        <rect id="Rectangle" fill="#9E9E9E" x="2" y="2" width="14" height="14"></rect>
+                                        <path d="M16,16 L2,16 L2,2 L16,2 L16,16 Z M2,0 C0.9,0 0,0.9 0,2 L0,16 C0,17.1 0.9,18 2,18 L16,18 C17.1,18 18,17.1 18,16 L18,2 C18,0.9 17.1,0 16,0 L2,0 Z" id="Shape" fill="#010101" fill-rule="nonzero"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
