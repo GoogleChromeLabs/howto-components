@@ -428,13 +428,13 @@
       currentTreeItem.classList.add('selected');
 
       // Dispatch a non-bubbling event containing a reference to the selected
-      // node. The reason to choose non-bubbling is explained in 
+      // node. The reason to choose non-bubbling is explained in
       // [this Medium post.](https://medium.com/dev-channel/custom-elements-that-work-anywhere-898e1dd2bc48#.w6ww4mgfc)
       this.dispatchEvent(new CustomEvent('dash-tree-item-selected', {
         detail: {
           item: currentTreeItem,
         },
-        bubbles: false
+        bubbles: false,
       }));
     }
 
