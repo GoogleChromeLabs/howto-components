@@ -205,7 +205,7 @@
           // If the child is a `DashTreeItem`, add it to the list of results.
           if (isTreeItem(el)) treeItems.push(el);
           // If it is not expanded, don’t descend.
-          // This should ignore any children and treat them as if they are
+          // This will ignore any children and treat them as if they are
           // invisible.
           if (isTreeItem(el) && !el.expanded) continue;
           // Otherwise, if the element is expanded OR we've hit something
