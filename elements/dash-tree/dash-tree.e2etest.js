@@ -2,7 +2,7 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe.only('dash-tree', function() {
+describe('dash-tree', function() {
   beforeEach(function() {
     return this.driver.get(`${this.address}/dash-tree_demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'dash-tree'));
@@ -202,6 +202,54 @@ describe.only('dash-tree', function() {
       await this.driver.actions().sendKeys(Key.SPACE).perform();
       expect(await firstTreeItem.getAttribute('aria-selected'))
         .to.equal('true');
+    }
+  );
+
+  it('should select and expand parent tree-items on click',
+    async function() {
+      const found =
+        await helper.pressKeyUntil(
+          this.driver,
+          Key.TAB,
+          `return document.activeElement.getAttribute('role') === 'tree';`
+        );
+      expect(found).to.equal(true);
+
+      const parentTreeItem = await this.driver
+        .executeScript(`
+          return Array.from(document.querySelectorAll('[role=treeitem]'))
+            .find(item => item.children.length > 0);
+        `);
+      await parentTreeItem.click();
+      expect(await parentTreeItem.getAttribute('aria-expanded'))
+        .to.equal('true');
+      expect(await parentTreeItem.getAttribute('aria-selected'))
+        .to.equal('true');
+    }
+  );
+
+  // FIXME: Why does this click the wrong element during the second click?
+  it.skip('should collapse expanded parent tree-items on click',
+    async function() {
+      const found =
+        await helper.pressKeyUntil(
+          this.driver,
+          Key.TAB,
+          `return document.activeElement.getAttribute('role') === 'tree';`
+        );
+      expect(found).to.equal(true);
+
+      let parentTreeItem = await this.driver
+        .executeScript(`
+          return Array.from(document.querySelectorAll('[role=treeitem]'))
+            .find(item => item.children.length > 0);
+        `);
+      await parentTreeItem.click();
+      expect(await parentTreeItem.getAttribute('aria-expanded'))
+        .to.equal('true');
+      await parentTreeItem.click();
+      expect(await parentTreeItem.getAttribute('aria-expanded'))
+        .to.equal('false');
     }
   );
 });
