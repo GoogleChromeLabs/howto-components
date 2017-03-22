@@ -21,16 +21,13 @@
       return ['checked', 'disabled'];
     }
 
-    constructor() {
-      super();
-    }
-
     /**
      * `connectedCallback` sets the initial role and checks to see if the
      * user has predefined an `aria-checked` state or `tabindex`.
      */
     connectedCallback() {
-      this.setAttribute('role', 'checkbox');
+      if (!this.hasAttribute('role'))
+        this.setAttribute('role', 'checkbox');
       if (!this.hasAttribute('aria-checked'))
         this.checked = false;
       if (!this.hasAttribute('tabindex'))
@@ -76,7 +73,8 @@
 
     /**
      * `attributeChangedCallback` watches for changes to the `checked`
-     * attribute and reflects those to the underlying checked property.
+     * and `disabled` attributes and reflects those to the underlying
+     * properties.
      */
     attributeChangedCallback(name, oldValue, newValue) {
       this[name] = this.hasAttribute(name);
