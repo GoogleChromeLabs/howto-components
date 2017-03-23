@@ -103,6 +103,11 @@
      */
     set disabled(isDisabled) {
       this.setAttribute('aria-disabled', isDisabled);
+      if (isDisabled) {
+        this.removeAttribute('tabindex');
+      } else {
+        this.setAttribute('tabindex', 0);
+      }
     }
 
     /**

@@ -28,7 +28,7 @@ describe('dash-checkbox', function() {
       .then(_ => helper.waitForElement(this.driver, 'dash-checkbox'));
   });
 
-  it('should check the radio on [space]',
+  it('should check the checkbox on [space]',
     async function() {
       await this.driver.executeScript(findCheckbox);
       success = await helper.pressKeyUntil(this.driver, Key.TAB,
@@ -43,7 +43,22 @@ describe('dash-checkbox', function() {
     }
   );
 
-  it('should check the radio on click',
+  it('should not be focusable when [disabled] is true',
+    async function() {
+      await this.driver.executeScript(findCheckbox);
+      success = await helper.pressKeyUntil(this.driver, Key.TAB,
+        _ => document.activeElement === window.expectedCheckbox
+      );
+      expect(success).to.equal(true);
+      success = await this.driver.executeScript(`
+        window.expectedCheckbox.disabled = true;
+        return document.activeElement != window.expectedCheckbox;
+      `);
+      expect(success).to.equal(true);
+    }
+  );
+
+  it('should check the checkbox on click',
     async function() {
       await this.driver.executeScript(findCheckbox);
       success = await this.driver.executeScript(isUnchecked);
