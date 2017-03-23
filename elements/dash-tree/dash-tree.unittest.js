@@ -55,12 +55,11 @@
         expect(this.firstTreeItem.getAttribute('role')).to.equal('treeitem');
       });
 
-      // TODO: Figure out regex syntax for Chai
-      // it('should generate ids', function() {
-      //   const treeItem = this.tree.querySelector('dash-tree-item');
-      //   expect(treeItem.getAttribute('id'))
-      //     .to.match('dash-tree-item-generated-*');
-      // });
+      it('should generate ids', function() {
+        const treeItem = this.tree.querySelector('dash-tree-item');
+        expect(treeItem.getAttribute('id'))
+          .to.match(/^dash-tree-item-generated-.*$/);
+      });
 
       it('should apply [aria-expanded=false]', function() {
         expect(this.parentTreeItem.getAttribute('aria-expanded'))
