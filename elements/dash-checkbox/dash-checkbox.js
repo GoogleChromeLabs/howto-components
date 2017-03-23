@@ -14,7 +14,9 @@
   /**
    * The `DashCheckbox` exposes a single `checked` attribute/property for
    * toggling its state. Changes to the `checked` property will also be
-   * reflected to an `aria-checked` attribute.
+   * reflected to an `aria-checked` attribute. Similarly, the `disabled`
+   * property is reflected to an `aria-disabled` attribute. This controls
+   * whether the element is operable or not.
    */
   class DashCheckbox extends HTMLElement {
     static get observedAttributes() {
@@ -22,16 +24,18 @@
     }
 
     /**
-     * `connectedCallback` sets the initial role and checks to see if the
-     * user has predefined an `aria-checked` state or `tabindex`.
+     * `connectedCallback` sets the initial `role` and `tabindex` and checks
+     * to see if the user has predefined an `checked` or `disabled` states.
      */
     connectedCallback() {
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'checkbox');
-      if (!this.hasAttribute('aria-checked'))
-        this.checked = false;
       if (!this.hasAttribute('tabindex'))
-        this.setAttribute('tabindex', 0);
+        this.tabIndex = 0;
+      if (!this.hasAttribute('checked'))
+        this.checked = false;
+      if (!this.hasAttribute('disabled'))
+        this.disabled = false;
 
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
@@ -72,11 +76,33 @@
     }
 
     /**
+     * Reflecting a property to an attribute may potentially cause an infinite
+     * loop with `attributeChangedCallback`. These helpers set a flag to ensure
+     * that `attributeChangedCallback` returns instead of trying to set the
+     * underlying property again.
+     */
+    _safelySetAttribute(attr, value) {
+      if (this._safelyModifyingAttribute) return;
+      this._safelyModifyingAttribute = true;
+      this.setAttribute(attr, value);
+      this._safelyModifyingAttribute = false;
+    }
+
+    _safelyRemoveAttribute(attr) {
+      if (this._safelyModifyingAttribute) return;
+      this._safelyModifyingAttribute = true;
+      this.removeAttribute(attr);
+      this._safelyModifyingAttribute = false;
+    }
+
+    /**
      * `attributeChangedCallback` watches for changes to the `checked`
      * and `disabled` attributes and reflects those to the underlying
-     * properties.
+     * properties. It will be called at startup time if either attribute
+     * has been set.
      */
     attributeChangedCallback(name, oldValue, newValue) {
+      if (this._safelyModifyingAttribute) return;
       this[name] = this.hasAttribute(name);
     }
 
@@ -85,16 +111,19 @@
      * attribute.
      */
     set checked(isChecked) {
+      if (isChecked) {
+        this._safelySetAttribute('checked', '');
+      } else {
+        this._safelyRemoveAttribute('checked');
+      }
       this.setAttribute('aria-checked', isChecked);
     }
 
     /**
-     * The `checked` getter just returns the current `aria-checked` state.
-     * At no point does the element actually track its own private `checked`
-     * property.
+     * The `checked` getter just returns the current `checked` state.
      */
     get checked() {
-      return this.getAttribute('aria-checked') === 'true';
+      return this.hasAttribute('checked');
     }
 
     /**
@@ -102,21 +131,21 @@
      * attribute. A disabled checkbox will be visible, but no longer operable.
      */
     set disabled(isDisabled) {
-      this.setAttribute('aria-disabled', isDisabled);
       if (isDisabled) {
+        this._safelySetAttribute('disabled', '');
         this.removeAttribute('tabindex');
       } else {
-        this.setAttribute('tabindex', 0);
+        this._safelyRemoveAttribute('disabled');
+        this.setAttribute('tabindex', '0');
       }
+      this.setAttribute('aria-disabled', isDisabled);
     }
 
     /**
-     * The `disabled` getter just returns the current `aria-disabled` state.
-     * At no point does the element actually track its own private `disabled`
-     * property.
+     * The `disabled` getter just returns the current `disabled` state.
      */
     get disabled() {
-      return this.getAttribute('aria-disabled') === 'true';
+      return this.hasAttribute('disabled');
     }
   }
 
