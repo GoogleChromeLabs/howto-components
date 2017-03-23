@@ -9,7 +9,7 @@ describe('dash-tree', function() {
   });
 
   // FIXME: This test is acting flakey
-  it.skip('should make the first tree-item the activedescendant on focus',
+  it('should make the first tree-item the activedescendant on focus',
     async function() {
       const found =
         await helper.pressKeyUntil(
@@ -229,8 +229,7 @@ describe('dash-tree', function() {
     }
   );
 
-  // FIXME: Why does this click the wrong element during the second click?
-  it.skip('should collapse expanded parent tree-items on click',
+  it('should collapse expanded parent tree-items on click',
     async function() {
       const found =
         await helper.pressKeyUntil(
@@ -245,10 +244,16 @@ describe('dash-tree', function() {
           return Array.from(document.querySelectorAll('[role=treeitem]'))
             .find(item => item.children.length > 0);
         `);
-      await parentTreeItem.click();
+      let parentTreeItemLabel = await this.driver
+        .executeScript(`
+          return Array.from(document.querySelectorAll('[role=treeitem]'))
+            .find(item => item.children.length > 0)
+            .querySelector('label');
+        `);
+      await parentTreeItemLabel.click();
       expect(await parentTreeItem.getAttribute('aria-expanded'))
         .to.equal('true');
-      await parentTreeItem.click();
+      await parentTreeItemLabel.click();
       expect(await parentTreeItem.getAttribute('aria-expanded'))
         .to.equal('false');
     }
