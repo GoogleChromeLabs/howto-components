@@ -1,7 +1,7 @@
 (function() {
   const expect = chai.expect;
 
-  describe.only('dash-tree', function() {
+  describe('dash-tree', function() {
     before(dashElements.before());
     after(dashElements.after());
     beforeEach(function() {

@@ -201,7 +201,7 @@
       // but allows for filtering of the children based on whether or not
       // their parent is currently expanded.
       function findTreeItems(node) {
-        for (let el of node.children) {
+        for (let el of Array.from(node.children)) {
           // If the child is a `DashTreeItem`, add it to the list of results.
           if (isTreeItem(el)) treeItems.push(el);
           // If it is not expanded, don’t descend.
