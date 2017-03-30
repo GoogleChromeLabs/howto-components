@@ -86,8 +86,7 @@
         // Check if any of the headings have been marked as
         // expanded. If so, all the associated panels get expanded.
         headings
-          .filter(heading =>
-            heading.getAttribute('aria-expanded') === 'true')
+          .filter(heading => heading.expanded)
           .forEach(heading => {
             const panel = this._panelForHeading(heading);
             this._expandPanel(panel);
@@ -183,11 +182,8 @@
      * the panel that is associated with the heading the even originated from.
      */
     _onAccordionExpand(event) {
-      // If the element is already animating, don’t do anything.
-      if (this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
-      heading.setAttribute('aria-expanded', 'true');
       this._expandPanel(panel);
     }
 
@@ -196,11 +192,8 @@
      * the panel that is associated with the heading the even originated from.
      */
     _onAccordionCollapse(event) {
-      // If the element is already animating, don’t do anything.
-      if (this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
-      heading.setAttribute('aria-expanded', 'false');
       this._collapsePanel(panel);
     }
 
@@ -267,7 +260,6 @@
           panel.classList.add('expanded');
         });
     }
-
 
     /**
      * `_collapsePanel` collapses the given panel. The logic is the exact same
@@ -401,6 +393,10 @@
    * none is specified.
    */
   class DashAccordionHeading extends HTMLElement {
+    static get observedAttributes() {
+      return ['expanded'];
+    }
+
     constructor() {
       super();
     }
@@ -417,6 +413,10 @@
       // keep the markup simple, `<dash-accordion-heading>` behaves like a
       // button instead by being focusable and reacting to enter and space.
       this.tabIndex = 0;
+      // `_expanded` keeps track of whether the heading (and the corresponding
+      // panel) is expanded or not. The element has a getter and a setter
+      // method for this property.
+      this._expanded = false;
 
       // If this element doesn’t have an id, generate one.
       if (!this.id)
@@ -424,27 +424,53 @@
           `dash-accordion-heading-generated-${dashAccordionHeadingCounter++}`;
     }
 
-    /**
-     * `isExpanded` is a getter to query if the associated panel is expanded
-     * or collpased.
-     */
-    get isExpanded() {
-      return this.getAttribute('aria-expanded') === 'true';
+    get expanded() {
+      return this._expanded;
     }
 
     /**
-     * `_displayToggleEvent` emits either a `accordion-collapse` or an
-     * `accordion-expand` event depending on the current state.
+     * The setter for `expanded` triggers the collapse or expand
+     * animation depending on the new value.
      */
-    _dispatchToggleEvent() {
-      if (this.isExpanded)
-        this.dispatchEvent(
+    set expanded(val) {
+      if(val !== null)
+        this._expand();
+      else
+        this._collapse();
+    }
+
+    /**
+     * `attributeChangeCallback` handles when the `expanded` attribute changes
+     * its value. The logic for triggering the animation is in the setter
+     * for the `expanded` property.
+     */
+    attributeChangedCallback(name, oldValue, newValue) {
+      this.expanded = newValue;
+    }
+
+    _expand() {
+      if(this._expanded) return;
+      this._expanded = true;
+      this.setAttribute('aria-expanded', 'true');
+      this.dispatchEvent(
+        new CustomEvent('accordion-expand', {bubbles: true})
+      );
+    }
+
+    _collapse() {
+      if(!this._expanded) return;
+      this._expanded = false;
+      this.setAttribute('aria-expanded', 'false');
+      this.dispatchEvent(
           new CustomEvent('accordion-collapse', {bubbles: true})
         );
+    }
+
+    _toggle() {
+      if (this.expanded)
+        this._collapse();
       else
-        this.dispatchEvent(
-          new CustomEvent('accordion-expand', {bubbles: true})
-        );
+        this._expand();
     }
 
     /**
@@ -457,7 +483,7 @@
       switch (event.keyCode) {
         case KEYCODE.SPACE:
         case KEYCODE.ENTER:
-          this._dispatchToggleEvent();
+          this._toggle();
           break;
         case KEYCODE.LEFT:
         case KEYCODE.UP:
@@ -499,7 +525,7 @@
      * Event handler for `click` event.
      */
     _onClick() {
-      this._dispatchToggleEvent();
+      this._toggle();
     }
   }
   window.customElements.define('dash-accordion-heading', DashAccordionHeading);

@@ -77,5 +77,11 @@
         expect(panel.getAttribute('role')).to.equal('region');
       });
     });
+
+    it('should expand on setting `expanded`', function() {
+      this.headings[0].expanded = true;
+      expect(this.headings[0].getAttribute('aria-expanded')).to.equal('true');
+      expect(this.panels[0].classList.contains('expanded'));
+    });
   });
 })();
