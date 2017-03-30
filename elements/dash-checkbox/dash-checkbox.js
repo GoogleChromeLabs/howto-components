@@ -24,8 +24,8 @@
     }
 
     /**
-     * `connectedCallback` sets the initial `role` and `tabindex` and checks
-     * to see if the user has predefined an `checked` or `disabled` states.
+     * `connectedCallback` sets the initial `role` and `tabindex` and installs
+     * event listeners.
      */
     connectedCallback() {
       if (!this.hasAttribute('role'))
@@ -73,8 +73,8 @@
 
     /**
      * `attributeChangedCallback` watches for changes to the `checked`
-     * and `disabled` attributes and reflects those to the underlying
-     * properties. It will be called at startup time if either attribute
+     * and `disabled` attributes and reflects their states to the corresponding
+     * ARIA attributes. It will be called at startup time if either attribute
      * has been set. Because both `checked` and `disabled` are booleans, the
      * callback determines their values by checking to see if they are present.
      */
@@ -110,7 +110,9 @@
     }
 
     /**
-     * The `checked` getter just returns the current `checked` state.
+     * The `checked` getter just returns the current `checked` attribute state.
+     * This means setting the checked attribute will immediately set the value
+     * of the underlying property.
      */
     get checked() {
       return this.hasAttribute('checked');
