@@ -31,11 +31,7 @@
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'checkbox');
       if (!this.hasAttribute('tabindex'))
-        this.tabIndex = 0;
-      if (!this.hasAttribute('checked'))
-        this.checked = false;
-      if (!this.hasAttribute('disabled'))
-        this.disabled = false;
+        this.setAttribute('tabindex', 0);
 
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
@@ -76,47 +72,41 @@
     }
 
     /**
-     * Reflecting a property to an attribute may potentially cause an infinite
-     * loop with `attributeChangedCallback`. These helpers set a flag to ensure
-     * that `attributeChangedCallback` returns instead of trying to set the
-     * underlying property again.
-     */
-    _safelySetAttribute(attr, value) {
-      if (this._safelyModifyingAttribute) return;
-      this._safelyModifyingAttribute = true;
-      this.setAttribute(attr, value);
-      this._safelyModifyingAttribute = false;
-    }
-
-    _safelyRemoveAttribute(attr) {
-      if (this._safelyModifyingAttribute) return;
-      this._safelyModifyingAttribute = true;
-      this.removeAttribute(attr);
-      this._safelyModifyingAttribute = false;
-    }
-
-    /**
      * `attributeChangedCallback` watches for changes to the `checked`
      * and `disabled` attributes and reflects those to the underlying
      * properties. It will be called at startup time if either attribute
-     * has been set.
+     * has been set. Because both `checked` and `disabled` are booleans, the
+     * callback determines their values by checking to see if they are present.
      */
     attributeChangedCallback(name, oldValue, newValue) {
-      if (this._safelyModifyingAttribute) return;
-      this[name] = this.hasAttribute(name);
+      const value = this.hasAttribute(name);
+      switch (name) {
+        case 'checked':
+          this.setAttribute('aria-checked', value);
+          break;
+        case 'disabled':
+          this.setAttribute('aria-disabled', value);
+          if (value) {
+            this.removeAttribute('tabindex');
+          } else {
+            this.setAttribute('tabindex', '0');
+          }
+          break;
+        default:
+          break;
+      }
     }
 
     /**
-     * The `checked` property reflects its state to the `aria-checked`
+     * The `checked` property reflects its state to the `checked`
      * attribute.
      */
     set checked(isChecked) {
       if (isChecked) {
-        this._safelySetAttribute('checked', '');
+        this.setAttribute('checked', '');
       } else {
-        this._safelyRemoveAttribute('checked');
+        this.removeAttribute('checked');
       }
-      this.setAttribute('aria-checked', isChecked);
     }
 
     /**
@@ -127,18 +117,15 @@
     }
 
     /**
-     * The `disabled` property reflects its state to the `aria-disabled`
+     * The `disabled` property reflects its state to the `disabled`
      * attribute. A disabled checkbox will be visible, but no longer operable.
      */
     set disabled(isDisabled) {
       if (isDisabled) {
-        this._safelySetAttribute('disabled', '');
-        this.removeAttribute('tabindex');
+        this.setAttribute('disabled', '');
       } else {
-        this._safelyRemoveAttribute('disabled');
-        this.setAttribute('tabindex', '0');
+        this.removeAttribute('disabled');
       }
-      this.setAttribute('aria-disabled', isDisabled);
     }
 
     /**
