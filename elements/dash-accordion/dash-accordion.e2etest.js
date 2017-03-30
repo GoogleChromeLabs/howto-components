@@ -35,7 +35,7 @@ describe('dash-accordion', function() {
     }
   );
 
-  it('should focus the last tab on [end]',
+  it('should focus the last panel on [end]',
     async function() {
       await this.driver.executeScript(_ => {
         window.expectedFirstHeading =
@@ -56,7 +56,7 @@ describe('dash-accordion', function() {
     }
   );
 
-  it('should focus the first tab on [home]',
+  it('should focus the first panel on [home]',
     async function() {
       await this.driver.executeScript(_ => {
         window.expectedFirstHeading =
@@ -82,7 +82,7 @@ describe('dash-accordion', function() {
     }
   );
 
- it('should focus a tab on click',
+  it('should expand a panel on click',
     async function() {
       const lastHeading =
         await this.driver.findElement(By.css('[role=heading]:last-of-type'));
@@ -92,6 +92,30 @@ describe('dash-accordion', function() {
       await lastHeading.click();
       expect(await lastHeading.getAttribute('aria-expanded')).to.equal('true');
       expect(await lastPanel.getAttribute('aria-hidden')).to.contain('false');
+    }
+  );
+
+  it('should toggle a panel on [space]',
+    async function() {
+      await this.driver.executeScript(_ => {
+        window.firstHeading =
+          document.querySelector('[role=heading]:nth-of-type(1)');
+      });
+      success = await helper.pressKeyUntil(this.driver, Key.TAB,
+        _ => document.activeElement === window.firstHeading
+      );
+      expect(success).to.equal(true);
+
+      await this.driver.actions().sendKeys(Key.SPACE).perform();
+      success = await this.driver.executeScript(
+        _ => document.activeElement.getAttribute('aria-expanded') === 'true'
+      );
+      expect(success).to.equal(true);
+
+      await this.driver.actions().sendKeys(Key.SPACE).perform();
+      success = await this.driver.executeScript(
+        _ => document.activeElement.getAttribute('aria-expanded') === 'false'
+      );
     }
   );
 });
