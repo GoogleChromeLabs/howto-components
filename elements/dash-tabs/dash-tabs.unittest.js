@@ -46,7 +46,7 @@ describe('dash-tabs', function() {
 
   it('should add `role` to panels', function() {
     this.panels.forEach(panel => {
-      expect(panel.getAttribute('role')).to.equal('panel');
+      expect(panel.getAttribute('role')).to.equal('tabpanel');
     });
   });
 

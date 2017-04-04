@@ -311,7 +311,7 @@
     }
 
     connectedCallback() {
-      this.setAttribute('role', 'panel');
+      this.setAttribute('role', 'tabpanel');
       if (!this.id)
         this.id = `dash-tabs-panel-generated-${dashPanelCounter++}`;
     }
