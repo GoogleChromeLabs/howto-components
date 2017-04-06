@@ -1,8 +1,9 @@
-# DASH elements
+# HowTo: Components
 
-![Travis CI Build status badge](https://travis-ci.org/GoogleChrome/dash-elements.svg?branch=master)
+![Travis CI Build status badge](https://travis-ci.org/GoogleChrome/howto-components.svg?branch=master)
 
-Dash elements are a collection of implementations of common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read their implementation rather than just using the elements.
+“HowTo: Components” (sometimes stylized as <HowTo> components) is a subsection on Web Fundamentals Architecture section, containing a collection of web components that implement common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read their implementation rather than just using the elements.
+
 
 ## Demos
 
@@ -38,7 +39,7 @@ Tests can also run in a [Docker](https://www.docker.com/) container (as we do on
 $ npm run docker
 ```
 
-This builds a docker image `googlechrome/dash-elements` and runs it. The dockerized tests use Chrome only.
+This builds a docker image `googlechrome/howto-components` and runs it. The dockerized tests use Chrome only.
 
 ## Staging
 

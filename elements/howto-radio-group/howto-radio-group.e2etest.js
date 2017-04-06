@@ -2,11 +2,11 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe('dash-radio-group', function() {
+describe('howto-radio-group', function() {
   let success;
   beforeEach(function() {
-    return this.driver.get(`${this.address}/dash-radio-group_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-radio-group'));
+    return this.driver.get(`${this.address}/howto-radio-group_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'howto-radio-group'));
   });
 
   it('should handle arrow keys',

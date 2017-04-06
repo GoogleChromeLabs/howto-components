@@ -24,13 +24,13 @@
   };
 
   /**
-   * `DashTabs` is a container element for tabs and panels.
+   * `HowtoTabs` is a container element for tabs and panels.
    *
-   * All children of `<dash-tabs>` should be either `<dash-tab>` or
-   * `<dash-tabpanel>`. This element is stateless, meaning that no values are
+   * All children of `<howto-tabs>` should be either `<howto-tab>` or
+   * `<howto-tabpanel>`. This element is stateless, meaning that no values are
    * cached and therefore, changes during runtime work.
    */
-  class DashTabs extends HTMLElement {
+  class HowtoTabs extends HTMLElement {
     constructor() {
       super();
     }
@@ -48,10 +48,10 @@
       this.setAttribute('role', 'tablist');
 
       // Before the elements starts booting, it waits for
-      // the both `<dash-tab>` and `<dash-tabpanel>` to load.
+      // the both `<howto-tab>` and `<howto-tabpanel>` to load.
       Promise.all([
-        customElements.whenDefined('dash-tabs-tab'),
-        customElements.whenDefined('dash-tabs-panel'),
+        customElements.whenDefined('howto-tabs-tab'),
+        customElements.whenDefined('howto-tabs-panel'),
       ]).then(_ => {
         // Acquire all tabs and panels inside the element
         const tabs = this._allTabs();
@@ -64,9 +64,9 @@
         // that controls it.
         tabs.forEach(tab => {
           const panel = tab.nextElementSibling;
-          if(panel.tagName !== 'DASH-TABS-PANEL') {
+          if(panel.tagName !== 'HOWTO-TABS-PANEL') {
             console.error(`Tab #${tab.id} is not a` +
-              `sibling of a <dash-tabs-panel>`);
+              `sibling of a <howto-tabs-panel>`);
             return;
           }
 
@@ -107,13 +107,13 @@
      * cheap to read.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('dash-tabs-panel'));
+      return Array.from(this.querySelectorAll('howto-tabs-panel'));
     }
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
     _allTabs() {
-      return Array.from(this.querySelectorAll('dash-tabs-tab'));
+      return Array.from(this.querySelectorAll('howto-tabs-tab'));
     }
 
     /**
@@ -270,23 +270,23 @@
       this._selectTab(event.target);
     }
   }
-  window.customElements.define('dash-tabs', DashTabs);
+  window.customElements.define('howto-tabs', HowtoTabs);
 
-  // `dashTabCounter` counts the number of `<dash-tab>` instances created. The
+  // `dashTabCounter` counts the number of `<howto-tab>` instances created. The
   // number is used to generated new, unique IDs.
   let dashTabCounter = 0;
   /**
-   * `DashTabsTab` is a tab for a `<dash-tabs>` tab panel. `<dash-tabs-tab>`
+   * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tabs-tab>`
    * should always be used with `role=heading` in the markup so that the
    * semantics remain useable when JavaScript is failing.
    *
-   * A `<dash-tabs-tab>` declares which `<dash-tabs=panel>` it belongs to by
+   * A `<howto-tabs-tab>` declares which `<howto-tabs=panel>` it belongs to by
    * using that panel’s ID as the value for the `aria-controls` attribute.
    *
-   * A `<dash-tabs-tab>` will automatically generate a unique ID if none
+   * A `<howto-tabs-tab>` will automatically generate a unique ID if none
    * is specified.
    */
-  class DashTabsTab extends HTMLElement {
+  class HowtoTabsTab extends HTMLElement {
     constructor() {
       super();
     }
@@ -296,16 +296,16 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `dash-tabs-tab-generated-${dashTabCounter++}`;
+        this.id = `howto-tabs-tab-generated-${dashTabCounter++}`;
     }
   }
-  window.customElements.define('dash-tabs-tab', DashTabsTab);
+  window.customElements.define('howto-tabs-tab', HowtoTabsTab);
 
   let dashPanelCounter = 0;
   /**
-   * `DashTabsPanel` is a panel for a `<dash-tabs>` tab panel.
+   * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
    */
-  class DashTabsPanel extends HTMLElement {
+  class HowtoTabsPanel extends HTMLElement {
     constructor() {
       super();
     }
@@ -313,10 +313,10 @@
     connectedCallback() {
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
-        this.id = `dash-tabs-panel-generated-${dashPanelCounter++}`;
+        this.id = `howto-tabs-panel-generated-${dashPanelCounter++}`;
     }
   }
-  window.customElements.define('dash-tabs-panel', DashTabsPanel);
+  window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
 })();
 
 

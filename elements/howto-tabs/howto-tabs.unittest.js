@@ -1,41 +1,43 @@
 const expect = chai.expect;
 
-describe('dash-tabs', function() {
-  before(dashElements.before());
-  after(dashElements.after());
+describe('howto-tabs', function() {
+  before(howtoComponents.before());
+  after(howtoComponents.after());
   beforeEach(function() {
     this.container.innerHTML = `
-      <dash-tabs>
-        <dash-tabs-tab role="heading">Tab 1</dash-tabs-tab>
-        <dash-tabs-panel role="region">Content 1</dash-tabs-panel>
-        <dash-tabs-tab role="heading">Tab 2</dash-tabs-tab>
-        <dash-tabs-panel role="region">Content 2</dash-tabs-panel>
-        <dash-tabs-tab role="heading">Tab 3</dash-tabs-tab>
-        <dash-tabs-panel role="region">Content 3</dash-tabs-panel>
-      </dash-tabs>
+      <howto-tabs>
+        <howto-tabs-tab role="heading">Tab 1</howto-tabs-tab>
+        <howto-tabs-panel role="region">Content 1</howto-tabs-panel>
+        <howto-tabs-tab role="heading">Tab 2</howto-tabs-tab>
+        <howto-tabs-panel role="region">Content 2</howto-tabs-panel>
+        <howto-tabs-tab role="heading">Tab 3</howto-tabs-tab>
+        <howto-tabs-panel role="region">Content 3</howto-tabs-panel>
+      </howto-tabs>
     `;
     return Promise.all([
-      dashElements.waitForElement('dash-tabs'),
-      dashElements.waitForElement('dash-tabs-tab'),
-      dashElements.waitForElement('dash-tabs-panel'),
+      howtoComponents.waitForElement('howto-tabs'),
+      howtoComponents.waitForElement('howto-tabs-tab'),
+      howtoComponents.waitForElement('howto-tabs-panel'),
     ]).then(_ => {
-      this.tabpanel = this.container.querySelector('dash-tabs');
-      this.tabs = Array.from(this.container.querySelectorAll('dash-tabs-tab'));
+      this.tabpanel = this.container.querySelector('howto-tabs');
+      this.tabs = Array.from(this.container.querySelectorAll('howto-tabs-tab'));
       this.panels =
-        Array.from(this.container.querySelectorAll('dash-tabs-panel'));
+        Array.from(this.container.querySelectorAll('howto-tabs-panel'));
     });
   });
 
   it('should know about all the tabs', function() {
     expect(
       this.tabpanel._allTabs()
-    ).to.have.length(this.container.querySelectorAll('dash-tabs-tab').length);
+    ).to.have.length(this.container.querySelectorAll('howto-tabs-tab').length);
   });
 
   it('should know about all the panels', function() {
     expect(
       this.tabpanel._allPanels()
-    ).to.have.length(this.container.querySelectorAll('dash-tabs-panel').length);
+    ).to.have.length(
+      this.container.querySelectorAll('howto-tabs-panel').length
+    );
   });
 
   it('should add `aria-labelledby` to panels', function() {

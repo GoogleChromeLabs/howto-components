@@ -1,11 +1,11 @@
-window.dashElements = {};
+window.howtoComponents = {};
 
 /**
  * `waitForElement` waits for the browser to load the definition of the custom
  * element with the name `elementName`.
  * @returns a promise that resolves when the element has been defined.
  */
-window.dashElements.waitForElement = function(elementName) {
+window.howtoComponents.waitForElement = function(elementName) {
   return customElements.whenDefined(elementName);
 };
 
@@ -15,7 +15,7 @@ window.dashElements.waitForElement = function(elementName) {
  * `this.container`. The container can be used to inject markup for the
  * custom element that is supposed to be tested.
  */
-window.dashElements.before = function(f) {
+window.howtoComponents.before = function(f) {
   return function() {
     this.container = document.createElement('div');
     document.body.appendChild(this.container);
@@ -26,7 +26,7 @@ window.dashElements.before = function(f) {
 /**
  * `after` cleans up the “testing area” added by `before()`.
  */
-window.dashElements.after = function(f) {
+window.howtoComponents.after = function(f) {
   return function() {
     this.container.remove();
     this.container = null;

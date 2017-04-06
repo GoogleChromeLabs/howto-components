@@ -1,27 +1,27 @@
 <!doctype html>
 <style>
-  dash-radio-group {
+  howto-radio-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding-left: 10px;
   }
   
-  dash-radio-button {
+  howto-radio-button {
     display: inline-block;
     position: relative;
     cursor: default;
   }
   
-  dash-radio-button:focus {
+  howto-radio-button:focus {
     outline: 0;
   }
   
-  dash-radio-button:focus::before {
+  howto-radio-button:focus::before {
     box-shadow: 0 0 1px 2px #5B9DD9;
   }
 
-  dash-radio-button::before {
+  howto-radio-button::before {
     content: '';
     display: block;
     width: 10px;
@@ -33,13 +33,13 @@
     border-radius: 50%;
   }
 
-  dash-radio-button[aria-checked="true"]::before {
+  howto-radio-button[aria-checked="true"]::before {
     background: red;
   }
 </style>
 
-<dash-radio-group>
-  <dash-radio-button>Water</dash-radio-button>
-  <dash-radio-button>Soda</dash-radio-button>
-  <dash-radio-button>Coffee</dash-radio-button>
-</dash-radio-group>
+<howto-radio-group>
+  <howto-radio-button>Water</howto-radio-button>
+  <howto-radio-button>Soda</howto-radio-button>
+  <howto-radio-button>Coffee</howto-radio-button>
+</howto-radio-group>
