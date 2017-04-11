@@ -8,7 +8,7 @@
  * See: https://www.w3.org/TR/wai-aria-practices-1.1/#tooltip
  */
 
-class DashTooltip extends HTMLElement {
+class HowtoTooltip extends HTMLElement {
   /**
   * The constructor does work that needs to be executed _exactly_ once.
   */
@@ -81,4 +81,4 @@ class DashTooltip extends HTMLElement {
   }
 }
 
-window.customElements.define('dash-tooltip', DashTooltip);
+window.customElements.define('howto-tooltip', HowtoTooltip);

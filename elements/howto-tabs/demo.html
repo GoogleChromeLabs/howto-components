@@ -1,6 +1,6 @@
 <!doctype html>
 <style>
-  dash-tabs {
+  howto-tabs {
     /**
      * The element uses flex box to line up the tabs in the first line
      * and wraps if necessary.
@@ -8,11 +8,11 @@
     display: flex;
     flex-wrap: wrap;
   }
-  dash-tabs-tab {
+  howto-tabs-tab {
     border: 1px solid black;
     padding: 20px;
   }
-  dash-tabs-panel {
+  howto-tabs-panel {
     /**
      * Each panel has a base size of 100%, forcing it to be in its
      * own row.
@@ -21,10 +21,10 @@
     padding: 20px;
     background-color: lightgray;
   }
-  dash-tabs-panel[aria-hidden="true"] {
+  howto-tabs-panel[aria-hidden="true"] {
     display: none;
   }
-  dash-tabs-tab[aria-selected="true"] {
+  howto-tabs-tab[aria-selected="true"] {
     background-color: bisque;
   }
 
@@ -32,16 +32,16 @@
    * If JavaScript does not run, the element will stay `:unresolved`.
    * In that case this style adds spacing between tabs and previous panel.
    */
-  dash-tabs:unresolved dash-tabs-tab:unresolved {
+  howto-tabs:unresolved howto-tabs-tab:unresolved {
     margin-top: 10px;
   }
 </style>
 
-<dash-tabs>
-  <dash-tabs-tab role="heading">Tab 1</dash-tabs-tab>
-  <dash-tabs-panel role="region">Content 1</dash-tabs-panel>
-  <dash-tabs-tab role="heading">Tab 2</dash-tabs-tab>
-  <dash-tabs-panel role="region">Content 2</dash-tabs-panel>
-  <dash-tabs-tab role="heading">Tab 3</dash-tabs-tab>
-  <dash-tabs-panel role="region">Content 3</dash-tabs-panel>
-</dash-tabs>
+<howto-tabs>
+  <howto-tabs-tab role="heading">Tab 1</howto-tabs-tab>
+  <howto-tabs-panel role="region">Content 1</howto-tabs-panel>
+  <howto-tabs-tab role="heading">Tab 2</howto-tabs-tab>
+  <howto-tabs-panel role="region">Content 2</howto-tabs-panel>
+  <howto-tabs-tab role="heading">Tab 3</howto-tabs-tab>
+  <howto-tabs-panel role="region">Content 3</howto-tabs-panel>
+</howto-tabs>

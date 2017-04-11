@@ -2,7 +2,7 @@
 
 <style>
   /* The tooltip is by default unstyled. */
-  dash-tooltip {
+  howto-tooltip {
     margin-left: 8px;
     padding: 4px;
     background-color: #616161;
@@ -20,12 +20,12 @@
   }
 
   /* The tooltip is hidden. */
-  dash-tooltip[aria-hidden="true"] {
+  howto-tooltip[aria-hidden="true"] {
     opacity: 0;
   }
 
   /* The tooltip is showing. */
-  dash-tooltip[aria-hidden="false"] {
+  howto-tooltip[aria-hidden="false"] {
     /* Optionally, add a delay to showing the tooltip. */
     transition-delay: 0.3s;
     opacity: 1;
@@ -35,9 +35,9 @@
 <div class="text">
    <label for="name">Your name:</label>
    <input id="name" aria-describedby="tp1"/>
-   <dash-tooltip id="tp1">Ideally your name is Batman</dash-tooltip>
+   <howto-tooltip id="tp1">Ideally your name is Batman</howto-tooltip>
    <br>
    <label for="cheese">Favourite type of cheese: </label>
    <input id="cheese" aria-describedby="tp2"/>
-   <dash-tooltip id="tp2">Help I am trapped inside a tooltip message</dash-tooltip>
+   <howto-tooltip id="tp2">Help I am trapped inside a tooltip message</howto-tooltip>
 </div>
