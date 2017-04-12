@@ -16,7 +16,7 @@
   "watch": {
     "build": {
       "patterns": ["elements/*"],
-      "extensions": "js,html"
+      "extensions": "js,html,css"
     }
   },
   "author": "Google",

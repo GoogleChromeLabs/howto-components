@@ -22,9 +22,9 @@ book_path: /web/updates/_book.yaml
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">
 {{ for (let section of it.demoSections) { }}
-<li class="{{=section.commentType.toLowerCase()}}">
+<li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
 <div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code">{{=section.codeText}}</code>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
 </li>
 {{ } }}
 </ul>
@@ -32,9 +32,9 @@ book_path: /web/updates/_book.yaml
 ## Code {: #code }
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
-<li class="{{=section.commentType.toLowerCase()}}">
+<li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
 <div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code">{{=section.codeText}}</code>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
 </li>
 {{ } }}
 </ul>
