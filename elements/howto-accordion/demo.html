@@ -1,6 +1,6 @@
 <!doctype html>
 <style>
-  dash-accordion {
+  howto-accordion {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -9,36 +9,36 @@
   /* Children get the `animating` class assigned if they are about to be
   animated. The implementation relies on the `transitionend` event, so this
   class _must_ define a transition on the `transform` property.*/
-  dash-accordion > *.animating {
+  howto-accordion > *.animating {
     transition: transform 0.3s ease-in-out;
   }
   /* Headings need a background color so they are not transparent. Otherwise
   the content will shine through during the animation. */
-  dash-accordion-heading {
+  howto-accordion > button {
     background-color: white;
     border: 1px solid black;
     padding: 20px;
   }
-  dash-accordion-heading[aria-expanded="true"] {
+  howto-accordion > button[aria-expanded="true"] {
     background-color: bisque;
   }
-  dash-accordion-panel {
+  howto-accordion > *:not(button) {
     padding: 20px;
     background-color: lightgray;
   }
-  dash-accordion-panel.collapsed {
+  howto-accordion > *:not(button).collapsed {
     display: none;
   }
-  dash-accordion-panel.expanded {
+  howto-accordion > *:not(button).expanded {
     display: block;
   }
 </style>
 
-<dash-accordion>
-  <dash-accordion-heading role="heading">Tab 1</dash-accordion-heading>
-  <dash-accordion-panel role="region">Content 1</dash-accordion-panel>
-  <dash-accordion-heading role="heading">Tab 2</dash-accordion-heading>
-  <dash-accordion-panel role="region">Content 2</dash-accordion-panel>
-  <dash-accordion-heading role="heading">Tab 3</dash-accordion-heading>
-  <dash-accordion-panel role="region">Content 3</dash-accordion-panel>
-</dash-accordion>
+<howto-accordion>
+  <button>Tab 1</button>
+  <section>Content 1</section>
+  <button>Tab 2</button>
+  <section>Content 2</section>
+  <button>Tab 3</button>
+  <section>Content 3</section>
+</howto-accordion>
