@@ -33,6 +33,9 @@
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
 
+      this._checked = false;
+      this._disabled = false;
+
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
     }
@@ -63,7 +66,7 @@
     _toggleChecked() {
       if (this.disabled) return;
       this.checked = !this.checked;
-      this.dispatchEvent(new CustomEvent('checked-changed', {
+      this.dispatchEvent(new CustomEvent('change', {
         detail: {
           checked: this.checked,
         },
@@ -80,21 +83,7 @@
      */
     attributeChangedCallback(name, oldValue, newValue) {
       const value = this.hasAttribute(name);
-      switch (name) {
-        case 'checked':
-          this.setAttribute('aria-checked', value);
-          break;
-        case 'disabled':
-          this.setAttribute('aria-disabled', value);
-          if (value) {
-            this.removeAttribute('tabindex');
-          } else {
-            this.setAttribute('tabindex', '0');
-          }
-          break;
-        default:
-          break;
-      }
+      if (this[name] !== value) this[name] = value;
     }
 
     /**
@@ -102,11 +91,14 @@
      * attribute.
      */
     set checked(isChecked) {
+      if (this._checked === isChecked) return;
+      this._checked = isChecked;
       if (isChecked) {
         this.setAttribute('checked', '');
       } else {
         this.removeAttribute('checked');
       }
+      this.setAttribute('aria-checked', isChecked);
     }
 
     /**
@@ -115,7 +107,7 @@
      * of the underlying property.
      */
     get checked() {
-      return this.hasAttribute('checked');
+      return this._checked;
     }
 
     /**
@@ -123,18 +115,23 @@
      * attribute. A disabled checkbox will be visible, but no longer operable.
      */
     set disabled(isDisabled) {
+      if (this._disabled === isDisabled) return;
+      this._disabled = isDisabled;
       if (isDisabled) {
         this.setAttribute('disabled', '');
+        this.removeAttribute('tabindex');
       } else {
         this.removeAttribute('disabled');
+        this.setAttribute('tabindex', '0');
       }
+      this.setAttribute('aria-disabled', isDisabled);
     }
 
     /**
      * The `disabled` getter just returns the current `disabled` state.
      */
     get disabled() {
-      return this.hasAttribute('disabled');
+      return this._disabled;
     }
   }
 
