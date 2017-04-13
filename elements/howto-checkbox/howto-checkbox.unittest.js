@@ -1,14 +1,14 @@
 (function() {
   const expect = chai.expect;
 
-  describe('dash-checkbox', function() {
-    before(dashElements.before());
-    after(dashElements.after());
+  describe('howto-checkbox', function() {
+    before(howtoComponents.before());
+    after(howtoComponents.after());
     beforeEach(function() {
-      this.container.innerHTML = `<dash-checkbox></dash-checkbox>`;
-      return dashElements.waitForElement('dash-checkbox')
+      this.container.innerHTML = `<howto-checkbox></howto-checkbox>`;
+      return howtoComponents.waitForElement('howto-checkbox')
         .then(_ => {
-          this.checkbox = this.container.querySelector('dash-checkbox');
+          this.checkbox = this.container.querySelector('howto-checkbox');
         });
     });
 
