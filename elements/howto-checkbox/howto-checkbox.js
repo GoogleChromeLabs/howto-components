@@ -40,6 +40,15 @@
       this.addEventListener('click', this._onClick);
     }
 
+    /**
+     * `disconnectedCallback` fires whenever the element is removed from
+     * the DOM. It's a good place to clean up and remove event listeners.
+     */
+    disconnectedCallback() {
+      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('click', this._onClick);
+    }
+
     _onKeyDown(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey)
@@ -47,6 +56,7 @@
 
       switch (event.keyCode) {
         case KEYCODE.SPACE:
+          event.preventDefault();
           this._toggleChecked();
           break;
         // Any other key press is ignored and passed back to the browser.
@@ -60,7 +70,7 @@
     }
 
     /**
-     * `_toggleChecked` calls the checked setter and flips its state.
+     * `_toggleChecked` calls the `checked` setter and flips its state.
      * Because `_toggleChecked` is only caused by a user action, it will
      * also dispatch a change event.
      */
@@ -77,27 +87,21 @@
     }
 
     /**
-     * Because setting either the `checked` or `disabled` property also
-     * sets the corresponding attributes, it's possible to get into a cycle
-     * where setting a property sets the attribute which then tries to
-     * set the property again. This helper avoids that by checking to see
-     * if the attribute is already set. As an additional helper, it will
-     * also use "true"/"false" strings for boolean ARIA attributes.
+     * Both `checked` and `disabled` are part of the `observedAttributes` array
+     * meaning that setting either attribute will trigger the
+     * `attributeChangedCallback`.
+     * It's possible to get into a cycle where setting a property sets one of
+     * these attributes, which then tries to set the property again.
+     * This helper avoids that by checking to see if the attribute is already
+     * set.
      */
-    _toggleAttribute(attr, value) {
-      const isAriaAttribute = attr.indexOf('aria-') === 0;
+    _safelySetAttribute(attr, value) {
       if (value === true && !this.hasAttribute(attr)) {
-        if (isAriaAttribute)
-          this.setAttribute(attr, 'true');
-        else
           this.setAttribute(attr, '');
-        return;
+          return;
       }
       if (value === false && this.hasAttribute(attr)) {
-        if (isAriaAttribute)
-          this.setAttribute(attr, 'false');
-        else
-          this.removeAttribute(attr);
+        this.removeAttribute(attr);
         return;
       }
     }
@@ -124,8 +128,8 @@
       if (this._checked === isChecked)
         return;
       this._checked = isChecked;
-      this._toggleAttribute('checked', isChecked);
-      this._toggleAttribute('aria-checked', isChecked);
+      this._safelySetAttribute('checked', isChecked);
+      this.setAttribute('aria-checked', isChecked);
     }
 
     get checked() {
@@ -142,8 +146,14 @@
       if (this._disabled === isDisabled)
         return;
       this._disabled = isDisabled;
-      this._toggleAttribute('disabled', isDisabled);
-      this._toggleAttribute('aria-disabled', isDisabled);
+      this._safelySetAttribute('disabled', isDisabled);
+      this.setAttribute('aria-disabled', isDisabled);
+      // The `tabindex` attribute does not provide a way to fully remove
+      // focusability from an element.
+      // Elements with `tabindex=-1` can still be focused with
+      // a mouse or by calling `focus()`.
+      // To make sure an element is not focusable, remove the `tabindex`
+      // attribute
       if (isDisabled)
         this.removeAttribute('tabindex');
       else
