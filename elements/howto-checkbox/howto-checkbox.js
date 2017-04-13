@@ -1,5 +1,5 @@
 /**
- * A `DashCheckbox` represents a boolean option in a form. The most common type
+ * A `HowToCheckbox` represents a boolean option in a form. The most common type
  * of checkbox is a dual-type which allows the user to toggle between two
  * choices -- checked and unchecked.
  */
@@ -12,13 +12,13 @@
   };
 
   /**
-   * The `DashCheckbox` exposes a single `checked` attribute/property for
+   * The `HowToCheckbox` exposes a single `checked` attribute/property for
    * toggling its state. Changes to the `checked` property will also be
    * reflected to an `aria-checked` attribute. Similarly, the `disabled`
    * property is reflected to an `aria-disabled` attribute. This controls
    * whether the element is operable or not.
    */
-  class DashCheckbox extends HTMLElement {
+  class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
       return ['checked', 'disabled'];
     }
@@ -138,7 +138,7 @@
     }
   }
 
-  window.customElements.define('dash-checkbox', DashCheckbox);
+  window.customElements.define('howto-checkbox', HowToCheckbox);
 })();
 
 

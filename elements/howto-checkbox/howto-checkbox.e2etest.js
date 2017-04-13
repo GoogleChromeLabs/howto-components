@@ -2,7 +2,7 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe('dash-checkbox', function() {
+describe('howto-checkbox', function() {
   let success;
 
   const findCheckbox = _ => {
@@ -24,8 +24,8 @@ describe('dash-checkbox', function() {
   };
 
   beforeEach(function() {
-    return this.driver.get(`${this.address}/dash-checkbox_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-checkbox'));
+    return this.driver.get(`${this.address}/howto-checkbox_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'howto-checkbox'));
   });
 
   it('should check the checkbox on [space]',
