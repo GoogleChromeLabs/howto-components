@@ -6,6 +6,7 @@
     background-size: contain;
     width: 24px;
     height: 24px;
+    vertical-align: middle;
   }
   
   howto-checkbox[aria-checked="true"] {
@@ -22,6 +23,16 @@
     background: url('./images/checked-checkbox-disabled.svg') no-repeat;
     background-size: contain;
   }
+
+  #join-label {
+    vertical-align: middle;
+    display: inline-block;
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 20px;
+    margin-left: 8px;
+  }
 </style>
 
-<howto-checkbox></howto-checkbox>
+<howto-checkbox aria-labelledby="#join-label"></howto-checkbox>
+<span id="join-label">Join Newsletter</span>
