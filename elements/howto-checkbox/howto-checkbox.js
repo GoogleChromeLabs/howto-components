@@ -72,7 +72,8 @@
     /**
      * `_toggleChecked` calls the `checked` setter and flips its state.
      * Because `_toggleChecked` is only caused by a user action, it will
-     * also dispatch a change event.
+     * also dispatch a change event. This event bubbles in order to mimic
+     * the native behavior of `<input type=checkbox>`.
      */
     _toggleChecked() {
       if (this.disabled)
@@ -82,7 +83,7 @@
         detail: {
           checked: this.checked,
         },
-        bubbles: false,
+        bubbles: true,
       }));
     }
 
