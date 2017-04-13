@@ -42,7 +42,8 @@
 
     _onKeyDown(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
-      if (event.altKey) return;
+      if (event.altKey)
+        return;
 
       switch (event.keyCode) {
         case KEYCODE.SPACE:
@@ -64,7 +65,8 @@
      * also dispatch a change event.
      */
     _toggleChecked() {
-      if (this.disabled) return;
+      if (this.disabled)
+        return;
       this.checked = !this.checked;
       this.dispatchEvent(new CustomEvent('change', {
         detail: {
@@ -92,13 +94,13 @@
      * `aria-checked` attributes.
      */
     set checked(isChecked) {
-      if (this._checked === isChecked) return;
+      if (this._checked === isChecked)
+        return;
       this._checked = isChecked;
-      if (isChecked) {
+      if (isChecked)
         this.setAttribute('checked', '');
-      } else {
+      else
         this.removeAttribute('checked');
-      }
       this.setAttribute('aria-checked', isChecked);
     }
 
@@ -113,7 +115,8 @@
      * This means a disabled checkbox will be visible, but no longer operable.
      */
     set disabled(isDisabled) {
-      if (this._disabled === isDisabled) return;
+      if (this._disabled === isDisabled)
+        return;
       this._disabled = isDisabled;
       if (isDisabled) {
         this.setAttribute('disabled', '');
