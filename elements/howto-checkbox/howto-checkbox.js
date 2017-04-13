@@ -98,12 +98,13 @@
       if (this._checked === isChecked)
         return;
       this._checked = isChecked;
-      if (isChecked)
+      if (isChecked) {
         if (!this.hasAttribute('checked'))
           this.setAttribute('checked', '');
-      else
+      } else {
         if (this.hasAttribute('checked'))
           this.removeAttribute('checked');
+      }
       this.setAttribute('aria-checked', isChecked);
     }
 
