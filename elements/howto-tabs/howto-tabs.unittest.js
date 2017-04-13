@@ -1,3 +1,4 @@
+(function() {
 const expect = chai.expect;
 
 describe('howto-tabs', function() {
@@ -97,3 +98,4 @@ describe('howto-tabs', function() {
     expect(selectedPanel.getAttribute('aria-hidden')).to.equal('true');
   });
 });
+})();
