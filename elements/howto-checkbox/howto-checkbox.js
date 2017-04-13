@@ -80,11 +80,12 @@
      * `attributeChangedCallback` watches for changes to the `checked`
      * and `disabled` attributes and reflects their states to the corresponding
      * properties. It will be called at startup time if either attribute
-     * has been set. Because both `checked` and `disabled` are booleans, the
-     * callback determines their values by checking to see if the attributes
-     * are present.
+     * has been set.
      */
     attributeChangedCallback(name) {
+      // Because both `checked` and `disabled` are booleans, the callback
+      // determines their values by checking to see if the attributes are
+      // present.
       const value = this.hasAttribute(name);
       if (this[name] !== value) this[name] = value;
     }
@@ -98,9 +99,11 @@
         return;
       this._checked = isChecked;
       if (isChecked)
-        this.setAttribute('checked', '');
+        if (!this.hasAttribute('checked'))
+          this.setAttribute('checked', '');
       else
-        this.removeAttribute('checked');
+        if (this.hasAttribute('checked'))
+          this.removeAttribute('checked');
       this.setAttribute('aria-checked', isChecked);
     }
 
@@ -119,10 +122,12 @@
         return;
       this._disabled = isDisabled;
       if (isDisabled) {
-        this.setAttribute('disabled', '');
+        if (!this.hasAttribute('disabled'))
+          this.setAttribute('disabled', '');
         this.removeAttribute('tabindex');
       } else {
-        this.removeAttribute('disabled');
+        if (this.hasAttribute('disabled'))
+          this.removeAttribute('disabled');
         this.setAttribute('tabindex', '0');
       }
       this.setAttribute('aria-disabled', isDisabled);
