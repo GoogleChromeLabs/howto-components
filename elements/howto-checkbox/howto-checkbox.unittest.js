@@ -28,6 +28,12 @@
         expect(this.checkbox.checked).to.equal(true);
     });
 
+    it('should toggle `checked` when calling _toggleAttribute', function() {
+        expect(this.checkbox.hasAttribute('checked')).to.equal(false);
+        this.checkbox._toggleAttribute('checked', true);
+        expect(this.checkbox.hasAttribute('checked')).to.equal(true);
+    });
+
     it('should toggle `checked` and `aria-checked` when setting `checked` ' +
         'property', function() {
         expect(this.checkbox.checked).to.equal(false);
