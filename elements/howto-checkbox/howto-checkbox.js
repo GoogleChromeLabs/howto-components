@@ -77,6 +77,32 @@
     }
 
     /**
+     * Because setting either the `checked` or `disabled` property also
+     * sets the corresponding attributes, it's possible to get into a cycle
+     * where setting a property sets the attribute which then tries to
+     * set the property again. This helper avoids that by checking to see
+     * if the attribute is already set. As an additional helper, it will
+     * also use "true"/"false" strings for boolean ARIA attributes.
+     */
+    _toggleAttribute(attr, value) {
+      const isAriaAttribute = attr.indexOf('aria-') === 0;
+      if (value === true && !this.hasAttribute(attr)) {
+        if (isAriaAttribute)
+          this.setAttribute(attr, 'true');
+        else
+          this.setAttribute(attr, '');
+        return;
+      }
+      if (value === false && this.hasAttribute(attr)) {
+        if (isAriaAttribute)
+          this.setAttribute(attr, 'false');
+        else
+          this.removeAttribute(attr);
+        return;
+      }
+    }
+
+    /**
      * `attributeChangedCallback` watches for changes to the `checked`
      * and `disabled` attributes and reflects their states to the corresponding
      * properties. It will be called at startup time if either attribute
@@ -98,14 +124,8 @@
       if (this._checked === isChecked)
         return;
       this._checked = isChecked;
-      if (isChecked) {
-        if (!this.hasAttribute('checked'))
-          this.setAttribute('checked', '');
-      } else {
-        if (this.hasAttribute('checked'))
-          this.removeAttribute('checked');
-      }
-      this.setAttribute('aria-checked', isChecked);
+      this._toggleAttribute('checked', isChecked);
+      this._toggleAttribute('aria-checked', isChecked);
     }
 
     get checked() {
@@ -122,16 +142,12 @@
       if (this._disabled === isDisabled)
         return;
       this._disabled = isDisabled;
-      if (isDisabled) {
-        if (!this.hasAttribute('disabled'))
-          this.setAttribute('disabled', '');
+      this._toggleAttribute('disabled', isDisabled);
+      this._toggleAttribute('aria-disabled', isDisabled);
+      if (isDisabled)
         this.removeAttribute('tabindex');
-      } else {
-        if (this.hasAttribute('disabled'))
-          this.removeAttribute('disabled');
+      else
         this.setAttribute('tabindex', '0');
-      }
-      this.setAttribute('aria-disabled', isDisabled);
     }
 
     get disabled() {
