@@ -24,8 +24,8 @@
     }
 
     /**
-     * `connectedCallback` sets the initial `role` and `tabindex` and installs
-     * event listeners.
+     * `connectedCallback` sets the initial `role`, `tabindex`,
+     * internal state, and installs event listeners.
      */
     connectedCallback() {
       if (!this.hasAttribute('role'))
@@ -61,7 +61,7 @@
     /**
      * `_toggleChecked` calls the checked setter and flips its state.
      * Because `_toggleChecked` is only caused by a user action, it will
-     * also dispatch a state change event.
+     * also dispatch a change event.
      */
     _toggleChecked() {
       if (this.disabled) return;
@@ -77,18 +77,19 @@
     /**
      * `attributeChangedCallback` watches for changes to the `checked`
      * and `disabled` attributes and reflects their states to the corresponding
-     * ARIA attributes. It will be called at startup time if either attribute
+     * properties. It will be called at startup time if either attribute
      * has been set. Because both `checked` and `disabled` are booleans, the
-     * callback determines their values by checking to see if they are present.
+     * callback determines their values by checking to see if the attributes
+     * are present.
      */
-    attributeChangedCallback(name, oldValue, newValue) {
+    attributeChangedCallback(name) {
       const value = this.hasAttribute(name);
       if (this[name] !== value) this[name] = value;
     }
 
     /**
-     * The `checked` property reflects its state to the `checked`
-     * attribute.
+     * The `checked` property reflects its state to the `checked` and
+     * `aria-checked` attributes.
      */
     set checked(isChecked) {
       if (this._checked === isChecked) return;
@@ -101,18 +102,15 @@
       this.setAttribute('aria-checked', isChecked);
     }
 
-    /**
-     * The `checked` getter just returns the current `checked` attribute state.
-     * This means setting the checked attribute will immediately set the value
-     * of the underlying property.
-     */
     get checked() {
       return this._checked;
     }
 
     /**
-     * The `disabled` property reflects its state to the `disabled`
-     * attribute. A disabled checkbox will be visible, but no longer operable.
+     * The `disabled` property reflects its state to the `disabled` and
+     * `aria-disabled` attributes.
+     * It will also remove the `tabindex` attribute if disabled is true.
+     * This means a disabled checkbox will be visible, but no longer operable.
      */
     set disabled(isDisabled) {
       if (this._disabled === isDisabled) return;
@@ -127,9 +125,6 @@
       this.setAttribute('aria-disabled', isDisabled);
     }
 
-    /**
-     * The `disabled` getter just returns the current `disabled` state.
-     */
     get disabled() {
       return this._disabled;
     }
