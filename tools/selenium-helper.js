@@ -31,4 +31,10 @@ module.exports = {
         .then(_ => cb());
     `);
   },
+
+  /**
+   * Wait for a set amount of milliseconds.
+   * @returns a promise that resolves after the given amount of time.
+   */
+  sleep: ms => new Promise(resolve => setTimeout(resolve, ms))
 };

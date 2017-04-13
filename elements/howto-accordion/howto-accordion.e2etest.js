@@ -2,11 +2,11 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe('dash-accordion', function() {
+describe('howto-accordion', function() {
   let success;
   beforeEach(function() {
-    return this.driver.get(`${this.address}/dash-accordion_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-accordion'));
+    return this.driver.get(`${this.address}/howto-accordion_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'howto-accordion'));
   });
 
   it('should handle arrow keys',
@@ -90,8 +90,9 @@ describe('dash-accordion', function() {
       const lastPanel = await this.driver.findElement(By.id(lastPanelId));
       expect(lastHeading.getAttribute('aria-expanded')).to.not.equal('true');
       await lastHeading.click();
+      await helper.sleep(500);
       expect(await lastHeading.getAttribute('aria-expanded')).to.equal('true');
-      expect(await lastPanel.getAttribute('aria-hidden')).to.contain('false');
+      expect(await lastPanel.getAttribute('aria-hidden')).to.equal('false');
     }
   );
 
