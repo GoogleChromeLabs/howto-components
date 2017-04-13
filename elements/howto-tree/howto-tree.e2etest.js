@@ -2,10 +2,10 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
 
-describe('dash-tree', function() {
+describe('howto-tree', function() {
   beforeEach(function() {
-    return this.driver.get(`${this.address}/dash-tree_demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'dash-tree'));
+    return this.driver.get(`${this.address}/howto-tree_demo.html`)
+      .then(_ => helper.waitForElement(this.driver, 'howto-tree'));
   });
 
   // FIXME: This test is acting flakey
@@ -20,10 +20,10 @@ describe('dash-tree', function() {
       expect(found).to.equal(true);
 
       const tree =
-        await this.driver.findElement(By.css('dash-tree'));
+        await this.driver.findElement(By.css('howto-tree'));
       const activeDescendant = await tree.getAttribute('aria-activedescendant');
       const firstTreeItem = await this.driver
-        .findElement(By.css('dash-tree-item'))
+        .findElement(By.css('howto-tree-item'))
         .getAttribute('id');
       expect(activeDescendant).to.equal(firstTreeItem);
     }
@@ -41,10 +41,10 @@ describe('dash-tree', function() {
 
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       const tree =
-        await this.driver.findElement(By.css('dash-tree'));
+        await this.driver.findElement(By.css('howto-tree'));
       const activeDescendant = await tree.getAttribute('aria-activedescendant');
       const secondTreeItem = await this.driver
-        .findElement(By.css('dash-tree-item:nth-of-type(2)'))
+        .findElement(By.css('howto-tree-item:nth-of-type(2)'))
         .getAttribute('id');
       expect(activeDescendant).to.equal(secondTreeItem);
     }
@@ -63,10 +63,10 @@ describe('dash-tree', function() {
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
       const tree =
-        await this.driver.findElement(By.css('dash-tree'));
+        await this.driver.findElement(By.css('howto-tree'));
       const activeDescendant = await tree.getAttribute('aria-activedescendant');
       const firstTreeItem = await this.driver
-        .findElement(By.css('dash-tree-item:first-of-type'))
+        .findElement(By.css('howto-tree-item:first-of-type'))
         .getAttribute('id');
       expect(activeDescendant).to.equal(firstTreeItem);
     }
@@ -145,10 +145,10 @@ describe('dash-tree', function() {
       await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
       await this.driver.actions().sendKeys(Key.HOME).perform();
       const tree =
-        await this.driver.findElement(By.css('dash-tree'));
+        await this.driver.findElement(By.css('howto-tree'));
       const activeDescendant = await tree.getAttribute('aria-activedescendant');
       const firstTreeItem = await this.driver
-        .findElement(By.css('dash-tree-item'))
+        .findElement(By.css('howto-tree-item'))
         .getAttribute('id');
       expect(activeDescendant).to.equal(firstTreeItem);
     }
@@ -181,7 +181,7 @@ describe('dash-tree', function() {
 
       await this.driver.actions().sendKeys(Key.END).perform();
       const tree =
-        await this.driver.findElement(By.css('dash-tree'));
+        await this.driver.findElement(By.css('howto-tree'));
       const activeDescendant = await tree.getAttribute('aria-activedescendant');
       expect(activeDescendant)
         .to.equal(await lastVisibleTreeItem.getAttribute('id'));
@@ -199,7 +199,7 @@ describe('dash-tree', function() {
       expect(found).to.equal(true);
 
       const firstTreeItem = await this.driver
-        .findElement(By.css('dash-tree-item'));
+        .findElement(By.css('howto-tree-item'));
       await this.driver.actions().sendKeys(Key.SPACE).perform();
       expect(await firstTreeItem.getAttribute('aria-selected'))
         .to.equal('true');

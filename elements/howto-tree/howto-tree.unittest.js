@@ -1,34 +1,34 @@
 (function() {
   const expect = chai.expect;
 
-  describe('dash-tree', function() {
-    before(dashElements.before());
-    after(dashElements.after());
+  describe('howto-tree', function() {
+    before(howtoComponents.before());
+    after(howtoComponents.after());
     beforeEach(function() {
       this.container.innerHTML = `
-        <dash-tree>
-          <dash-tree-item>Project1</dash-tree-item>
-          <dash-tree-item>
+        <howto-tree>
+          <howto-tree-item>Project1</howto-tree-item>
+          <howto-tree-item>
             <label>Project 2</label>
-            <dash-tree-group role="list">
-              <dash-tree-item>File1</dash-tree-item>
-            </dash-tree-group>
-          </dash-tree-item>
-          <dash-tree-item aria-selected="true">Project3</dash-tree-item>
-        </dash-tree>
+            <howto-tree-group>
+              <howto-tree-item>File1</howto-tree-item>
+            </howto-tree-group>
+          </howto-tree-item>
+          <howto-tree-item aria-selected="true">Project3</howto-tree-item>
+        </howto-tree>
       `;
       return Promise.all([
-        dashElements.waitForElement('dash-tree'),
-        dashElements.waitForElement('dash-tree-item'),
-        dashElements.waitForElement('dash-tree-group'),
+        howtoComponents.waitForElement('howto-tree'),
+        howtoComponents.waitForElement('howto-tree-item'),
+        howtoComponents.waitForElement('howto-tree-group'),
       ]).then(_ => {
-        this.tree = this.container.querySelector('dash-tree');
-        this.firstTreeItem = this.tree.querySelector('dash-tree-item');
+        this.tree = this.container.querySelector('howto-tree');
+        this.firstTreeItem = this.tree.querySelector('howto-tree-item');
         this.parentTreeItem = this.tree
-          .querySelector('dash-tree-item:nth-of-type(2)');
+          .querySelector('howto-tree-item:nth-of-type(2)');
         this.selectedTreeItem = this.tree
-          .querySelector('dash-tree-item[aria-selected="true"]');
-        this.firstTreeGroup = this.tree.querySelector('dash-tree-group');
+          .querySelector('howto-tree-item[aria-selected="true"]');
+        this.firstTreeGroup = this.tree.querySelector('howto-tree-group');
       });
     });
 
@@ -50,15 +50,15 @@
           .to.equal(this.selectedTreeItem.getAttribute('id'));
       });
 
-    describe('dash-tree-item', function() {
+    describe('howto-tree-item', function() {
       it('should apply [role=treeitem]', function() {
         expect(this.firstTreeItem.getAttribute('role')).to.equal('treeitem');
       });
 
       it('should generate ids', function() {
-        const treeItem = this.tree.querySelector('dash-tree-item');
+        const treeItem = this.tree.querySelector('howto-tree-item');
         expect(treeItem.getAttribute('id'))
-          .to.match(/^dash-tree-item-generated-.*$/);
+          .to.match(/^howto-tree-item-generated-.*$/);
       });
 
       it('should apply [aria-expanded=false]', function() {
@@ -79,7 +79,7 @@
         });
     });
 
-    describe('dash-tree-group', function() {
+    describe('howto-tree-group', function() {
       it('should apply [role=group]', function() {
         expect(this.firstTreeGroup.getAttribute('role')).to.equal('group');
       });
