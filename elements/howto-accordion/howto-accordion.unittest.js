@@ -2,8 +2,8 @@
   const expect = chai.expect;
 
   describe('howto-accordion', function() {
-    before(dashElements.before());
-    after(dashElements.after());
+    before(howtoComponents.before());
+    after(howtoComponents.after());
     beforeEach(function() {
       this.container.innerHTML = `
         <howto-accordion>
@@ -16,7 +16,7 @@
         </howto-accordion>
       `;
       return Promise.all([
-        dashElements.waitForElement('howto-accordion'),
+        howtoComponents.waitForElement('howto-accordion'),
       ]).then(_ => {
         this.accordion = this.container.querySelector('howto-accordion');
         this.headings =
