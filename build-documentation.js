@@ -44,14 +44,22 @@ function generateDocs() {
 }
 
 function copyStaticFiles() {
-  return fs.readdir('site-resources')
-    .then(files =>
-      Promise.all(
-        files
-          .filter(name => !name.includes('.tpl.'))
-          .map(name => copy(`site-resources/${name}`, `docs/${name}`))
-      )
-    );
+  return Promise.all([
+    fs.readdir('site-resources')
+      .then(files =>
+        Promise.all(
+          files
+            .filter(name => !name.includes('.tpl.'))
+            .map(name => copy(`site-resources/${name}`, `docs/${name}`))
+        )
+      ),
+    fs.readdir('elements')
+      .then(elements => Promise.all(
+        elements.map(elem =>
+          copy(`elements/${elem}/images`, `docs/images`).catch(_ => {})
+        )
+      )),
+  ]);
 }
 
 function parseElement(name) {
