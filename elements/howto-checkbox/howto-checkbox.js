@@ -16,7 +16,10 @@
    * toggling its state. Changes to the `checked` property will also be
    * reflected to an `aria-checked` attribute. Similarly, the `disabled`
    * property is reflected to an `aria-disabled` attribute. This controls
-   * whether the element is operable or not.
+   * whether the element is operable or not. Although native checkbox elements
+   * also provide a `value` attribute, because it is only used for `<form>`
+   * submissions, and this element can't take part in that process, it has
+   * been omitted.
    */
   class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
