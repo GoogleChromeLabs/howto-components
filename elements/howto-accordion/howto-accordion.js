@@ -7,14 +7,12 @@
  * selection of the active heading. With enter or space the active headings
  * can be toggled between expanded and collapsed state.
  *
- * The panels have the classes `expanded` or `collapsed` assigned to them
- * depending on their state. However, these classes are only applied when the
- * the animation is done. For most purposes, the `aria-expanded` attribute of
- * the associated heading should be used as an indicator of the current state.
+ * The headings and the panels have the classes `expanded` or `collapsed` assigned to them
+ * depending on their state.
  *
- * If JavaScript is disabled, all panels are shown interleaved with the
- * respective headings.
+ * All panels should be styled to be visible if JavaScript is disabled.
  */
+// TODO: Comments, expanded property
 (function() {
   /**
    * Define key codes to help with handling keyboard events.
@@ -26,63 +24,61 @@
     UP: 38,
     HOME: 36,
     END: 35,
-    // // SPACE: 32,
-    // ENTER: 13,
   };
 
-  // `dashAccordionHeadingCounter` counts the number of
-  // `<dash-accordion-heading>` instances created. The
-  // number is used to generated new, unique IDs.
+  // `idCounter` counts the number of IDs generated and is used to generated
+  // new, unique IDs.
   let idCounter = 0;
 
   /**
-   * `DashAccordion` is a container element for headings and panels.
+   * `HowtoAccordion` is a container element for headings and panels.
    *
-   * All children of `<dash-accordion>` should be either
-   * `<dash-accordion-heading>` or `<dash-accordion-panel>`. This element is
-   * stateless, meaning that no values are cached and therefore, changes during
-   * runtime are incorporated.
+   * As per the WAI-ARIA best practices, the headings are `<button>`s. Panels
+   * can be any element, but must be adjacent to a heading.
    */
-  class HowToAccordion extends HTMLElement {
+  class HowtoAccordion extends HTMLElement {
     constructor() {
       super();
-
-      this._onClick = this._onClick.bind(this);
     }
 
     connectedCallback() {
+      this.addEventListener('click', this._onClick);
+      this.addEventListener('keydown', this._onKeyDown);
+
       // Acquire all headings and panels inside the element
       const headings = this._allHeadings();
       const panels = this._allPanels();
 
-      this.addEventListener('click', this._onClick);
-      this.addEventListener('keydown', this._onKeyDown);
 
       // Set up `aria-controls` and `aria-labelledby` on headings and panels.
       headings.forEach(heading => {
+        const panel = this._panelForHeading(heading);
+
+        // Headings and panels need an ID so they can cross-reference each other
+        // using `aria-labelledby` and `aria-controls`.
         if (!heading.id)
           heading.id = `howto-accordion-generated-${idCounter++}`;
+        if (!panel.id)
+          panel.id = `howto-accordion-generated-${idCounter++}`;
+        heading.setAttribute('aria-controls', panel.id);
+        panel.setAttribute('aria-labelledby', heading.id);
+
+        // Assign the appropriate roles to headings and panels.
         if (!heading.hasAttribute('role'))
           heading.setAttribute('role', 'heading');
         heading.setAttribute('tabindex', '-1');
-        const panel = heading.nextElementSibling;
-        if (!panel.id)
-          panel.id = `howto-accordion-generated-${idCounter++}`;
         if (!panel.hasAttribute('role'))
           panel.setAttribute('role', 'region');
-
-        heading.setAttribute('aria-controls', panel.id);
-        panel.setAttribute('aria-labelledby', heading.id);
       });
 
       // Set all the panels to the collapsed state to have a well-defined
-      // initial state
+      // initial state.
       panels.forEach(panel => this._collapsePanel(panel));
 
       // Check if any of the headings have been marked as
       // expanded. If so, all the associated panels get expanded.
       headings
-        .filter(heading => heading.expanded)
+        .filter(heading => heading.classList.contains('expanded'))
         .forEach(heading => {
           const panel = this._panelForHeading(heading);
           this._expand(heading, panel);
@@ -95,32 +91,44 @@
      * `connectedCallback` added.
      */
     disconnectedCallback() {
+      this.removeEventListener('click', this._onClick);
+      this.removeEventListener('keydown', this._onKeyDown);
     }
 
+    _isHeading(elem) {
+      return elem.tagName === 'BUTTON' && elem.parentElement === this;
+    }
+
+    /**
+     * `_onClick` handles clicks inside the accordion. The handler makes sure
+     * the click originated from one of the headings before reacting to it.
+     */
     _onClick(event) {
-      const headings = this._allHeadings();
       let target = event.target;
+      // Climb up the DOM tree.
       while(true) {
+        // If the loop ends up at the containing `<howto-accordion>`, the click
+        // did not originate on a heading. Abort.
         if (target === this) return;
-        if (headings.includes(target)) break;
+        // If the loops finds a heading, expand that heading.
+        if (this._isHeading(target)) break;
+        target = target.parentElement;
       }
 
       this._toggle(target);
     }
 
-
     /**
-     * `_onKeyDown` handles key presses inside the tab panel.
+     * `_onKeyDown` handles key presses inside the accordion.
      */
     _onKeyDown(event) {
       // If the keypress did not originate from heading,
-      // it was a keypress inside the a panel or on empty space. Nothing to do.
-      if (event.target.getAttribute('role') !== 'heading'
-        && event.target.parentElement !== this) return;
+      // it was a keypress inside the a panel or empty space. Nothing to do.
+      if (!this._isHeading(event.target)) return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
 
-      // The switch-case will determine which tab should be marked as active
+      // The switch-case will determine which heading should be focused
       // depending on the key that was pressed.
       let newHeading;
       switch (event.keyCode) {
@@ -150,12 +158,17 @@
       // keys, home or end. The element calls `preventDefault` to prevent the
       // browser from taking any actions.
       event.preventDefault();
-      // Select the new tab, that has been determined in the switch-case.
+      // Utilizing roving tabindex, make the currently focused heading
+      // unfocusable and focus the new heading.
       document.activeElement.setAttribute('tabindex', '-1');
       newHeading.setAttribute('tabindex', '0');
       newHeading.focus();
     }
 
+    /**
+     * `_toggle` toggles the state of the given heading and the corresponding
+     * panel.
+     */
     _toggle(heading) {
       const panel = this._panelForHeading(heading);
       if(heading.classList.contains('expanded'))
@@ -234,12 +247,20 @@
       return headings[headings.length - 1];
     }
 
+    /**
+     * `_expandPanel` puts the given panel in the expanded state. This function
+     * does not do any animation.
+     */
     _expandPanel(panel) {
       panel.setAttribute('aria-hidden', 'false');
       panel.classList.remove('collapsed');
       panel.classList.add('expanded');
     }
 
+    /**
+     * `_expandHeading` puts the given heading in the expanded state. This
+     * function does not do any animation.
+     */
     _expandHeading(heading) {
       heading.setAttribute('aria-expanded', 'true');
       heading.classList.add('expanded');
@@ -378,7 +399,7 @@
         });
     }
   }
-  window.customElements.define('howto-accordion', HowToAccordion);
+  window.customElements.define('howto-accordion', HowtoAccordion);
 
   // These functions help make animations easier.
   // Read https://dassur.ma/things/raf-promise/ for more details.
