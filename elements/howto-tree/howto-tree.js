@@ -59,7 +59,7 @@
 
   class HowToTreeItem extends HTMLElement {
     static get observedAttributes() {
-      return ['expanded'];
+      return ['expanded', 'selected'];
     }
 
     constructor() {
@@ -75,13 +75,12 @@
       // `aria-activedescendant`.
       if (!this.id)
         this.id = `howto-tree-item-generated-${HowToTreeItemCounter++}`;
+      
+      this.selected = false;
 
       // If the element contains a `<howto-tree-group>` then it's a parent node
       if (isParentNode(this)) {
-        // If the element is not explicitly already expanded by the user, then
-        // set it to closed.
-        if (!this.hasAttribute('expanded'))
-          this.expanded = false;
+        this.expanded = false;
 
         // This first child should be a `<label>` element. Custom Elements are
         // not currently supported by the `<label>` element, but hopefully
@@ -102,21 +101,55 @@
       }
     }
 
-    attributeChangedCallback() {
-      this.expanded = this.hasAttribute('expanded');
+    /**
+     * Both `checked` and `disabled` are part of the `observedAttributes` array
+     * meaning that setting either attribute will trigger the
+     * `attributeChangedCallback`.
+     * It's possible to get into a cycle where setting a property sets one of
+     * these attributes, which then tries to set the property again.
+     * This helper avoids that by checking to see if the attribute is already
+     * set.
+     */
+    _safelySetAttribute(attr, value) {
+      if (value === true && !this.hasAttribute(attr)) {
+          this.setAttribute(attr, '');
+          return;
+      }
+      if (value === false && this.hasAttribute(attr)) {
+        this.removeAttribute(attr);
+        return;
+      }
+    }
+
+    attributeChangedCallback(name) {
+      const value = this.hasAttribute(name);
+      if (this[name] !== value)
+        this[name] = value;
     }
 
     set expanded(isExpanded) {
       if (!isParentNode(this))
         return;
-      if (isExpanded)
-        this.setAttribute('aria-expanded', true);
-      else
-        this.setAttribute('aria-expanded', false);
+      if (this._expanded === isExpanded)
+        return;
+      this._expanded = isExpanded;
+      this._safelySetAttribute('expanded', isExpanded);
+      this.setAttribute('aria-expanded', isExpanded);
     }
 
     get expanded() {
-      return this.getAttribute('aria-expanded') === 'true';
+      return this._expanded;
+    }
+
+    set selected(isSelected) {
+      if (this._selected === isSelected)
+        return;
+      this._safelySetAttribute('selected', isSelected);
+      this.setAttribute('aria-selected', isSelected);
+    }
+
+    get selected() {
+      return this._selected;
     }
   }
 
@@ -183,10 +216,7 @@
         // The element checks if any child has been marked as selected.
         // If so, it will mark it as the current `aria-activedescendant`
         // and mark it with a `.selected` class.
-        const selectedTreeItem =
-          treeItems.find(treeItem =>
-            treeItem.getAttribute('aria-selected') === 'true');
-
+        const selectedTreeItem = treeItems.find(treeItem => treeItem.selected);
         if (selectedTreeItem) {
           this._focusTreeItem(selectedTreeItem);
           this._selectTreeItem(selectedTreeItem);
@@ -431,16 +461,10 @@
      */
     _selectTreeItem(currentTreeItem) {
       // There can only be one selected element at time.
-      // Look at all the children and remove `aria-selected` and the `.selected`
-      // class from any element that has them.
-      this.querySelectorAll('[aria-selected], .selected')
-        .forEach(item => {
-          item.removeAttribute('aria-selected');
-          item.classList.remove('selected');
-        });
-
-      currentTreeItem.setAttribute('aria-selected', 'true');
-      currentTreeItem.classList.add('selected');
+      // Look at all the children and toggle any selected ones off.
+      this.querySelectorAll('[selected]')
+        .forEach(item => item.selected = false);
+      currentTreeItem.selected = true;
 
       // Dispatch a non-bubbling event containing a reference to the selected
       // node. The reason to choose non-bubbling is explained in

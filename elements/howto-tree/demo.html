@@ -53,9 +53,9 @@
     background, unless it is expanded, in which case it will only style its
     label.
   */
-  .selected:not([aria-expanded]),
-  .selected:not([aria-expanded="true"]),
-  .selected[aria-expanded="true"] > label {
+  howto-tree-item[selected]:not([aria-expanded]),
+  howto-tree-item[selected]:not([aria-expanded="true"]),
+  howto-tree-item[selected][aria-expanded="true"] > label {
     background: hotpink;
   }
 </style>
