@@ -17,6 +17,14 @@ python -m SimpleHTTPServer  # or your favourite local server
 
 In your browser, navigate to `http://localhost:8000/docs` (or the port that you're running the local server from.)
 
+You can also run
+
+```
+npm run watch
+```
+
+to continuously run the build whenever a file changes.
+
 ## Testing
 
 Tests are written using [Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/). Each component has tests.

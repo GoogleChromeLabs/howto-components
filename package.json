@@ -15,7 +15,7 @@
   },
   "watch": {
     "build": {
-      "patterns": ["elements"],
+      "patterns": ["elements/*"],
       "extensions": "js,html"
     }
   },
