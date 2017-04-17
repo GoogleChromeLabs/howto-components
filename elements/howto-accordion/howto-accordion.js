@@ -54,6 +54,10 @@
       // Set up `aria-controls` and `aria-labelledby` attributes on headings
       // and panels.
       headings.forEach(heading => {
+        // All buttons inside the `HowtoAccordionHeadings` are made unfocusable
+        // here. Only the first heading will be made focusable afterwards.
+        // This way the element can implement a roving tab index.
+        heading.querySelector('button').setAttribute('tabindex', -1);
         const panel = this._panelForHeading(heading);
 
         // Headings and panels need an ID so they can cross-reference each other
@@ -69,6 +73,8 @@
         if (!panel.hasAttribute('role'))
           panel.setAttribute('role', 'region');
       });
+      // Make the first heading focusable.
+      headings[0].querySelector('button').setAttribute('tabindex', 0);
 
       // Set all the panels to the collapsed state to have a well-defined
       // initial state.
@@ -121,9 +127,10 @@
      * `_onKeyDown` handles key presses inside the accordion.
      */
     _onKeyDown(event) {
-      // If the keypress did not originate from heading,
+      const currentHeading = event.target.parentElement;
+      // If the keypress did not originate from a button inside a heading,
       // it was a keypress inside the a panel or empty space. Nothing to do.
-      if (!this._isHeading(event.target)) return;
+      if (!this._isHeading(currentHeading)) return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
 
@@ -157,7 +164,12 @@
       // keys, home or end. The element calls `preventDefault` to prevent the
       // browser from taking any actions.
       event.preventDefault();
-      newHeading.focus();
+      // Make the currently focused heading unfocusable, make the new heading
+      // focusable and give focus to it.
+      currentHeading.querySelector('button').setAttribute('tabindex', -1);
+      const button = newHeading.querySelector('button');
+      button.setAttribute('tabindex', 0);
+      button.focus();
     }
 
     /**
@@ -197,7 +209,8 @@
       // selected element and subtracts one to get the index of the previous
       // element.
       let newIdx =
-        headings.findIndex(headings => headings === document.activeElement) - 1;
+        headings.findIndex(headings =>
+          headings === document.activeElement.parentElement) - 1;
       // Add `headings.length` to make sure the index is a positive number
       // and get the modulus to wrap around if necessary.
       return headings[(newIdx + headings.length) % headings.length];
@@ -210,7 +223,8 @@
     _nextHeading() {
       const headings = this._allHeadings();
       let newIdx =
-        headings.findIndex(heading => heading === document.activeElement) + 1;
+        headings.findIndex(heading =>
+          heading === document.activeElement.parentElement) + 1;
       return headings[newIdx % headings.length];
     }
 
