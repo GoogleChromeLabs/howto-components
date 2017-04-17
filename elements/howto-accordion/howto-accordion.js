@@ -12,7 +12,6 @@
  *
  * All panels should be styled to be visible if JavaScript is disabled.
  */
-// TODO: Comments, expanded property
 (function() {
   /**
    * Define key codes to help with handling keyboard events.
@@ -33,24 +32,27 @@
   /**
    * `HowtoAccordion` is a container element for headings and panels.
    *
-   * As per the WAI-ARIA best practices, the headings are `<button>`s. Panels
-   * can be any element, but must be adjacent to a heading.
+   * Each heading must be a `<howto-accordion-heading>`, Panels can be any
+   * element, but must be adjacent to a heading.
    */
   class HowtoAccordion extends HTMLElement {
     constructor() {
       super();
+
+      this._onHowtoChange = this._onHowtoChange.bind(this);
+      this._onKeyDown = this._onKeyDown.bind(this);
     }
 
     connectedCallback() {
-      this.addEventListener('click', this._onClick);
+      this.addEventListener('howto-change', this._onHowtoChange);
       this.addEventListener('keydown', this._onKeyDown);
 
       // Acquire all headings and panels inside the element
       const headings = this._allHeadings();
       const panels = this._allPanels();
 
-
-      // Set up `aria-controls` and `aria-labelledby` on headings and panels.
+      // Set up `aria-controls` and `aria-labelledby` attributes on headings
+      // and panels.
       headings.forEach(heading => {
         const panel = this._panelForHeading(heading);
 
@@ -64,9 +66,6 @@
         panel.setAttribute('aria-labelledby', heading.id);
 
         // Assign the appropriate roles to headings and panels.
-        if (!heading.hasAttribute('role'))
-          heading.setAttribute('role', 'heading');
-        heading.setAttribute('tabindex', '-1');
         if (!panel.hasAttribute('role'))
           panel.setAttribute('role', 'region');
       });
@@ -77,13 +76,20 @@
 
       // Check if any of the headings have been marked as
       // expanded. If so, all the associated panels get expanded.
-      headings
-        .filter(heading => heading.classList.contains('expanded'))
-        .forEach(heading => {
-          const panel = this._panelForHeading(heading);
-          this._expand(heading, panel);
+      // The heading’s `expand` attribute will only have been processed,
+      // after the element has been registered and booted.
+      customElements.whenDefined('howto-accordion-heading')
+        .then(_ => {
+          headings
+            .forEach(heading => {
+              if(!heading.expanded) {
+                this._collapseHeading(heading);
+                return;
+              }
+              const panel = this._panelForHeading(heading);
+              this._expand(heading, panel);
+            });
         });
-      headings[0].setAttribute('tabindex', '0');
     }
 
     /**
@@ -96,26 +102,19 @@
     }
 
     _isHeading(elem) {
-      return elem.tagName === 'BUTTON' && elem.parentElement === this;
+      return elem.tagName === 'HOWTO-ACCORDION-HEADING';
     }
 
     /**
-     * `_onClick` handles clicks inside the accordion. The handler makes sure
-     * the click originated from one of the headings before reacting to it.
+     * `_onHowtoChange` ...
      */
-    _onClick(event) {
-      let target = event.target;
-      // Climb up the DOM tree.
-      while(true) {
-        // If the loop ends up at the containing `<howto-accordion>`, the click
-        // did not originate on a heading. Abort.
-        if (target === this) return;
-        // If the loops finds a heading, expand that heading.
-        if (this._isHeading(target)) break;
-        target = target.parentElement;
-      }
-
-      this._toggle(target);
+    _onHowtoChange(event) {
+      const heading = event.target;
+      const panel = this._panelForHeading(heading);
+      if(heading.expanded)
+        this._expand(heading, panel);
+      else
+        this._collapse(heading, panel);
     }
 
     /**
@@ -158,23 +157,7 @@
       // keys, home or end. The element calls `preventDefault` to prevent the
       // browser from taking any actions.
       event.preventDefault();
-      // Utilizing roving tabindex, make the currently focused heading
-      // unfocusable and focus the new heading.
-      document.activeElement.setAttribute('tabindex', '-1');
-      newHeading.setAttribute('tabindex', '0');
       newHeading.focus();
-    }
-
-    /**
-     * `_toggle` toggles the state of the given heading and the corresponding
-     * panel.
-     */
-    _toggle(heading) {
-      const panel = this._panelForHeading(heading);
-      if(heading.classList.contains('expanded'))
-        this._collapse(heading, panel);
-      else
-        this._expand(heading, panel);
     }
 
     /**
@@ -187,14 +170,14 @@
      * cheap to read while this method queries the DOM on every call.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('*:not(button)'));
+      return Array.from(this.querySelectorAll('howto-accordion-heading + *'));
     }
 
     /**
      * `_allHeadings` returns all the headings in the accordion.
      */
     _allHeadings() {
-      return Array.from(this.querySelectorAll('button'));
+      return Array.from(this.querySelectorAll('howto-accordion-heading'));
     }
 
     /**
@@ -264,15 +247,9 @@
     _expandHeading(heading) {
       heading.setAttribute('aria-expanded', 'true');
       heading.classList.add('expanded');
-      heading.classList.remove('collapsed');
     }
 
     _expand(heading, panel) {
-      // This `animation` class is a marker if the element is currently
-      // animating. It can be used to change styles if needed but is also
-      // used to discard additional expand/collapse commands while the animation
-      // is still ongoing.
-      this.classList.add('animating');
       this._expandHeading(heading);
 
       // Wait for next frame for the new styles to get applied.
@@ -280,7 +257,6 @@
         // Animate the panels and headings to reveal the newly activated panel.
         .then(_ => this._animateIn(panel))
         .then(_ => {
-          this.classList.remove('animating');
           this._expandPanel(panel);
         });
     }
@@ -293,18 +269,15 @@
 
     _collapseHeading(heading) {
       heading.setAttribute('aria-expanded', 'false');
-      heading.classList.add('collapsed');
       heading.classList.remove('expanded');
     }
 
     _collapse(heading, panel) {
-      this.classList.add('animating');
       this._collapseHeading(heading);
 
       requestAnimationFramePromise()
         .then(_ => this._animateOut(panel))
         .then(_ => {
-          this.classList.remove('animating');
           this._collapsePanel(panel);
         });
     }
@@ -317,7 +290,6 @@
       panel.classList.remove('collapsed');
       panel.classList.add('expanded');
       const height = panel.getBoundingClientRect().height;
-      panel.classList.remove('expanded');
 
       return this._animate(panel, -height, 0);
     }
@@ -340,6 +312,7 @@
      * afterwards.
      */
     _animate(panel, startOffset, endOffset) {
+      if(startOffset === endOffset) return Promise.resolve();
       // Turn the list of children into a proper array with all the helper
       // functions defined on it.
       const children = Array.from(this.children);
@@ -366,7 +339,7 @@
         child.style.zIndex = 2;
       });
 
-      // All the animated children get `z-index: 0` and get translated to the
+      // All the animated children get `z-index: 1` and get translated to the
       // start position. Because this is a CSS transition we don’t need to
       // use `will-change`.
       animatedChildren.forEach(child => {
@@ -400,6 +373,86 @@
     }
   }
   window.customElements.define('howto-accordion', HowtoAccordion);
+
+  /**
+   * `HowtoAccordionHeading` is the element for the headings in the accordion.
+   * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
+   * `<button>`. This element dispatches a `howto-accordion-toggle` event when
+   * appropriate.
+   */
+  class HowtoAccordionHeading extends HTMLElement {
+    static get observedAttributes() {
+      return ['expanded'];
+    }
+
+    constructor() {
+      super();
+
+      this._onClick = this._onClick.bind(this);
+    }
+
+    connectedCallback() {
+      if(!this.hasAttribute('role'))
+        this.setAttribute('role', 'heading');
+      this.querySelector('button').addEventListener('click', this._onClick);
+      this.expanded = this.hasAttribute('expanded');
+    }
+
+    disconnectedCallback() {
+      this.querySelector('button').removeEventListener('click', this._onClick);
+    }
+
+    attributeChangedCallback(name) {
+      const value = this.hasAttribute('expanded');
+      if(this.expanded !== value) this.expanded = value;
+    }
+
+
+    /**
+     * This function sets an attribute if and only if the value is new. This
+     * is needed to avoid an infinite update loop with the `observedAttributes`.
+     */
+    _safelySetAttribute(attr, value) {
+      if (value && !this.hasAttribute(attr)) {
+          this.setAttribute(attr, '');
+          return;
+      }
+      if (!value && this.hasAttribute(attr)) {
+        this.removeAttribute(attr);
+        return;
+      }
+    }
+
+    get expanded() {
+      return this._expanded;
+    }
+
+    set expanded(value) {
+      // Properties can be set to all kinds of string values. This makes sure
+      // it’s converted to a proper boolean value.
+      value = Boolean(value);
+      // If this conversion ends up giving the same value as before, don’t do
+      // anything.
+      if(this._expanded === value) return;
+
+      this._expanded = value;
+      this._safelySetAttribute('expanded', value);
+      this.dispatchEvent(
+        new CustomEvent('howto-change', {
+          details: {expanded: value},
+          bubbles: true,
+        })
+      );
+    }
+
+    _onClick() {
+      this.expanded = !this.expanded;
+    }
+  }
+  window.customElements
+    .define('howto-accordion-heading', HowtoAccordionHeading);
+
+
 
   // These functions help make animations easier.
   // Read https://dassur.ma/things/raf-promise/ for more details.
