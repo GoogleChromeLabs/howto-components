@@ -39,10 +39,11 @@
   };
 
   /**
-   * A helper to quickly identify `HowToTreeItem` nodes.
+   * A helper to quickly identify `HowToTreeItem`/`HowToTreeItemGroup` nodes.
    */
   function isTreeItem(node) {
-    return node.nodeName.toLowerCase() === 'howto-tree-item';
+    return node.nodeName.toLowerCase() === 'howto-tree-item' ||
+           node.nodeName.toLowerCase() === 'howto-tree-item-group';
   }
 
   /**
@@ -50,7 +51,7 @@
    * A parent node is a `HowToTreeItem` that contains a `HowToTreeGroup`.
    */
   function isParentNode(node) {
-    return node.querySelector('howto-tree-group') !== null;
+    return node.nodeName.toLowerCase() === 'howto-tree-item-group';
   }
 
   // `HowToTreeItemCounter` counts the number of `<howto-tree-item>` instances
@@ -59,11 +60,7 @@
 
   class HowToTreeItem extends HTMLElement {
     static get observedAttributes() {
-      return ['expanded', 'selected'];
-    }
-
-    constructor() {
-      super();
+      return ['selected'];
     }
 
     connectedCallback() {
@@ -75,81 +72,23 @@
       // `aria-activedescendant`.
       if (!this.id)
         this.id = `howto-tree-item-generated-${HowToTreeItemCounter++}`;
-      
-      this.selected = false;
-
-      // If the element contains a `<howto-tree-group>` then it's a parent node
-      if (isParentNode(this)) {
-        this.expanded = false;
-
-        // This first child should be a `<label>` element. Custom Elements are
-        // not currently supported by the `<label>` element, but hopefully
-        // they will be in the future. In the meantime, set the `aria-label`
-        // for the `HowToTreeItem`, equal to the `<label>` text.
-        // Without this labeling, the element's name will be computed based on
-        // its text content plus the text content of all of its children, making
-        // it so verbose as to be unusable.
-        if (!this.hasAttribute('aria-label')) {
-          let label = this.querySelector('label');
-          if (!label) {
-            console.error(`The first child of a <howto-tree-item> that ` +
-              `contains a <howto-tree-group> must be a <label>.`);
-          } else {
-            this.setAttribute('aria-label', label.textContent.trim());
-          }
-        }
-      }
     }
 
-    /**
-     * Both `checked` and `disabled` are part of the `observedAttributes` array
-     * meaning that setting either attribute will trigger the
-     * `attributeChangedCallback`.
-     * It's possible to get into a cycle where setting a property sets one of
-     * these attributes, which then tries to set the property again.
-     * This helper avoids that by checking to see if the attribute is already
-     * set.
-     */
-    _safelySetAttribute(attr, value) {
-      if (value === true && !this.hasAttribute(attr)) {
-          this.setAttribute(attr, '');
-          return;
-      }
-      if (value === false && this.hasAttribute(attr)) {
-        this.removeAttribute(attr);
-        return;
-      }
+    attributeChangedCallback(name, value) {
+      if (name === 'selected')
+        this.setAttribute('aria-selected', this.selected);
     }
 
-    attributeChangedCallback(name) {
-      const value = this.hasAttribute(name);
-      if (this[name] !== value)
-        this[name] = value;
-    }
-
-    set expanded(isExpanded) {
-      if (!isParentNode(this))
-        return;
-      if (this._expanded === isExpanded)
-        return;
-      this._expanded = isExpanded;
-      this._safelySetAttribute('expanded', isExpanded);
-      this.setAttribute('aria-expanded', isExpanded);
-    }
-
-    get expanded() {
-      return this._expanded;
-    }
-
-    set selected(isSelected) {
-      if (this._selected === isSelected)
-        return;
-      this._safelySetAttribute('selected', isSelected);
-      this.setAttribute('aria-selected', isSelected);
+    set selected(value) {
+      const isSelected = Boolean(value);
+      if (isSelected)
+        this.setAttribute('selected', '');
+      else
+        this.removeAttribute('selected');
     }
 
     get selected() {
-      return this._selected;
+      return this.hasAttribute('selected');
     }
   }
 
@@ -160,25 +99,39 @@
   window.customElements.define('howto-tree-item', HowToTreeItem);
 
   /**
-   * `HowToTreeGroup` is a simple container that holds the children of a
-   * `HowToTreeItem` parent node.
+   * `HowToTreeItemGroup` is a simple container that holds `HowToTreeItem`
+   * children and can be expanded or collapsed.
    */
-  class HowToTreeGroup extends HTMLElement {
-    constructor() {
-      super();
+  class HowToTreeItemGroup extends HowToTreeItem {
+    static get observedAttributes() {
+      return (super.observedAttributes || []).concat(['expanded']);
     }
 
-    connectedCallback() {
-      if (!this.hasAttribute('role'))
-        this.setAttribute('role', 'group');
+    // TODO: Conditionally call super only if the argument is not 'expanded'.
+    attributeChangedCallback(name, ...theArgs) {
+      super.attributeChangedCallback(name, ...theArgs);
+      if (name === 'expanded')
+        this.setAttribute('aria-expanded', this.expanded);
+    }
+
+    set expanded(value) {
+      const isExpanded = Boolean(value);
+      if (isExpanded)
+        this.setAttribute('expanded', '');
+      else
+        this.removeAttribute('expanded');
+    }
+
+    get expanded() {
+      return this.hasAttribute('expanded');
     }
   }
 
   /**
-   * Define a custom element, `<howto-tree-group>`, and associate it with the
-   * `HowToTreeGroup` class.
+   * Define a custom element, `<howto-tree-item-group>`, and associate it with
+   * the `HowToTreeItemGroup` class.
    */
-  window.customElements.define('howto-tree-group', HowToTreeGroup);
+  window.customElements.define('howto-tree-item-group', HowToTreeItemGroup);
 
   /**
    * `HowToTree` is responsible for handling user input and updating the
@@ -186,10 +139,6 @@
    * the currently active child using `aria-activedescendant`.
    */
   class HowToTree extends HTMLElement {
-    constructor() {
-      super();
-    }
-
     connectedCallback() {
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'tree');
@@ -203,12 +152,13 @@
       this.addEventListener('focus', this._onFocus);
 
       // Before the elements starts booting, it waits for both
-      // the `<howto-tree-item>` and `<howto-tree-group>` to load.
+      // the `<howto-tree-item>` and `<howto-tree-item-group>` to load.
       Promise.all([
         customElements.whenDefined('howto-tree-item'),
-        customElements.whenDefined('howto-tree-group'),
+        customElements.whenDefined('howto-tree-item-group'),
       ]).then(_ => {
-        // Acquire all `HowToTreeItem` instances inside the element
+        // Acquire all `HowToTreeItem`/`HowToTreeItemGroup` instances inside
+        // the element.
         const treeItems = this._allTreeItems();
         // If there are no treeItems, then the tree is empty. Abort.
         if (treeItems.length === 0) return;
@@ -235,9 +185,10 @@
     }
 
     /**
-     * Returns a list of visible `HowToTreeItem` elements. This is useful when
-     * the user wants to try to move to the next or previous item in the list.
-     * If an item is a child of a parent who is set to `aria-expanded=false`
+     * Returns a list of visible `HowToTreeItem`/`HowToTreeItemGroup` elements.
+     * This is useful when the user wants to try to move to the next or previous
+     * item in the list.
+     * If an item is a child of a parent who is `.expaned=false`
      * then it is considered invisible and is not added to the list.
      */
     _allTreeItems() {
@@ -248,17 +199,18 @@
       // their parent is currently expanded.
       function findTreeItems(node) {
         for (let el of Array.from(node.children)) {
-          // If the child is a `HowToTreeItem`, add it to the list of results.
+          // If the child is a `HowToTreeItem` or `HowToTreeItemGroup`, add it
+          // to the list of results.
           if (isTreeItem(el))
             treeItems.push(el);
           // If it is not expanded, don’t descend.
           // This will ignore any children and treat them as if they are
           // invisible.
-          if (isTreeItem(el) && !el.expanded)
+          if (isParentNode(el) && !el.expanded)
             continue;
           // Otherwise, if the element is expanded OR we've hit something
-          // else like a `HowToTreeGroup`, continue to descend and look for
-          // more `HowToTreeItem`s.
+          // else like a `div`, continue to descend and look for
+          // more treeItems.
           findTreeItems(el);
         }
       }
@@ -385,7 +337,9 @@
      * presses the [home] key.
      */
     _focusFirstTreeItem() {
-      this._focusTreeItem(this.querySelector('howto-tree-item:first-of-type'));
+      const firstTreeItem = Array.from(this.children)
+        .find(item => isTreeItem(item));
+      this._focusTreeItem(firstTreeItem);
     }
 
     /**

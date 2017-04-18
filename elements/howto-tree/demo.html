@@ -4,31 +4,31 @@
   }
   howto-tree,
   howto-tree-item,
-  howto-tree-group,
-  howto-tree-item label {
+  howto-tree-item-group,
+  howto-tree-item-group label {
     display: block;
   }
   howto-tree:focus {
     outline: none;
   }
-  howto-tree-group {
+  howto-tree-item-group > div {
     padding-left: 20px;
   }
   /*
     A simple plus or minus sign is used to indicate a `HowToTreeItem` that can
     be expanded or collapsed.
   */
-  howto-tree-item[aria-expanded="false"] > label::before {
+  howto-tree-item-group > label::before {
     content: '+';
   }
-  howto-tree-item[aria-expanded="true"] > label::before {
+  howto-tree-item-group[expanded] > label::before {
     content: '-';
   }
   /*
     By default a `HowToTreeItem` is `display: block`. If it's in a collapsed
     state, hide it with `display: none`.
   */
-  howto-tree-item[aria-expanded="false"] > howto-tree-group {
+  howto-tree-item-group:not([expanded]) > div {
     display: none;
   }
   /*
@@ -40,9 +40,8 @@
     style the tree item's label. This is to prevent an opened `HowToTreeItem`
     from showing a styled background on all of its children.
   */
-  .active:not([aria-expanded]),
-  .active:not([aria-expanded="true"]),
-  .active[aria-expanded="true"] > label {
+  .active:not([expanded]),
+  .active[expanded] > label {
     background: lightgrey;
     outline: 2px solid black;
   }
@@ -53,9 +52,10 @@
     background, unless it is expanded, in which case it will only style its
     label.
   */
-  howto-tree-item[selected]:not([aria-expanded]),
-  howto-tree-item[selected]:not([aria-expanded="true"]),
-  howto-tree-item[selected][aria-expanded="true"] > label {
+  howto-tree-item[selected],
+  howto-tree-item.active[selected],
+  howto-tree-item-group[selected]:not([expanded]),
+  howto-tree-item-group[selected][expanded] > label {
     background: hotpink;
   }
 </style>
@@ -65,30 +65,32 @@
   <howto-tree-item>Project1</howto-tree-item>
   <howto-tree-item>Project2</howto-tree-item>
   <howto-tree-item>Project3</howto-tree-item>
-  <howto-tree-item>
+  <howto-tree-item-group>
     <label>Project 4</label>
-    <howto-tree-group>
+    <div>
       <howto-tree-item>File1</howto-tree-item>
       <howto-tree-item>File2</howto-tree-item>
       <howto-tree-item>File3</howto-tree-item>
-      <howto-tree-item>
+      <howto-tree-item-group>
         <label>Subproject 1</label>
-        <howto-tree-group>
+        <div>
           <howto-tree-item>Subfile1</howto-tree-item>
           <howto-tree-item>Subfile2</howto-tree-item>
           <howto-tree-item>Subfile3</howto-tree-item>
-        </howto-tree-group>
-      </howto-tree-item>
-    </howto-tree-group>
-  </howto-tree-item>
+        </div>
+      </howto-tree-item-group>
+    </div>
+  </howto-tree-item-group>
   <howto-tree-item>Project 5</howto-tree-item>
-  <howto-tree-item expanded>
+  <howto-tree-item-group expanded>
     <label>Project 6</label>
-    <howto-tree-group>
+    <div>
       <howto-tree-item>File1</howto-tree-item>
       <howto-tree-item>File2</howto-tree-item>
       <howto-tree-item>File3</howto-tree-item>
-    </howto-tree-group>
-  </howto-tree-item>
+    </div>
+  </howto-tree-item-group>
   <howto-tree-item>Project 7</howto-tree-item>
 </howto-tree>
+
+<script src="howto-tree.js"></script>
