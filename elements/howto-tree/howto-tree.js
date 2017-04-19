@@ -1,11 +1,13 @@
 /**
  * A `HowToTree` presents a hierarchical list of children. Each node in the tree
- * is represented as a `HowToTreeItem` element. If a `HowToTreeItem` contains
- * only text it is considered a "leaf" node. If a `HowToTreeItem` contains
- * children, it is considered a "parent" node. If a `HowToTreeItem` is a parent
- * node, its first child should be a `<label>`. Its second child should be a
- * `HowToTreeGroup` element, which will hold all of its `HowToTreeItem`
- * children.
+ * is represented as either a `HowToTreeItem` or a `HowToTreeItemGroup`.
+ * A `HowToTreeItem` should only contain text and is considered a "leaf" node.
+ * A `HowToTreeItemGroup` can contain `HowToTreeItem` children and is considered
+ * a "parent" node. The first child of a `HowToTreeItemGroup` should be a
+ * `<label>`. Its second child should be a `<div>` element, which will hold all
+ * of its `HowToTreeItem` children. A `<div>` is used because it has an implicit
+ * accessible role of `group`, which is required by the ARIA Authoring Practices
+ * Guide.
  *
  * Parent nodes can be either collapsed or expanded to reveal their children.
  * The state of the parent node is conveyed through the use of a `aria-expanded`
@@ -14,7 +16,7 @@
  * Depending on the implementation, trees can support either single or
  * multi selection. The `HowToTree` element supports single selection, so
  * there can only be one selected element at a time. The currently selected
- * element is indicated by the `aria-selected` attribute.
+ * element is indicated by the `selected` attribute.
  *
  * Unlike the [`DashRadioGroup`](./howto-radio-group.html), which uses roving
  * tabindex to indicate which child is currently active, the `HowToTree` uses
@@ -40,6 +42,8 @@
 
   /**
    * A helper to quickly identify `HowToTreeItem`/`HowToTreeItemGroup` nodes.
+   * Because both `HowToTreeItem` and `HowToTreeItemGroup` elements can have
+   * a `role=treeitem`, this helper will match against either.
    */
   function isTreeItem(node) {
     return node.nodeName.toLowerCase() === 'howto-tree-item' ||
@@ -47,14 +51,13 @@
   }
 
   /**
-   * A helper to quickly identify parent nodes in the tree.
-   * A parent node is a `HowToTreeItem` that contains a `HowToTreeGroup`.
+   * A helper to specifically identify `HowToTreeItemGroup` elements.
    */
-  function isParentNode(node) {
+  function isTreeItemGroup(node) {
     return node.nodeName.toLowerCase() === 'howto-tree-item-group';
   }
 
-  // `HowToTreeItemCounter` counts the number of `<howto-tree-item>` instances
+  // `HowToTreeItemCounter` counts the number of treeItem instances
   // created. The number is used to generated new, unique `id`s.
   let HowToTreeItemCounter = 0;
 
@@ -74,11 +77,20 @@
         this.id = `howto-tree-item-generated-${HowToTreeItemCounter++}`;
     }
 
-    attributeChangedCallback(name, value) {
-      if (name === 'selected')
-        this.setAttribute('aria-selected', this.selected);
-    }
-
+    /**
+     * Properties and their corresponding attributes should mirror one another.
+     * To this effect, the property setter for `selected` handles truthy/falsey
+     * values and reflects those to the state of the attribute.
+     * It's important to note that there are no side effects taking place in
+     * the property setter. For example, the setter does not set
+     * `aria-selected`.
+     * Instead, that work happens in the `attributeChangedCallback`.
+     * As a general rule, make property setters very dumb, and if setting a
+     * property or attribute should cause a side effect (like setting a
+     * corresponding ARIA attribute) do that work in the
+     * `attributeChangedCallback`. This will avoid having to manage complex
+     * attribute/property reentrancy scenarios.
+     */
     set selected(value) {
       const isSelected = Boolean(value);
       if (isSelected)
@@ -89,6 +101,11 @@
 
     get selected() {
       return this.hasAttribute('selected');
+    }
+
+    attributeChangedCallback(name, value) {
+      if (name === 'selected')
+        this.setAttribute('aria-selected', this.selected);
     }
   }
 
@@ -101,17 +118,44 @@
   /**
    * `HowToTreeItemGroup` is a simple container that holds `HowToTreeItem`
    * children and can be expanded or collapsed.
+   * Because a `HowToTreeItemGroup` is also a treeItem, and can be selected,
+   * it inherits from the `HowToTreeItem` element.
    */
   class HowToTreeItemGroup extends HowToTreeItem {
+    /**
+     * Append an `expanded` attribute, to the list of `observedAttributes`.
+     * This getter also demonstrates a pattern for guarding against a situation
+     * where the parent may not have defined any `observedAttributes`, in
+     * which case an empty array is used.
+     */
     static get observedAttributes() {
       return (super.observedAttributes || []).concat(['expanded']);
     }
 
-    // TODO: Conditionally call super only if the argument is not 'expanded'.
-    attributeChangedCallback(name, ...theArgs) {
-      super.attributeChangedCallback(name, ...theArgs);
-      if (name === 'expanded')
-        this.setAttribute('aria-expanded', this.expanded);
+    connectedCallback() {
+      super.connectedCallback();
+      // An expandable treeItem must have an explicit `aria-expanded` value.
+      // This handles the case where the element starts without an
+      // `[expanded]` attribute. In that scenario, the element would be set
+      // to `aria-expanded=false`.
+      this.setAttribute('aria-expanded', this.expanded);
+
+      // This first child should be a `<label>` element. Custom Elements are
+      // not currently supported by the `<label>` element, but hopefully
+      // they will be in the future. In the meantime, set the `aria-label`
+      // for the `HowToTreeItem`, equal to the `<label>` text.
+      // Without this labeling, the element's name will be computed based on
+      // its text content plus the text content of all of its children, making
+      // it so verbose as to be unusable.
+      if (!this.hasAttribute('aria-label')) {
+        let label = this.querySelector('label');
+        if (!label) {
+          console.error(`The first child of a <howto-tree-item> that ` +
+            `contains a <howto-tree-group> must be a <label>.`);
+        } else {
+          this.setAttribute('aria-label', label.textContent.trim());
+        }
+      }
     }
 
     set expanded(value) {
@@ -124,6 +168,19 @@
 
     get expanded() {
       return this.hasAttribute('expanded');
+    }
+
+    /**
+     * If the changed attribute is `expanded`, then let the instance handle
+     * it. Otherwise, pass the changed attribute call on to the parent class.
+     * This example uses the rest and spread operators to keep the code tidy.
+     */
+    attributeChangedCallback(name, ...theArgs) {
+      if (name === 'expanded') {
+        this.setAttribute('aria-expanded', this.expanded);
+        return;
+      }
+      super.attributeChangedCallback(name, ...theArgs);
     }
   }
 
@@ -164,12 +221,10 @@
         if (treeItems.length === 0) return;
 
         // The element checks if any child has been marked as selected.
-        // If so, it will mark it as the current `aria-activedescendant`
-        // and mark it with a `.selected` class.
+        // If so, it will mark it as the current `aria-activedescendant`.
         const selectedTreeItem = treeItems.find(treeItem => treeItem.selected);
         if (selectedTreeItem) {
           this._focusTreeItem(selectedTreeItem);
-          this._selectTreeItem(selectedTreeItem);
         }
       });
     }
@@ -203,13 +258,13 @@
           // to the list of results.
           if (isTreeItem(el))
             treeItems.push(el);
-          // If it is not expanded, don’t descend.
+          // If it is a `HowToTreeIteMgroup` and it's collapsed, don’t descend.
           // This will ignore any children and treat them as if they are
           // invisible.
-          if (isParentNode(el) && !el.expanded)
+          if (isTreeItemGroup(el) && !el.expanded)
             continue;
           // Otherwise, if the element is expanded OR we've hit something
-          // else like a `div`, continue to descend and look for
+          // else like a `<div>`, continue to descend and look for
           // more treeItems.
           findTreeItems(el);
         }
@@ -219,8 +274,8 @@
     }
 
     /**
-     * When focus moves into the element, if a `HowToTreeItem` is not already
-     * active, mark the first `HowToTreeItem` as active.
+     * When focus moves into the element, if a treeItem is not already
+     * active, mark the first treeItem as active.
      */
     _onFocus(event) {
       if (!this._currentTreeItem())
@@ -282,36 +337,36 @@
     }
 
     /**
-     * Find the `HowToTreeItem` associated with the element that was clicked.
-     * Focus the treeitem and make it the current selected item as well.
+     * Find the treeItem associated with the element that was clicked.
+     * Focus the treeItem and make it the current selected item as well.
      */
     _onClick(event) {
       // A loop that will work its way upward until it finds
-      // the `HowToTreeItem` associated with the event target. This allows
-      // clicking on a `<label>` or `HowToTreeGroup` within a `HowToTreeItem`
+      // the treeItem associated with the event target. This allows
+      // clicking on a `<label>` or `<div>` within a `HowToTreeItemGroup`
       // and ensures the right element is always being focused/selected.
-      let treeItem = event.target;
-      while (treeItem && treeItem.getAttribute('role') !== 'treeitem')
-        treeItem = treeItem.parentElement;
+      let item = event.target;
+      while (item && !isTreeItem(item))
+        item = item.parentElement;
 
-      this._focusTreeItem(treeItem);
-      this._toggleTreeItem(treeItem);
-      this._selectTreeItem(treeItem);
+      this._focusTreeItem(item);
+      this._selectTreeItem(item);
+      this._toggleTreeItem(item);
     }
 
     /**
-     * Return the current `aria-activedescendant` if there is one. Otherwise,
+     * Return the current active treeItem if there is one. Otherwise,
      * return null.
      */
     _currentTreeItem() {
-      const activedescendant = this.getAttribute('aria-activedescendant');
-      if (activedescendant)
-        return this.querySelector(`#${activedescendant}`);
+      const currentTreeItem = this.querySelector('.active');
+      if (currentTreeItem)
+        return currentTreeItem;
       return null;
     }
 
     /**
-     * Attempt to find the previous `HowToTreeItem` in the list. If one exists,
+     * Attempt to find the previous treeItem in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
     _focusPrevTreeItem(currentTreeItem) {
@@ -322,7 +377,7 @@
     }
 
     /**
-     * Attempt to find the next `HowToTreeItem` in the list. If one exists,
+     * Attempt to find the next treeItem in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
     _focusNextTreeItem(currentTreeItem) {
@@ -333,7 +388,7 @@
     }
 
     /**
-     * Focus the first `HowToTreeItem` in the tree. Useful for when the user
+     * Focus the first treeItem in the tree. Useful for when the user
      * presses the [home] key.
      */
     _focusFirstTreeItem() {
@@ -372,7 +427,7 @@
      * parent node, move focus to its parent node.
      */
     _collapseTreeItem(currentTreeItem) {
-      if (isParentNode(currentTreeItem) && currentTreeItem.expanded) {
+      if (isTreeItemGroup(currentTreeItem) && currentTreeItem.expanded) {
         currentTreeItem.expanded = false;
         return;
       }
@@ -382,7 +437,7 @@
       let parent = currentTreeItem.parentElement;
       if (parent === this)
         return;
-      while (!isTreeItem(parent))
+      while (!isTreeItemGroup(parent))
         parent = parent.parentElement;
       parent.expanded = false;
       this._focusTreeItem(parent);
@@ -392,14 +447,16 @@
      * If focus is on a closed node, opens the node.
      */
     _expandTreeItem(currentTreeItem) {
-      if (isParentNode(currentTreeItem))
+      if (isTreeItemGroup(currentTreeItem))
         currentTreeItem.expanded = true;
     }
 
     /**
-     * Flip the `HowToTreeItem` between open and closed states.
+     * Flip the `HowToTreeItemGroup` between open and closed states.
      */
     _toggleTreeItem(currentTreeItem) {
+      if (!isTreeItemGroup(currentTreeItem))
+        return;
       if (currentTreeItem.expanded)
         this._collapseTreeItem(currentTreeItem);
       else

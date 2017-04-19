@@ -8,27 +8,26 @@
       this.container.innerHTML = `
         <howto-tree>
           <howto-tree-item>Project1</howto-tree-item>
-          <howto-tree-item>
+          <howto-tree-item-group>
             <label>Project 2</label>
-            <howto-tree-group>
+            <div>
               <howto-tree-item>File1</howto-tree-item>
-            </howto-tree-group>
-          </howto-tree-item>
-          <howto-tree-item aria-selected="true">Project3</howto-tree-item>
+            </div>
+          </howto-tree-item-group>
+          <howto-tree-item selected>Project3</howto-tree-item>
         </howto-tree>
       `;
       return Promise.all([
         howtoComponents.waitForElement('howto-tree'),
         howtoComponents.waitForElement('howto-tree-item'),
-        howtoComponents.waitForElement('howto-tree-group'),
+        howtoComponents.waitForElement('howto-tree-item-group'),
       ]).then(_ => {
         this.tree = this.container.querySelector('howto-tree');
         this.firstTreeItem = this.tree.querySelector('howto-tree-item');
         this.parentTreeItem = this.tree
-          .querySelector('howto-tree-item:nth-of-type(2)');
+          .querySelector('howto-tree-item-group');
         this.selectedTreeItem = this.tree
-          .querySelector('howto-tree-item[aria-selected="true"]');
-        this.firstTreeGroup = this.tree.querySelector('howto-tree-group');
+          .querySelector('howto-tree-item[selected]');
       });
     });
 
@@ -60,7 +59,9 @@
         expect(treeItem.getAttribute('id'))
           .to.match(/^howto-tree-item-generated-.*$/);
       });
+    });
 
+    describe('howto-tree-item-group', function() {
       it('should apply [aria-expanded=false]', function() {
         expect(this.parentTreeItem.getAttribute('aria-expanded'))
           .to.equal('false');
@@ -77,12 +78,6 @@
           expect(this.parentTreeItem.getAttribute('aria-label'))
             .to.equal('Project 2');
         });
-    });
-
-    describe('howto-tree-group', function() {
-      it('should apply [role=group]', function() {
-        expect(this.firstTreeGroup.getAttribute('role')).to.equal('group');
-      });
     });
   });
 })();
