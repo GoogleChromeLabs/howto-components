@@ -56,57 +56,55 @@
       // the headers. Therefore key presses are intercepted.
       this.addEventListener('keydown', this._onKeyDown);
 
-      // Acquire all headings and panels inside the element that need to be
-      // set up.
-      const headings = this._allHeadings();
-      const panels = this._allPanels();
-
-      // Give all headings and panels a unique ID. Set up `aria-controls` and
-      // `aria-labelledby` attributes on headings and panels using those IDs.
-      headings.forEach(heading => {
-        // All buttons inside the `HowtoAccordionHeadings` are made unfocusable
-        // here. Only the first heading will be made focusable afterwards.
-        // This is necessary to implement roving tab index.
-        heading.querySelector('button').setAttribute('tabindex', -1);
-        const panel = this._panelForHeading(heading);
-
-        // Headings and panels need an ID so they can reference each other
-        // with the `aria-labelledby` and `aria-controls` attributes.
-        if (!heading.id)
-          heading.id = `howto-accordion-generated-${idCounter++}`;
-        if (!panel.id)
-          panel.id = `howto-accordion-generated-${idCounter++}`;
-        heading.setAttribute('aria-controls', panel.id);
-        panel.setAttribute('aria-labelledby', heading.id);
-
-        // Assign the appropriate roles to panels. Headings are custom elements
-        // and set their role in their own `connectedCallback`.
-        if (!panel.hasAttribute('role'))
-          panel.setAttribute('role', 'region');
-      });
-      // Make the first heading focusable.
-      headings[0].querySelector('button').setAttribute('tabindex', 0);
-
-      // Set all the panels to the collapsed state to have a well-defined
-      // initial state.
-
-      // Check if any of the headings have been marked as
-      // expanded using the `expanded` attribute. If so, all the associated
-      // panels get expanded as well. The heading’s `expand` attribute is only
-      // available after the element’s has booted.
+      // Wait for `<howto-accordion-heading>` to have booted before proceeding.
       customElements.whenDefined('howto-accordion-heading')
         .then(_ => {
-          headings
-            .forEach(heading => {
-              const panel = this._panelForHeading(heading);
-              if(!heading.expanded) {
-                this._collapseHeading(heading);
-                this._collapsePanel(panel);
-              } else {
-                this._expandHeading(heading);
-                this._expandPanel(panel);
-              }
-            });
+        // Acquire all headings inside the element that need to be set up.
+        const headings = this._allHeadings();
+
+        // Give all headings and panels a unique ID. Set up `aria-controls` and
+        // `aria-labelledby` attributes on headings and panels using those IDs.
+        headings.forEach(heading => {
+          // All buttons inside the `HowtoAccordionHeadings` are made
+          // unfocusable here. Only the first heading will be made focusable
+          // afterwards. This is necessary to implement roving tab index.
+          heading.querySelector('button').setAttribute('tabindex', -1);
+          const panel = this._panelForHeading(heading);
+
+          // Headings and panels need an ID so they can reference each other
+          // with the `aria-labelledby` and `aria-controls` attributes.
+          if (!heading.id)
+            heading.id = `howto-accordion-generated-${idCounter++}`;
+          if (!panel.id)
+            panel.id = `howto-accordion-generated-${idCounter++}`;
+          heading.setAttribute('aria-controls', panel.id);
+          panel.setAttribute('aria-labelledby', heading.id);
+
+          // Assign the appropriate roles to panels. Headings are custom
+          // elements and set their role in their own `connectedCallback`.
+          if (!panel.hasAttribute('role'))
+            panel.setAttribute('role', 'region');
+        });
+        // Make the first heading focusable.
+        headings[0].querySelector('button').setAttribute('tabindex', 0);
+
+        // Set all the panels to the collapsed state to have a well-defined
+        // initial state.
+
+        // Check if any of the headings have been marked as
+        // expanded using the `expanded` attribute. If so, all the associated
+        // panels get expanded as well.
+        headings
+          .forEach(heading => {
+            const panel = this._panelForHeading(heading);
+            if(!heading.expanded) {
+              this._collapseHeading(heading);
+              this._collapsePanel(panel);
+            } else {
+              this._expandHeading(heading);
+              this._expandPanel(panel);
+            }
+          });
         });
     }
 
@@ -133,6 +131,8 @@
      * keyboard input or by changing the `expanded` attribute or property).
      */
     _onHowtoChange(event) {
+      // If there’s an animation running, ignore the event.
+      if(this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
       if(event.detail.isExpandedNow)
@@ -347,6 +347,9 @@
       // explicitly handling this case is that this method waits for an
       // `transitionend` event which won’t fire if there is no animation.
       if(startOffset === endOffset) return Promise.resolve();
+      // Set the `animating` class on the `<howto-accordion>` element. This
+      // discards all further `howto-change` events until the animation is done.
+      this.classList.add('animating');
       // Turn the list of children into a proper array with all the helper
       // functions defined on it.
       const children = Array.from(this.children);
@@ -403,6 +406,7 @@
             child.style.zIndex = '';
           });
           this.style.overflow = '';
+          this.classList.remove('animating');
         });
     }
   }
@@ -439,7 +443,10 @@
     connectedCallback() {
       if(!this.hasAttribute('role'))
         this.setAttribute('role', 'heading');
-      this.querySelector('button').addEventListener('click', this._onClick);
+      const button = this.querySelector('button');
+      if(!button)
+        throw new Error('Missing button inside accordion heading');
+      button.addEventListener('click', this._onClick);
       this._expanded = this.hasAttribute('expanded');
     }
 

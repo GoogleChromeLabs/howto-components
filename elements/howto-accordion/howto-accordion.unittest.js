@@ -1,3 +1,5 @@
+/* eslint max-len: ["off"] */
+
 (function() {
   const expect = chai.expect;
 
@@ -7,31 +9,26 @@
     beforeEach(function() {
       this.container.innerHTML = `
         <howto-accordion>
-          <button id="lol">Tab 1</button>
+          <howto-accordion-heading id="lol"><button>Tab 1</button></howto-accordion-heading>
           <section>Content 1</section>
-          <button>Tab 2</button>
+          <howto-accordion-heading><button>Tab 2</button></howto-accordion-heading>
           <section>Content 2</section>
-          <button>Tab 3</button>
+          <howto-accordion-heading><button>Tab 3</button></howto-accordion-heading>
           <section>Content 3</section>
         </howto-accordion>
       `;
       return Promise.all([
         howtoComponents.waitForElement('howto-accordion'),
+        howtoComponents.waitForElement('howto-accordion-heading'),
       ]).then(_ => {
         this.accordion = this.container.querySelector('howto-accordion');
-        this.headings =
-          Array.from(this.container.querySelectorAll('button'));
-        this.panels =
-          Array.from(this.container.querySelectorAll('section'));
+        this.headings = Array.from(this.container.querySelectorAll('howto-accordion-heading'));
+        this.panels = Array.from(this.container.querySelectorAll('section'));
       });
     });
 
     it('should know about all the headings', function() {
-      expect(
-        this.accordion._allHeadings()
-      ).to.have.length(
-        this.headings.length
-      );
+      expect(this.accordion._allHeadings()).to.have.length(this.headings.length);
     });
 
     it('should’t overwrite existing IDs with generated ones', function() {
@@ -40,11 +37,7 @@
     });
 
     it('should know about all the panels', function() {
-      expect(
-        this.accordion._allPanels()
-      ).to.have.length(
-        this.panels.length
-      );
+      expect(this.accordion._allPanels()).to.have.length(this.panels.length);
     });
 
     it('should add `aria-labelledby` to panels', function() {
