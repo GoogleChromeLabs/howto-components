@@ -60,18 +60,18 @@
 
           tab.setAttribute('aria-controls', panel.id);
           panel.setAttribute('aria-labelledby', tab.id);
+
         });
 
         // For progressive enhancement, the markup should alternate between tabs
-        // and panels. If JavaScript is disabled, all panels are
-        // visible with their respective tab right above them.
-        // If JavaScript is enabled, the element groups all children by type.
-        // First all the tabs, then all the panels.
-        // Calling `appendChild` on an already inserted element _moves_ the
-        // element to the last position.
-        tabs.forEach(tab => this.appendChild(tab));
-        panels.forEach(panel => this.appendChild(panel));
-
+        // and panels. Elements reordering children tend to not work well with
+        // frameworks. Instead ShadowDOM is used to reorder the elements by
+        // using slots.
+        const shadowRoot = this.attachShadow({mode: 'open'});
+        shadowRoot.innerHTML = `
+          <slot name="tab"></slot>
+          <slot name="panel"></slot>
+        `;
 
         // The element checks if any of the tabs have been marked as selected.
         // If not, the first tab is now selected.
