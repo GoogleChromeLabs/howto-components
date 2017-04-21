@@ -383,8 +383,9 @@
         child.style.transform = `translateY(${startOffset}px)`;
       });
 
-      // Wait a frame for all the styles to take effect.
+      // Wait two frames for all the styles to take effect.
       return requestAnimationFramePromise()
+        .then(_ => requestAnimationFramePromise())
         .then(_ => {
           // Set up the CSS transition on all the children and set them to
           // their end position.
@@ -447,7 +448,6 @@
       if(!button)
         throw new Error('Missing button inside accordion heading');
       button.addEventListener('click', this._onClick);
-      this._expanded = this.hasAttribute('expanded');
     }
 
     /**
@@ -465,51 +465,42 @@
       // `expanded` is a boolean attribute it is either set or not set. The
       // actual value is irrelevant.
       const value = this.hasAttribute('expanded');
-      // The setter for the `expanded` property contains all the logic.
-      if(this.expanded !== value) this.expanded = value;
-    }
 
-    /**
-     * This function sets an attribute if and only if the value has changed.
-     * This is needed to avoid an infinite update loop on the `expanded`
-     * attribute.
-     */
-    _safelySetAttribute(attr, value) {
-      if (value && !this.hasAttribute(attr)) {
-          this.setAttribute(attr, '');
-          return;
-      }
-      if (!value && this.hasAttribute(attr)) {
-        this.removeAttribute(attr);
-        return;
-      }
-    }
-
-    get expanded() {
-      return this._expanded;
-    }
-
-    /**
-     * The setter for `expanded` dispatches the `howto-change` events if
-     * appropriate.
-     */
-    set expanded(value) {
-      // Properties can be set to all kinds of string values. This makes sure
-      // it’s converted to a proper boolean value using JavaScript’s truthiness
-      // & falsiness principles.
-      value = Boolean(value);
-      // If this conversion ends up giving the same value as before, don’t do
-      // anything.
-      if(this._expanded === value) return;
-
-      this._expanded = value;
-      this._safelySetAttribute('expanded', value);
+      // Dispatch an event that signals a request to expand to the
+      // `<howto-accordion>` element.
       this.dispatchEvent(
         new CustomEvent('howto-change', {
           detail: {isExpandedNow: value},
           bubbles: true,
         })
       );
+    }
+
+    get expanded() {
+      return this.hasAttribute('expanded');
+    }
+
+    /**
+     * Properties and their corresponding attributes should mirror one another.
+     * To this effect, the property setter for  selected handles truthy/falsey
+     * values and reflects those to the state of the attribute. It's important
+     * to note that there are no side effects taking place in the property
+     * setter. For example, the setter does not set aria-selected. Instead,
+     * that work happens in the  attributeChangedCallback. As a general rule,
+     * make property setters very dumb, and if setting a property or attribute
+     * should cause a side effect (like setting a corresponding ARIA attribute)
+     * do that work in the attributeChangedCallback. This will avoid having to
+     * manage complex attribute/property reentrancy scenarios.
+     */
+    set expanded(value) {
+      // Properties can be set to all kinds of string values. This makes sure
+      // it’s converted to a proper boolean value using JavaScript’s truthiness
+      // & falsiness principles.
+      value = Boolean(value);
+      if(value)
+        this.setAttribute('expanded', '');
+      else
+        this.removeAttribute('expanded');
     }
 
     /**
