@@ -15,7 +15,3 @@ deploy:
   script: "tools/pr_preview.sh"
   on:
     all_branches: true
-
-branches:
-  except:
-    - gh-pages

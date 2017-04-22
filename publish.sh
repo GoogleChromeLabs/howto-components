@@ -20,10 +20,12 @@ npm run build
 git branch -D gh-pages || true
 git checkout -f --orphan gh-pages
 git reset
-rm .gitignore
-git add docs/*
-git mv docs/* .
-git clean -f
+touch .nojekyll
+git add .nojekyll
+mv docs docs2
+git add docs2/*
+git mv docs2/* .
+git clean -fd
 git commit -am 'Website'
 git checkout $CURRENT_BRANCH
 git stash pop
