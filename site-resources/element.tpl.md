@@ -17,7 +17,7 @@ book_path: /web/updates/_book.yaml
 {{=it.intro}}
 
 ## Demo {: #demo }
-<iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
+<iframe src="https://googlechrome.github.io/howto-components/{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
 
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">

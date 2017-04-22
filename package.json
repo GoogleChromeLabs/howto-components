@@ -15,8 +15,8 @@
   },
   "watch": {
     "build": {
-      "patterns": ["elements/*"],
-      "extensions": "js,html,css"
+      "patterns": ["elements","site-resources/*"],
+      "extensions": "js,html,css,md"
     }
   },
   "author": "Google",
