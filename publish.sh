@@ -12,18 +12,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-set -e 
+set -e
 
 git stash
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 npm run build
 git branch -D gh-pages || true
 git checkout -f --orphan gh-pages
-rm .gitignore
-git add docs/*
-git mv docs/* .
-git clean -f
+git reset
+touch .nojekyll
+git add .nojekyll
+mv docs docs2
+git add docs2/*
+git mv docs2/* .
+git clean -fd
 git commit -am 'Website'
 git checkout $CURRENT_BRANCH
-git stash pop 
+git stash pop
 

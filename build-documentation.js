@@ -137,10 +137,12 @@ function parseElement(name) {
 function writeElement(element) {
   return Promise.all([
     template('site-resources/element.tpl.html'),
+    template('site-resources/element.tpl.md'),
     template('site-resources/demo.tpl.html'),
   ])
-    .then(([elemTpl, demoTpl]) => Promise.all([
+    .then(([elemTpl, elemTplMd, demoTpl]) => Promise.all([
         fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
+        fs.writeFile(`docs/${element.title}.md`, elemTplMd(element)),
         fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
     ])).then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
