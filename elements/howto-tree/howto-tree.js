@@ -57,7 +57,7 @@
     return node.nodeName.toLowerCase() === 'howto-tree-item-group';
   }
 
-  // `HowToTreeItemCounter` counts the number of treeItem instances
+  // `HowToTreeItemCounter` counts the number of `treeItem` instances
   // created. The number is used to generated new, unique `id`s.
   let HowToTreeItemCounter = 0;
 
@@ -217,7 +217,7 @@
         // Acquire all `HowToTreeItem`/`HowToTreeItemGroup` instances inside
         // the element.
         const treeItems = this._allTreeItems();
-        // If there are no treeItems, then the tree is empty. Abort.
+        // If there are no `treeItems`, then the tree is empty. Abort.
         if (treeItems.length === 0) return;
 
         // The element checks if any child has been marked as selected.
@@ -258,14 +258,14 @@
           // to the list of results.
           if (isTreeItem(el))
             treeItems.push(el);
-          // If it is a `HowToTreeIteMgroup` and it's collapsed, don’t descend.
+          // If it is a `HowToTreeItemGroup` and it's collapsed, don’t descend.
           // This will ignore any children and treat them as if they are
           // invisible.
           if (isTreeItemGroup(el) && !el.expanded)
             continue;
           // Otherwise, if the element is expanded OR we've hit something
           // else like a `<div>`, continue to descend and look for
-          // more treeItems.
+          // more `treeItems`.
           findTreeItems(el);
         }
       }
@@ -274,8 +274,8 @@
     }
 
     /**
-     * When focus moves into the element, if a treeItem is not already
-     * active, mark the first treeItem as active.
+     * When focus moves into the element, if a `treeItem` is not already
+     * active, mark the first `treeItem` as active.
      */
     _onFocus(event) {
       if (!this._currentTreeItem())
@@ -337,12 +337,12 @@
     }
 
     /**
-     * Find the treeItem associated with the element that was clicked.
-     * Focus the treeItem and make it the current selected item as well.
+     * Find the `treeItem` associated with the element that was clicked.
+     * Focus the `treeItem` and make it the current selected item as well.
      */
     _onClick(event) {
       // A loop that will work its way upward until it finds
-      // the treeItem associated with the event target. This allows
+      // the `treeItem` associated with the event target. This allows
       // clicking on a `<label>` or `<div>` within a `HowToTreeItemGroup`
       // and ensures the right element is always being focused/selected.
       let item = event.target;
@@ -355,18 +355,15 @@
     }
 
     /**
-     * Return the current active treeItem if there is one. Otherwise,
+     * Return the current active `treeItem` if there is one. Otherwise,
      * return null.
      */
     _currentTreeItem() {
-      const currentTreeItem = this.querySelector('.active');
-      if (currentTreeItem)
-        return currentTreeItem;
-      return null;
+      return this.querySelector('.active');
     }
 
     /**
-     * Attempt to find the previous treeItem in the list. If one exists,
+     * Attempt to find the previous `treeItem` in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
     _focusPrevTreeItem(currentTreeItem) {
@@ -377,7 +374,7 @@
     }
 
     /**
-     * Attempt to find the next treeItem in the list. If one exists,
+     * Attempt to find the next `treeItem` in the list. If one exists,
      * focus it. Otherwise just ignore the command.
      */
     _focusNextTreeItem(currentTreeItem) {
@@ -388,7 +385,7 @@
     }
 
     /**
-     * Focus the first treeItem in the tree. Useful for when the user
+     * Focus the first `treeItem` in the tree. Useful for when the user
      * presses the [home] key.
      */
     _focusFirstTreeItem() {
@@ -464,7 +461,7 @@
     }
 
     /**
-     * Perform the default action for a treeitem. If the item is a parent
+     * Perform the default action for a `treeItem`. If the item is a parent
      * node, toggle its expanded/collapsed state. If the item is an end
      * node, dispatch an event with a reference to the node. If this was
      * a file picker, an application could listen for this event and open
