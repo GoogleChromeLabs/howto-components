@@ -241,14 +241,11 @@ describe('howto-tree', function() {
 
       let parentTreeItem = await this.driver
         .executeScript(`
-          return Array.from(document.querySelectorAll('[role=treeitem]'))
-            .find(item => item.children.length > 0);
+          return document.querySelector('howto-tree-item-group');
         `);
       let parentTreeItemLabel = await this.driver
         .executeScript(`
-          return Array.from(document.querySelectorAll('[role=treeitem]'))
-            .find(item => item.children.length > 0)
-            .querySelector('label');
+          return document.querySelector('howto-tree-item-group > label');
         `);
       await parentTreeItemLabel.click();
       expect(await parentTreeItem.getAttribute('aria-expanded'))
