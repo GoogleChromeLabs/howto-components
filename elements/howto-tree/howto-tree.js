@@ -79,7 +79,7 @@
 
     /**
      * Properties and their corresponding attributes should mirror one another.
-     * To this effect, the property setter for `selected` handles truthy/falsey
+     * To this effect, the property setter for `selected` handles truthy/falsy
      * values and reflects those to the state of the attribute.
      * It's important to note that there are no side effects taking place in
      * the property setter. For example, the setter does not set
@@ -104,6 +104,8 @@
     }
 
     attributeChangedCallback(name, value) {
+      // Set `aria-selected` to match the state of `selected`. This will
+      // convey the state to assistive technology like screen readers.
       if (name === 'selected')
         this.setAttribute('aria-selected', this.selected);
     }
@@ -176,6 +178,8 @@
      * This example uses the rest and spread operators to keep the code tidy.
      */
     attributeChangedCallback(name, ...theArgs) {
+      // Set `aria-expanded` to match the state of `expanded`. This will
+      // convey the state to assistive technology like screen readers.
       if (name === 'expanded') {
         this.setAttribute('aria-expanded', this.expanded);
         return;
