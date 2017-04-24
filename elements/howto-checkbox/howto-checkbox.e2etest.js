@@ -69,3 +69,28 @@ describe('howto-checkbox', function() {
     }
   );
 });
+
+describe('howto-checkbox pre-upgrade', function() {
+  let success;
+
+  beforeEach(function() {
+    return this.driver.get(`${this.address}/howto-checkbox_demo.html?nojs`);
+  });
+
+  it('should upgrade attributes on upgrade',
+    async function() {
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox = document.querySelector('howto-checkbox')
+      );
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox.setAttribute('checked', '')
+      );
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      success = await this.driver.executeScript(_ =>
+        window.expectedCheckbox.getAttribute('aria-checked') === 'true'
+      );
+      expect(success).to.equal(true);
+    }
+  );
+});
