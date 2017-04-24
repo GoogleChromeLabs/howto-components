@@ -45,7 +45,7 @@
       // instructed to expand. The custom event is a nice abstraction because
       // expansion can be triggered by clicks, keyboard input and attribute
       // and property changes alike.
-      this.addEventListener('howto-change', this._onHowtoChange);
+      this.addEventListener('change', this._onHowtoChange);
       // The element also implements roving tab index to switch focus between
       // the headers. Therefore key presses are intercepted.
       this.addEventListener('keydown', this._onKeyDown);
@@ -66,7 +66,7 @@
           // All buttons inside the `HowtoAccordionHeadings` are made
           // unfocusable here. Only the first heading will be made focusable
           // afterwards. This is necessary to implement roving tab index.
-          heading.querySelector('button').setAttribute('tabindex', -1);
+          heading._shadowButton.setAttribute('tabindex', -1);
           const panel = this._panelForHeading(heading);
 
           // Make headings and panels reference each other
@@ -80,7 +80,7 @@
             panel.setAttribute('role', 'region');
         });
         // Make the first heading focusable.
-        headings[0].querySelector('button').setAttribute('tabindex', 0);
+        headings[0]._shadowButton.setAttribute('tabindex', 0);
 
         // Set all the panels to the collapsed state to have a well-defined
         // initial state.
@@ -107,7 +107,7 @@
      * `connectedCallback` added.
      */
     disconnectedCallback() {
-      this.removeEventListener('howto-change', this._onHowtoChange);
+      this.removeEventListener('change', this._onHowtoChange);
       this.removeEventListener('keydown', this._onKeyDown);
     }
 
@@ -120,13 +120,14 @@
     }
 
     /**
-     * `_onHowtoChange` handles the custom `howto-change` event. The event’s
+     * `_onHowtoChange` handles the custom `change` event. The event’s
      * target is the heading that has been instructed to expand (by click,
      * keyboard input or by changing the `expanded` attribute or property).
      */
     _onHowtoChange(event) {
       // If there’s an animation running, ignore the event.
-      if (this.classList.contains('animating')) return;
+      if (this.classList.contains('animating'))
+        return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
       if(event.detail.isExpandedNow)
@@ -139,12 +140,9 @@
      * `_onKeyDown` handles key presses inside the accordion.
      */
     _onKeyDown(event) {
-      // If the keypress originated while a button inside a
-      // `<howto-accordion-heading>` was focused, the parent element should
-      // be a heading.
-      const currentHeading = event.target.parentElement;
-      // If this element is not a heading, the keypress originated from inside
-      // a panel or empty space. Nothing to do.
+      // If the currently focused element is not a heading, the keypress
+      // originated from inside a panel or empty space. Nothing to do.
+      const currentHeading = event.target;
       if (!this._isHeading(currentHeading)) return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey) return;
@@ -181,10 +179,9 @@
       event.preventDefault();
       // Make the currently focused heading unfocusable, then make the new
       // heading focusable and give focus to it.
-      currentHeading.querySelector('button').setAttribute('tabindex', -1);
-      const newButton = newHeading.querySelector('button');
-      newButton.setAttribute('tabindex', 0);
-      newButton.focus();
+      currentHeading._shadowButton.setAttribute('tabindex', -1);
+      newHeading._shadowButton.setAttribute('tabindex', 0);
+      newHeading._shadowButton.focus();
     }
 
     /**
@@ -230,7 +227,7 @@
       // element.
       let newIdx =
         headings.findIndex(headings =>
-          headings === document.activeElement.parentElement) - 1;
+          headings === document.activeElement) - 1;
       // Add `headings.length` to make sure the index is a positive number
       // and get the modulus to wrap around if necessary.
       return headings[(newIdx + headings.length) % headings.length];
@@ -244,7 +241,7 @@
       const headings = this._allHeadings();
       let newIdx =
         headings.findIndex(heading =>
-          heading === document.activeElement.parentElement) + 1;
+          heading === document.activeElement) + 1;
       return headings[newIdx % headings.length];
     }
 
@@ -347,7 +344,7 @@
       // `transitionend` event which won’t fire if there is no animation.
       if(startOffset === endOffset) return Promise.resolve();
       // Set the `animating` class on the `<howto-accordion>` element. This
-      // discards all further `howto-change` events until the animation is done.
+      // discards all further `change` events until the animation is done.
       this.classList.add('animating');
       // Turn the list of children into a proper array with all the helper
       // functions defined on it.
@@ -419,12 +416,14 @@
   /**
    * `HowtoAccordionHeading` is the element for the headings in the accordion.
    * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
-   * `<button>`. This element dispatches a `howto-accordion-change` event when
+   * `<button>`. This element puts that element in the ShadowDOM, as it is more
+   * convenient to use and doesn’t make server-side rendering or styling more
+   *  problematic. This element dispatches a `howto-accordion-change` event when
    * it is supposed to expand.
    *
    * Clicking the button or pressing space or enter while the button has focus
    * will expand the heading. Changing the `expand` attribute or property will
-   * also cause the heading to expand.≤
+   * also cause the heading to expand.
    */
   class HowtoAccordionHeading extends HTMLElement {
     // The element reacts to changes to the `expanded` attribute.
@@ -439,6 +438,20 @@
       // handler will always be the `<howto-accordion-heading>`, even if the
       // handler is hooked up to other elements.
       this._onClick = this._onClick.bind(this);
+
+      this._shadowRoot = this.attachShadow({mode: 'open'});
+      this._shadowRoot.innerHTML = `
+        <style>
+          :host > button {
+            display: block;
+            background-color: initial;
+            border: initial;
+          }
+        </style>
+        <button><slot></slot></button>
+      `;
+
+      this._shadowButton = this._shadowRoot.querySelector('button');
     }
 
     /**
@@ -450,10 +463,7 @@
       if(!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
 
-      const button = this.querySelector('button');
-      if(!button)
-        throw new Error('Missing button inside accordion heading');
-      button.addEventListener('click', this._onClick);
+      this._shadowButton.addEventListener('click', this._onClick);
     }
 
     /**
@@ -461,7 +471,7 @@
      * `connectedCallback`.
      */
     disconnectedCallback() {
-      this.querySelector('button').removeEventListener('click', this._onClick);
+      this._shadowButton.removeEventListener('click', this._onClick);
     }
 
     /**
@@ -475,7 +485,7 @@
       // Dispatch an event that signals a request to expand to the
       // `<howto-accordion>` element.
       this.dispatchEvent(
-        new CustomEvent('howto-change', {
+        new CustomEvent('change', {
           detail: {isExpandedNow: value},
           bubbles: true,
         })
