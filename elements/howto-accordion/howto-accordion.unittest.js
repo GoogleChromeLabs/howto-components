@@ -10,20 +10,21 @@
       this.container.innerHTML = `
         <howto-accordion>
           <howto-accordion-heading id="lol"><button>Tab 1</button></howto-accordion-heading>
-          <section>Content 1</section>
+          <howto-accordion-panel>Content 1</howto-accordion-panel>
           <howto-accordion-heading><button>Tab 2</button></howto-accordion-heading>
-          <section>Content 2</section>
+          <howto-accordion-panel>Content 2</howto-accordion-panel>
           <howto-accordion-heading><button>Tab 3</button></howto-accordion-heading>
-          <section>Content 3</section>
+          <howto-accordion-panel>Content 3</howto-accordion-panel>
         </howto-accordion>
       `;
       return Promise.all([
         howtoComponents.waitForElement('howto-accordion'),
         howtoComponents.waitForElement('howto-accordion-heading'),
+        howtoComponents.waitForElement('howto-accordion-panel'),
       ]).then(_ => {
         this.accordion = this.container.querySelector('howto-accordion');
         this.headings = Array.from(this.container.querySelectorAll('howto-accordion-heading'));
-        this.panels = Array.from(this.container.querySelectorAll('section'));
+        this.panels = Array.from(this.container.querySelectorAll('howto-accordion-panel'));
       });
     });
 

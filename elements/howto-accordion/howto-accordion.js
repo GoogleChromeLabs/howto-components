@@ -25,14 +25,10 @@
     END: 35,
   };
 
-  // `idCounter` counts the number of IDs generated and is used to generated
-  // new, unique IDs.
-  let idCounter = 0;
-
   /**
    * `HowtoAccordion` is a container element for headings and panels.
    *
-   * Each heading must be a `<howto-accordion-heading>`, Panels can be any
+   * Each heading must be a `<howto-accordion-heading>`. Panels can be any
    * element, but must be adjacent to a heading.
    */
   class HowtoAccordion extends HTMLElement {
@@ -41,23 +37,25 @@
     }
 
     /**
-     * `connectedCallback` gives unique IDs to all panels and headings, so it
-     * can then make headings and panels reference each other using
-     * `aria-controls` and `aria-labelledby`. Lastly, it considers the `expand`
-     *  attribute on the headers and adjusts the styling accordingly.
+     * `connectedCallback` hooks up the even listeners and considers the
+     * `expand`  attribute on the headers to adjust their styling accordingly.
      */
     connectedCallback() {
-      // `<howto-accordion-headers>` emit a custom event when the heading was
-      // instructed to expand. The custom event is a nice abstraction expansion
-      // can be triggered by clicks, keyboard input and attribute and property
-      // changes alike.
+      // `<howto-accordion-headers>` emit a custom event when the heading is
+      // instructed to expand. The custom event is a nice abstraction because
+      // expansion can be triggered by clicks, keyboard input and attribute
+      // and property changes alike.
       this.addEventListener('howto-change', this._onHowtoChange);
       // The element also implements roving tab index to switch focus between
       // the headers. Therefore key presses are intercepted.
       this.addEventListener('keydown', this._onKeyDown);
 
-      // Wait for `<howto-accordion-heading>` to have booted before proceeding.
-      customElements.whenDefined('howto-accordion-heading')
+      // Wait for `<howto-accordion-heading>` and `<howto-accordion-panel`
+      // to have booted before proceeding.
+      Promise.all([
+        customElements.whenDefined('howto-accordion-heading'),
+        customElements.whenDefined('howto-accordion-panel'),
+      ])
         .then(_ => {
         // Acquire all headings inside the element that need to be set up.
         const headings = this._allHeadings();
@@ -71,12 +69,8 @@
           heading.querySelector('button').setAttribute('tabindex', -1);
           const panel = this._panelForHeading(heading);
 
-          // Headings and panels need an ID so they can reference each other
+          // Make headings and panels reference each other
           // with the `aria-labelledby` and `aria-controls` attributes.
-          if (!heading.id)
-            heading.id = `howto-accordion-generated-${idCounter++}`;
-          if (!panel.id)
-            panel.id = `howto-accordion-generated-${idCounter++}`;
           heading.setAttribute('aria-controls', panel.id);
           panel.setAttribute('aria-labelledby', heading.id);
 
@@ -122,7 +116,7 @@
      * is a `<howto-accordion-heading>`.
      */
     _isHeading(elem) {
-      return elem.tagName === 'HOWTO-ACCORDION-HEADING';
+      return elem.tagName.toLowerCase() === 'howto-accordion-heading';
     }
 
     /**
@@ -132,7 +126,7 @@
      */
     _onHowtoChange(event) {
       // If there’s an animation running, ignore the event.
-      if(this.classList.contains('animating')) return;
+      if (this.classList.contains('animating')) return;
       const heading = event.target;
       const panel = this._panelForHeading(heading);
       if(event.detail.isExpandedNow)
@@ -203,7 +197,7 @@
      * cheap to read while this method queries the DOM on every call.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('howto-accordion-heading + *'));
+      return Array.from(this.querySelectorAll('howto-accordion-panel'));
     }
 
     /**
@@ -217,7 +211,12 @@
      * `_panelForHeading` returns the panel that the given heading controls.
      */
     _panelForHeading(heading) {
-      return heading.nextElementSibling;
+      const next = heading.nextElementSibling;
+      if(next.tagName.toLowerCase() !== 'howto-accordion-panel') {
+        console.error('Sibling element to a heading need to be a panel.');
+        return;
+      }
+      return next;
     }
 
     /**
@@ -413,15 +412,19 @@
   }
   window.customElements.define('howto-accordion', HowtoAccordion);
 
+  // `headingIdCounter` counts the number of IDs generated and is used to
+  // generated new, unique IDs.
+  let headingIdCounter = 0;
+
   /**
    * `HowtoAccordionHeading` is the element for the headings in the accordion.
    * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
-   * `<button>`. This element dispatches a `howto-accordion-toggle` event when
+   * `<button>`. This element dispatches a `howto-accordion-change` event when
    * it is supposed to expand.
    *
-   * Click the button or pressing space or enter while the button has focus
-   * will expand the button. Changing the `expand` attribute or property will
-   * also cause the heading to expand.
+   * Clicking the button or pressing space or enter while the button has focus
+   * will expand the heading. Changing the `expand` attribute or property will
+   * also cause the heading to expand.≤
    */
   class HowtoAccordionHeading extends HTMLElement {
     // The element reacts to changes to the `expanded` attribute.
@@ -433,7 +436,7 @@
       super();
 
       // Binding event handlers to `this` ensures that `this` inside the event
-      // handler will always be the `<howto-accordion-heading>`, even the
+      // handler will always be the `<howto-accordion-heading>`, even if the
       // handler is hooked up to other elements.
       this._onClick = this._onClick.bind(this);
     }
@@ -444,6 +447,9 @@
     connectedCallback() {
       if(!this.hasAttribute('role'))
         this.setAttribute('role', 'heading');
+      if(!this.id)
+        this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
+
       const button = this.querySelector('button');
       if(!button)
         throw new Error('Missing button inside accordion heading');
@@ -485,8 +491,8 @@
      * To this effect, the property setter for  selected handles truthy/falsey
      * values and reflects those to the state of the attribute. It's important
      * to note that there are no side effects taking place in the property
-     * setter. For example, the setter does not set aria-selected. Instead,
-     * that work happens in the  attributeChangedCallback. As a general rule,
+     * setter. For example, the setter does not set aria-expanded. Instead,
+     * that work happens in the attributeChangedCallback. As a general rule,
      * make property setters very dumb, and if setting a property or attribute
      * should cause a side effect (like setting a corresponding ARIA attribute)
      * do that work in the attributeChangedCallback. This will avoid having to
@@ -513,6 +519,39 @@
   }
   window.customElements
     .define('howto-accordion-heading', HowtoAccordionHeading);
+
+  // `panelIdCounter` counts the number of IDs generated for panels and is used
+  // to generated new, unique IDs.
+  let panelIdCounter = 0;
+
+  /**
+   * `HowtoAccordionHeading` is the element for the headings in the accordion.
+   * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
+   * `<button>`. This element dispatches a `howto-accordion-change` event when
+   * it is supposed to expand.
+   *
+   * Clicking the button or pressing space or enter while the button has focus
+   * will expand the heading. Changing the `expand` attribute or property will
+   * also cause the heading to expand.≤
+   */
+  class HowtoAccordionPanel extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    /**
+     * `connectedCallback()` sets up the role and the ID of the element.
+     */
+    connectedCallback() {
+      if(!this.hasAttribute('role'))
+        this.setAttribute('role', 'region');
+      if(!this.id)
+        this.id = `howto-accordion-panel-generated-${panelIdCounter++}`;
+    }
+  }
+  window.customElements
+    .define('howto-accordion-panel', HowtoAccordionPanel);
+
 
   // These functions help make animations easier.
   // Read https://dassur.ma/things/raf-promise/ for more details.

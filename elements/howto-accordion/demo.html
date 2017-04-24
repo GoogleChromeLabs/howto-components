@@ -19,7 +19,7 @@
   howto-accordion-heading[expanded] > button {
     background-color: bisque;
   }
-  howto-accordion-heading + * {
+  howto-accordion-panel {
     padding: 20px;
     background-color: lightgray;
   }
@@ -36,9 +36,9 @@
 
 <howto-accordion>
   <howto-accordion-heading><button>Tab 1</button></howto-accordion-heading>
-  <section>Content 1</section>
+  <howto-accordion-panel>Content 1</howto-accordion-panel>
   <howto-accordion-heading><button>Tab 2</button></howto-accordion-heading>
-  <section>Content 2</section>
+  <howto-accordion-panel>Content 2</howto-accordion-panel>
   <howto-accordion-heading><button>Tab 3</button></howto-accordion-heading>
-  <section>Content 3</section>
+  <howto-accordion-panel>Content 3</howto-accordion-panel>
 </howto-accordion>
