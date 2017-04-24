@@ -38,3 +38,5 @@ book_path: /web/fundamentals/_book.yaml
 </li>
 {{ } }}
 </ul>
+
+<script src="iframesizer.js"></script>
