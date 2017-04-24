@@ -1,5 +1,5 @@
 project_path: /web/_project.yaml
-book_path: /web/updates/_book.yaml
+book_path: /web/fundamentals/_book.yaml
 
 {# wf_updated_on: {{ {const d = new Date(); out += `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;} }}#}
 {# wf_published_on: 2017-04-06 #}
@@ -38,3 +38,5 @@ book_path: /web/updates/_book.yaml
 </li>
 {{ } }}
 </ul>
+
+<script src="iframesizer.js"></script>

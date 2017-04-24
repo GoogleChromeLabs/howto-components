@@ -25,6 +25,10 @@ npm run watch
 
 to continuously run the build whenever a file changes.
 
+### WebFundamentals
+
+To generate the content for [WebFundamentals](https://github.com/Google/WebFundamentals], run the `build-webfundamentals.sh` script. It will create a `webfundamentals` folder. The contents needs to be moved into the WebFundamentals repository. If new components have been created, they need to be added manually to `[WebFundamentals repo root]/src/content/en/fundamentals/architecture/_toc.yaml`.
+
 ## Testing
 
 Tests are written using [Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/). Each component has tests.
