@@ -24,6 +24,7 @@
     // If this page is embedded in an iframe, the parent page has the choice
     // to adapt the size of the iframe to accommodate the contents.
     function sendSize() {
+      if(window.parent === window) return;
       window.parent.postMessage(document.documentElement.getBoundingClientRect().height, '*');
     }
 
