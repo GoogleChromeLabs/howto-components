@@ -1,3 +1,5 @@
+/* eslint max-len: ["off"] */
+
 const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
@@ -87,6 +89,7 @@ describe('howto-checkbox pre-upgrade', function() {
       );
 
       await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
       success = await this.driver.executeScript(_ =>
         window.expectedCheckbox.checked === true &&
         window.expectedCheckbox.getAttribute('aria-checked') === 'true'
@@ -105,6 +108,7 @@ describe('howto-checkbox pre-upgrade', function() {
       );
 
       await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
       success = await this.driver.executeScript(_ =>
         window.expectedCheckbox.hasAttribute('checked') &&
         window.expectedCheckbox.getAttribute('aria-checked') === 'true'
