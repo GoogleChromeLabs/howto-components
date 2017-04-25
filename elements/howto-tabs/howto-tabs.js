@@ -21,6 +21,11 @@
   class HowtoTabs extends HTMLElement {
     constructor() {
       super();
+
+      this.attachShadow({mode: 'open'});
+      // Event handlers that are not attached to this element need to be bound
+      // if they need access to `this`.
+      this._onSlotChange = this._onSlotChange.bind(this);
     }
 
     /**
@@ -35,52 +40,55 @@
 
       this.setAttribute('role', 'tablist');
 
-      // Before the elements starts booting, it waits for
-      // the both `<howto-tab>` and `<howto-tabpanel>` to load.
+      // For progressive enhancement, the markup should alternate between tabs
+      // and panels. Elements reordering children tend to not work well with
+      // frameworks. Instead ShadowDOM is used to reorder the elements by
+      // using slots.
+      this.shadowRoot.innerHTML = `
+        <slot name="tab"></slot>
+        <slot name="panel"></slot>
+      `;
+      this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
+      this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
+      this._tabSlot.addEventListener('slotchange', this._onSlotChange);
+      this._panelSlot.addEventListener('slotchange', this._onSlotChange);
+
       Promise.all([
         customElements.whenDefined('howto-tabs-tab'),
         customElements.whenDefined('howto-tabs-panel'),
-      ]).then(_ => {
-        // Acquire all tabs and panels inside the element
-        const tabs = this._allTabs();
-        // If there are no tabs, there is no way to switch between panels.
-        // Abort.
-        if (tabs.length === 0) return;
+      ])
+        .then(_ => this._updateAttributes());
+    }
 
-        // Give each panel a `aria-labelledby` attribute that refers to the tab
-        // that controls it.
-        tabs.forEach(tab => {
-          const panel = tab.nextElementSibling;
-          if(panel.tagName !== 'HOWTO-TABS-PANEL') {
-            console.error(`Tab #${tab.id} is not a` +
-              `sibling of a <howto-tabs-panel>`);
-            return;
-          }
+    _onSlotChange() {
+      this._updateAttributes();
+    }
 
-          tab.setAttribute('aria-controls', panel.id);
-          panel.setAttribute('aria-labelledby', tab.id);
-        });
+    _updateAttributes() {
+      const tabs = this._allTabs();
+      // Give each panel a `aria-labelledby` attribute that refers to the tab
+      // that controls it.
+      tabs.forEach(tab => {
+        const panel = tab.nextElementSibling;
+        if(panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
+          console.error(`Tab #${tab.id} is not a` +
+            `sibling of a <howto-tabs-panel>`);
+          return;
+        }
 
-        // For progressive enhancement, the markup should alternate between tabs
-        // and panels. Elements reordering children tend to not work well with
-        // frameworks. Instead ShadowDOM is used to reorder the elements by
-        // using slots.
-        const shadowRoot = this.attachShadow({mode: 'open'});
-        shadowRoot.innerHTML = `
-          <slot name="tab"></slot>
-          <slot name="panel"></slot>
-        `;
-
-        // The element checks if any of the tabs have been marked as selected.
-        // If not, the first tab is now selected.
-        const selectedTab =
-          tabs.find(tab =>
-            tab.getAttribute('aria-selected') === 'true') || tabs[0];
-
-        // Next, we switch to the selected tab. `selectTab` takes care of
-        // marking all other tabs as deselected and hiding all other panels.
-        this._selectTab(selectedTab);
+        tab.setAttribute('aria-controls', panel.id);
+        panel.setAttribute('aria-labelledby', tab.id);
       });
+
+      // The element checks if any of the tabs have been marked as selected.
+      // If not, the first tab is now selected.
+      const selectedTab =
+        tabs.find(tab =>
+          tab.getAttribute('aria-selected') === 'true') || tabs[0];
+
+      // Next, we switch to the selected tab. `selectTab` takes care of
+      // marking all other tabs as deselected and hiding all other panels.
+      this._selectTab(selectedTab);
     }
 
     /**
@@ -179,6 +187,8 @@
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
       this.removeEventListener('click', this._onClick);
+      this._tabSlot.removeEventListener('slotchange', this._onSlotChange);
+      this._panelSlot.removeEventListener('slotchange', this._onSlotChange);
     }
 
     /**

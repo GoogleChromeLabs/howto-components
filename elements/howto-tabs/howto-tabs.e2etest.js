@@ -71,4 +71,23 @@ describe('howto-tabs', function() {
     await lastTab.click();
     expect(await lastTab.getAttribute('aria-selected')).to.equal('true');
   });
+
+  it('should handle elements added after initialization', async function() {
+    await this.driver.executeScript(_ => {
+      window.tabpanel = document.querySelector('howto-tabs');
+      window.newTab = document.createElement('howto-tabs-tab');
+      newTab.slot = 'tab';
+      newTab.textContent = 'New Tab';
+      window.newPanel = document.createElement('howto-tabs-panel');
+      newPanel.slot = 'panel';
+      newPanel.textContent = 'Some content';
+      tabpanel.appendChild(newTab);
+      tabpanel.appendChild(newPanel);
+    });
+    await this.driver.actions().sendKeys(Key.END).perform();
+    success = await this.driver.executeScript(_ =>
+      document.activeElement === newTab
+    );
+    expect(success).to.equal(true);
+  });
 });
