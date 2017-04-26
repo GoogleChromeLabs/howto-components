@@ -10,106 +10,207 @@
  *
  * See: https://www.w3.org/TR/wai-aria-practices-1.1/#menu
  */
+(function() {
+  /**
+   * Define key codes to help with handling keyboard events.
+   */
+  const KEYCODE = {
+    DOWN: 40,
+    UP: 38,
+    ESCAPE: 27,
+  };
 
- class HowtoMenu extends HTMLElement {
+  class HowtoMenu extends HTMLElement {
 
-   /**
-    * The constructor does work that needs to be executed _exactly_ once.
-    */
-   constructor() {
-     super();
-
-     this.KEY_CODES_ = {
-       ARROW_DOWN: 40,
-       ARROW_UP: 38,
-       ESCAPE: 27,
-     };
-     this.children_ = null;
-     // TODO: Consider better naming?
-     this.parent_ = document.getElementById(
+    /**
+     * The constructor does work that needs to be executed _exactly_ once.
+     */
+    constructor() {
+      super();
+      this._handleBlur = this._handleBlur.bind(this);
+      this._opener = document.getElementById(
          this.getAttribute('aria-labelledby'));
-   }
+    }
 
-   moveFocus_(fromEl, toEl) {
-     fromEl.setAttribute('tabindex', -1);
-     toEl.setAttribute('tabindex', 0);
-     toEl.focus();
-   }
+    static get observedAttributes() {
+      return ['aria-hidden'];
+    }
 
-   handleBlur_(e) {
-     e.target.setAttribute('tabindex', -1);
-   }
 
-   handleKeyDown_(e) {
-     let el = e.target;
-     switch (true) {
-       case e.keyCode === this.KEY_CODES_.ARROW_DOWN:
-         // If arrow down, move to next item. Wrap if necessary.
-         let next = el.nextElementSibling || this.firstElementChild;
-         this.moveFocus_(el, next);
-         break;
-       case e.keyCode === this.KEY_CODES_.ARROW_UP:
+    /**
+     * A getter for the first child which is a menuitem.
+     */
+    get firstMenuItem() {
+      return this.querySelector('[role^="menuitem"]:first-of-type');
+    }
+
+    /**
+     * A getter for the last child which is a menuitem.
+     */
+    get lastMenuItem() {
+      return this.querySelector('[role^="menuitem"]:last-of-type');
+    }
+
+    /**
+     * Moves the browser focus from one element to another.
+     * @param {Element} fromEl Element to have focus removed.
+     * @param {Element} toEl Element to get focus.
+     */
+    _moveFocus(fromEl, toEl) {
+      fromEl.setAttribute('tabindex', -1);
+      toEl.setAttribute('tabindex', 0);
+      toEl.focus();
+    }
+
+    /**
+     * Checks if a node is a 'menuitem', 'menuitemcheckbox' or 'menuitemradio'.
+     */
+    _isMenuItem(node) {
+      let ariaRoles = ['menuitem', 'menuitemcheckbox', 'menuitemradio'];
+      return ariaRoles.indexOf(node.getAttribute('role') > -1);
+    }
+
+    /**
+     * Returns true if the menu is currently hidden, false otherwise.
+     */
+    _isHidden() {
+      return this.getAttribute('aria-hidden') === 'true';
+    }
+
+    /**
+     * Returns a menu item coming after the one passed as an argument, or null.
+     */
+    _nextMenuItem(node) {
+      let next = node.nextElementSibling;
+      while (next) {
+        if (this._isMenuItem(node)) {
+          return next;
+        }
+        next = next.nextElementSibling;
+      }
+      return null;
+    }
+
+    /**
+     * Returns a menu item coming before the one passed as an argument, or null.
+     */
+    _previousMenuItem(node) {
+      let prev = node.previousElementSibling;
+      while (prev) {
+        if (this._isMenuItem(node)) {
+          return prev;
+        }
+        prev = prev.previousElementSibling;
+      }
+      return null;
+    }
+
+    /**
+     * Opens the menu.
+     */
+    _open() {
+      this.firstMenuItem.setAttribute('tabindex', 0);
+      this.firstMenuItem.focus();
+    }
+
+    /**
+     * Closes the menu.
+     */
+    _close() {
+      const children = Array.from(this.children);
+      children.forEach(el => {
+        el.setAttribute('tabindex', -1);
+      });
+      this._opener.focus();
+    }
+
+    /**
+     * Makes the element unfocusable, as a reaction to blur event.
+     * @param {Event} event Blur event.
+     */
+    _handleBlur(event) {
+      if (this._isMenuItem(event.target)) {
+        event.target.setAttribute('tabindex', -1);
+      }
+    }
+
+    /**
+     * Hanldes keyboard interaction.
+     * @param {Event} event Keydown event.
+     */
+    _handleKeyDown(event) {
+      let el = event.target;
+      switch (event.keyCode) {
+        case KEYCODE.DOWN:
+          // If arrow down, move to next item. Wrap if necessary.
+          event.preventDefault();
+          this._moveFocus(el, this._nextMenuItem(el) || this.firstMenuItem);
+          break;
+
+       case KEYCODE.UP:
          // If arrow up, move to previous item. Wrap if necessary.
-         let prev = el.previousElementSibling || this.lastElementChild;
-         this.moveFocus_(el, prev);
+         event.preventDefault();
+         this._moveFocus(el, this._previousMenuItem(el) || this.lastMenuItem);
          break;
-       case (e.keyCode > 64 && e.keyCode < 91):  // Letter keys.
-         // If letter key, move to item which starts with that letter.
-         for (let i = 0, child; child = this.children[i]; i++) {
-           if (child.innerText.trim()[0] === e.key) {
-             this.moveFocus_(el, child);
-           }
-         }
-         break;
-       case e.keyCode === this.KEY_CODES_.ESCAPE:
+
+       case KEYCODE.ESCAPE:
          // If escape, exit the menu.
-         el.setAttribute('tabindex', -1);
-         this.parent_.focus();
-         this.toggle();
+         event.preventDefault();
+         this.setAttribute('aria-hidden', 'true');
          break;
-       // TODO: What should Tab key do?
+
        default:
          break;
-     };
-   }
+      };
+      // If letter key, move to an item which starts with that letter.
+      if (event.keyCode > 64 && event.keyCode < 91) {
+        for (let i = 0, child; child = this.children[i]; i++) {
+          if (child.innerText.trim()[0] === event.key) {
+            event.preventDefault();
+            this._moveFocus(el, child);
+          }
+        }
+      }
+    }
 
-   /**
-    * Sets up keyboard interactions for menu and its items.
-    */
-   connectedCallback() {
-     // Make children unfocusable by default.
-     this.children_ = Array.from(this.children);
-     this.children_.forEach(el => {
-       el.setAttribute('tabindex', -1);
-       el.addEventListener('blur', this.handleBlur_);
-     });
-     this.setAttribute('aria-role', 'menu');
-     this.addEventListener('keydown', this.handleKeyDown_);
-   }
+    /**
+     * Sets up keyboard interactions for menu and its items.
+     */
+    connectedCallback() {
+      // Make children unfocusable by default.
+      const children = Array.from(this.children);
+      children.forEach(el => {
+        el.setAttribute('tabindex', -1);
+        el.addEventListener('blur', this._handleBlur);
+      });
+      this.setAttribute('role', 'menu');
+      this.setAttribute('aria-hidden', 'true');
+      this.addEventListener('keydown', this._handleKeyDown);
+    }
 
-   /**
-    * Unregisters the event listeners that were set up in `connectedCallback`.
-    */
-   disconnectedCallback() {
-     this.children_.forEach(el => {
-       el.removeEventListener('blur', this.handleBlur_);
-     });
-     this.removeEventListener('keydown', this.handleKeyDown_);
-   }
+    /**
+     * Unregisters the event listeners that were set up in `connectedCallback`.
+     */
+    disconnectedCallback() {
+      const children = Array.from(this.children);
+      children.forEach(el => {
+        el.removeEventListener('blur', this._handleBlur);
+      });
+      this.removeEventListener('keydown', this._handleKeyDown);
+    }
 
-   /**
-    * Open the menu if it was closed and vice versa.
-    */
-   toggle() {
-     // If the menu is hidden, show it.
-     let makeOpen = this.getAttribute('aria-hidden') === 'true';
-     this.setAttribute('aria-hidden', !makeOpen);
-     if (makeOpen) {
-       // Set focus to the first item.
-       this.firstElementChild.setAttribute('tabindex', 0);
-       this.firstElementChild.focus();
-     }
-   }
- }
+    /**
+     * Opens or closes the menu based on aria-hidden attribute change.
+     * Only caller for 'aria-hidden' due to observedAttributes property.
+     */
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (newValue === 'true') {
+        this._close();
+      } else {
+        this._open();
+      }
+    }
+  }
 
- window.customElements.define('howto-menu', HowtoMenu);
+  window.customElements.define('howto-menu', HowtoMenu);
+})();
