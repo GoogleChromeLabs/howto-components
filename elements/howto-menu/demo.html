@@ -1,0 +1,43 @@
+<!doctype html>
+
+<style>
+  /* The tooltip is by default unstyled. */
+  howto-menu {
+    display: block;
+    width: 10em;
+  }
+
+  howto-menuitem {
+    display: inline-block;
+    width: 100%;
+    padding: .2em .5em;
+    border: 1px solid lightgrey;
+  }
+
+  /* The menu is closed. */
+  howto-menu[aria-hidden="true"] {
+    visibility: hidden;
+  }
+
+  /* The menu is open. */
+  howto-menu[aria-hidden="false"] {
+    visibility: visible;
+  }
+</style>
+
+<div class="text">
+   <button aria-label="menu" id="menu-btn">open menu</button>
+   <howto-menu aria-labelledby="menu-btn" aria-hidden="true">
+     <howto-menuitem>first option</howto-menuitem>
+     <howto-menuitem>second option</howto-menuitem>
+     <howto-menuitem>other option</howto-menuitem>
+     <howto-menuitem>yet another option</howto-menuitem>
+   </howto-menu>
+</div>
+
+<script>
+  document.getElementById('menu-btn').addEventListener('click', e => {
+    var menu = document.querySelector('howto-menu');
+    menu.toggle();
+  })
+</script>
