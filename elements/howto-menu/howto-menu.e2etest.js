@@ -1,6 +1,6 @@
 const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
-const {Key, By} = require('selenium-webdriver');
+const {Key} = require('selenium-webdriver');
 
 describe('howto-menu', function() {
   let success;
@@ -13,8 +13,8 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
-        window.expectedMenuItem = document.querySelector('howto-menuitem');
+        window.menu.setAttribute('aria-hidden', false);
+        window.expectedMenuItem = document.querySelector('[role="menuitem"]');
       });
       success = await this.driver.executeScript(
         _ => document.activeElement === window.expectedMenuItem
@@ -27,12 +27,12 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
+        window.menu.setAttribute('aria-hidden', false);
       });
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       success = await this.driver.executeScript(`
         return document.activeElement ===
-          document.querySelectorAll('howto-menuitem')[1];
+          document.querySelectorAll('[role="menuitem"]')[1];
       `);
       expect(success).to.equal(true);
     }
@@ -42,14 +42,14 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
-        const items = document.querySelectorAll('howto-menuitem');
+        window.menu.setAttribute('aria-hidden', false);
+        const items = document.querySelectorAll('[role="menuitem"]');
         items[items.length - 1].focus();
       });
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       success = await this.driver.executeScript(`
         return document.activeElement ===
-          document.querySelector('howto-menuitem');
+          document.querySelector('[role="menuitem"]');
       `);
       expect(success).to.equal(true);
     }
@@ -59,14 +59,14 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
-        const items = document.querySelectorAll('howto-menuitem');
+        window.menu.setAttribute('aria-hidden', false);
+        const items = document.querySelectorAll('[role="menuitem"]');
         items[1].focus();
       });
       await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
       success = await this.driver.executeScript(`
         return document.activeElement ===
-          document.querySelector('howto-menuitem');
+          document.querySelector('[role="menuitem"]');
       `);
       expect(success).to.equal(true);
     }
@@ -76,11 +76,11 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
+        window.menu.setAttribute('aria-hidden', false);
       });
       await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
       success = await this.driver.executeScript(`
-        const items = document.querySelectorAll('howto-menuitem');
+        const items = document.querySelectorAll('[role="menuitem"]');
         return document.activeElement === items[items.length - 1];
       `);
       expect(success).to.equal(true);
@@ -91,11 +91,11 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
+        window.menu.setAttribute('aria-hidden', false);
       });
       await this.driver.actions().sendKeys('s').perform();
       success = await this.driver.executeScript(`
-        const items = document.querySelectorAll('howto-menuitem');
+        const items = document.querySelectorAll('[role="menuitem"]');
         return document.activeElement === items[1];
       `);
       expect(success).to.equal(true);
@@ -106,7 +106,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.toggle();
+        window.menu.setAttribute('aria-hidden', false);
       });
       await this.driver.actions().sendKeys(Key.ESCAPE).perform();
       const focusedMenuBtn = await this.driver.executeScript(`
@@ -114,9 +114,10 @@ describe('howto-menu', function() {
       `);
       expect(focusedMenuBtn).to.equal(true);
       const closedMenu = await this.driver.executeScript(`
-        return document.querySelector('howto-menu').getAttribute('aria-hidden') === 'true';
+        const menu = document.querySelector('howto-menu');
+        return menu.getAttribute('aria-hidden') === 'true';
       `);
-      //expect(closedMenu).to.equal(true);
+      expect(closedMenu).to.equal(true);
     }
   );
 });
