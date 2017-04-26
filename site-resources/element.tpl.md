@@ -1,7 +1,14 @@
 project_path: /web/_project.yaml
 book_path: /web/fundamentals/_book.yaml
 
-{# wf_updated_on: {{ {const d = new Date(); out += `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;} }}#}
+{# wf_updated_on: {{ {
+  const d = new Date();
+  const month = d.getMonth() + 1;
+  const paddedMonth = (month<10?'0':'')+month;
+  const day = d.getDate();
+  const paddedDay = (day<10?'0':'')+day;
+  out += `${d.getFullYear()}-${paddedMonth}-${paddedDay}`;
+} }}#}
 {# wf_published_on: 2017-04-06 #}
 
 # HowTo: Components – {{=it.title}} {: .page-title }
