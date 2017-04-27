@@ -15,7 +15,6 @@ describe('howto-accordion', function() {
     await this.driver.executeScript(_ => {
       window.expectedFirstHeading = document.querySelector('[role=heading]:nth-of-type(1)');
       window.expectedSecondHeading = document.querySelector('[role=heading]:nth-of-type(2)');
-      console.log(expectedFirstHeading);
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.expectedFirstHeading);

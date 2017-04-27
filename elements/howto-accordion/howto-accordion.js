@@ -11,6 +11,8 @@
  * assigned to them depending on their state.
  *
  * All panels should be styled to be visible if JavaScript is disabled.
+ *
+ * See: https://www.w3.org/TR/wai-aria-practices-1.1/#accordion
  */
 (function() {
   /**
@@ -28,8 +30,8 @@
   /**
    * `HowtoAccordion` is a container element for headings and panels.
    *
-   * Each heading must be a `<howto-accordion-heading>`. Panels can be any
-   * element, but must be adjacent to a heading.
+   * Each heading must be a `<howto-accordion-heading>`. Each panel must be a
+   * `<howto-accordion-panel>` and must be adjacent to a heading.
    */
   class HowtoAccordion extends HTMLElement {
     constructor() {
@@ -413,6 +415,27 @@
   // generated new, unique IDs.
   let headingIdCounter = 0;
 
+  // To avoid invoking the parser with `.innerHTML` for every new instance, a
+  // template for the contents of the ShadowDOM is is shared by all
+  // `<howto-accordion>` instances.
+  //
+  // The WAI ARIA Best Practices demand a button inside the heading. For
+  // developer convenience, the button is injected using ShadowDOM and
+  // is styled in a way that it is practically invisible. This way the
+  // button’s accessible functionality is preserved while still allowing
+  // the developer to freely style the headings.
+  const shadowDOMTemplate = document.createElement('template');
+  shadowDOMTemplate.innerHTML = `
+    <style>
+      :host > button {
+        display: block;
+        background-color: initial;
+        border: initial;
+      }
+    </style>
+    <button><slot></slot></button>
+  `;
+
   /**
    * `HowtoAccordionHeading` is the element for the headings in the accordion.
    * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
@@ -439,19 +462,12 @@
       // handler is hooked up to other elements.
       this._onClick = this._onClick.bind(this);
 
-      this._shadowRoot = this.attachShadow({mode: 'open'});
-      this._shadowRoot.innerHTML = `
-        <style>
-          :host > button {
-            display: block;
-            background-color: initial;
-            border: initial;
-          }
-        </style>
-        <button><slot></slot></button>
-      `;
-
-      this._shadowButton = this._shadowRoot.querySelector('button');
+      // Import the ShadowDOM template.
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(
+        document.importNode(shadowDOMTemplate.content, true)
+      );
+      this._shadowButton = this.shadowRoot.querySelector('button');
     }
 
     /**
@@ -481,6 +497,7 @@
       // `expanded` is a boolean attribute it is either set or not set. The
       // actual value is irrelevant.
       const value = this.hasAttribute('expanded');
+      this._shadowButton.setAttribute('aria-expanded', value);
 
       // Dispatch an event that signals a request to expand to the
       // `<howto-accordion>` element.
@@ -498,8 +515,8 @@
 
     /**
      * Properties and their corresponding attributes should mirror one another.
-     * To this effect, the property setter for  selected handles truthy/falsey
-     * values and reflects those to the state of the attribute. It's important
+     * To this effect, the property setter for selected handles truthy/falsy
+     * values and reflects those to the state of the attribute. It’s important
      * to note that there are no side effects taking place in the property
      * setter. For example, the setter does not set aria-expanded. Instead,
      * that work happens in the attributeChangedCallback. As a general rule,
