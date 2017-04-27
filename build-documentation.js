@@ -100,7 +100,7 @@ function parseElement(name) {
             const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
             nextSegment.codeText = lines[0] + '\n';
             accumulator.push(nextSegment);
-            if (lines.length >= 2 && lines[1] !== '') {
+            if (lines.length >= 2) {
               copy.commentType = 'LineComment';
               copy.commentText = '';
               copy.codeText = lines.slice(1).join('\n');
