@@ -52,6 +52,9 @@
       // the headers. Therefore key presses are intercepted.
       this.addEventListener('keydown', this._onKeyDown);
 
+      // TODO: Set up MutationObserver to listen for `expand` attribute on the
+      // headings.
+
       // Wait for `<howto-accordion-heading>` and `<howto-accordion-panel`
       // to have booted before proceeding.
       Promise.all([
@@ -578,7 +581,7 @@
     }
 
     attributeChangedCallback(name) {
-      this.setAttribute('aria-hidden', this.expanded);
+      this.setAttribute('aria-hidden', !this.expanded);
     }
   }
   window.customElements

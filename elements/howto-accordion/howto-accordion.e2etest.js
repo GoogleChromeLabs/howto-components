@@ -69,7 +69,6 @@ describe('howto-accordion', function() {
 
     await lastHeading.click();
     await helper.sleep(500);
-    expect(await lastHeading.getAttribute('aria-expanded')).to.equal('true');
     expect(await lastPanel.getAttribute('aria-hidden')).to.equal('false');
   });
 
@@ -80,11 +79,17 @@ describe('howto-accordion', function() {
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.firstHeading);
     expect(success).to.equal(true);
 
-    await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.getAttribute('aria-expanded') === 'true');
+    success = await this.driver.executeScript(_ => {
+      window.firstPanel = document.getElementById(firstHeading.getAttribute('aria-controls'));
+      return !!window.firstPanel;
+    });
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.getAttribute('aria-expanded') === 'false');
+    success = await this.driver.executeScript(_ => firstPanel.getAttribute('aria-hidden') === 'false');
+    expect(success).to.equal(true);
+
+    await this.driver.actions().sendKeys(Key.SPACE).perform();
+    success = await this.driver.executeScript(_ => firstPanel.getAttribute('aria-hidden') === 'true');
   });
 });
