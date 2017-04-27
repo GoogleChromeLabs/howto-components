@@ -11,6 +11,15 @@
     END: 35,
   };
 
+  // To avoid invoking the parser with `.innerHTML` for every new instance, a
+  // template for the contents of the ShadowDOM is  is shared by all
+  // `<howto-tabs>` instances.
+  const shadowDOMTemplate = document.createElement('template');
+  shadowDOMTemplate.innerHTML = `
+    <slot name="tab"></slot>
+    <slot name="panel"></slot>
+  `;
+
   /**
    * `HowtoTabs` is a container element for tabs and panels.
    *
@@ -22,10 +31,23 @@
     constructor() {
       super();
 
-      this.attachShadow({mode: 'open'});
       // Event handlers that are not attached to this element need to be bound
       // if they need access to `this`.
       this._onSlotChange = this._onSlotChange.bind(this);
+
+      // For progressive enhancement, the markup should alternate between tabs
+      // and panels. Elements that reorder their children tend to not work well
+      // with frameworks. Instead ShadowDOM is used to reorder the elements by
+      // using slots.
+      this.attachShadow({mode: 'open'});
+      // Import the shared template to create the slots for tabs and panels.
+      this.shadowRoot.appendChild(
+        document.importNode(shadowDOMTemplate.content, true)
+      );
+      this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
+      this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
+      this._tabSlot.addEventListener('slotchange', this._onSlotChange);
+      this._panelSlot.addEventListener('slotchange', this._onSlotChange);
     }
 
     /**
@@ -40,19 +62,12 @@
 
       this.setAttribute('role', 'tablist');
 
-      // For progressive enhancement, the markup should alternate between tabs
-      // and panels. Elements reordering children tend to not work well with
-      // frameworks. Instead ShadowDOM is used to reorder the elements by
-      // using slots.
-      this.shadowRoot.innerHTML = `
-        <slot name="tab"></slot>
-        <slot name="panel"></slot>
-      `;
-      this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
-      this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
-      this._tabSlot.addEventListener('slotchange', this._onSlotChange);
-      this._panelSlot.addEventListener('slotchange', this._onSlotChange);
-
+      // Currently, `slotchange` does not fire when an element is upgraded. For
+      // this reason, the element always processes the slots after the inner
+      // elements have been defined. If the current behavior of the `slotchange`
+      // event is change (as proposed in
+      // [this issue](https://github.com/whatwg/dom/issues/447)), the code below
+      // can be removed.
       Promise.all([
         customElements.whenDefined('howto-tabs-tab'),
         customElements.whenDefined('howto-tabs-panel'),
@@ -60,10 +75,23 @@
         .then(_ => this._updateAttributes());
     }
 
+    /**
+     * `_onSlotChange` is called whenever an element is added or removed from
+     * one of the ShadowDOM slots.
+     */
     _onSlotChange() {
       this._updateAttributes();
     }
 
+    /**
+     * `_updateAttributes` links up tabs with their adjacent panels using
+     * `aria-controls` and `aria-labelledby`. Additionally, the method makes
+     * sure only one tab is active.
+     *
+     * If this function becomes a bottle neck, it can be easily optimized by
+     * only handling the new elements instead of iterating over all of the
+     * element’s children.
+     */
     _updateAttributes() {
       const tabs = this._allTabs();
       // Give each panel a `aria-labelledby` attribute that refers to the tab
@@ -103,6 +131,7 @@
     _allPanels() {
       return Array.from(this.querySelectorAll('howto-tabs-panel'));
     }
+
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
@@ -187,8 +216,6 @@
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
       this.removeEventListener('click', this._onClick);
-      this._tabSlot.removeEventListener('slotchange', this._onSlotChange);
-      this._panelSlot.removeEventListener('slotchange', this._onSlotChange);
     }
 
     /**
@@ -268,9 +295,9 @@
   }
   window.customElements.define('howto-tabs', HowtoTabs);
 
-  // `dashTabCounter` counts the number of `<howto-tab>` instances created. The
+  // `howtoTabCounter` counts the number of `<howto-tab>` instances created. The
   // number is used to generated new, unique IDs.
-  let dashTabCounter = 0;
+  let howtoTabCounter = 0;
   /**
    * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tabs-tab>`
    * should always be used with `role=heading` in the markup so that the
@@ -292,12 +319,12 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `howto-tabs-tab-generated-${dashTabCounter++}`;
+        this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
     }
   }
   window.customElements.define('howto-tabs-tab', HowtoTabsTab);
 
-  let dashPanelCounter = 0;
+  let howtoPanelCounter = 0;
   /**
    * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
    */
@@ -309,7 +336,7 @@
     connectedCallback() {
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
-        this.id = `howto-tabs-panel-generated-${dashPanelCounter++}`;
+        this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
     }
   }
   window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
