@@ -1,0 +1,44 @@
+<!doctype html>
+<style>
+  howto-accordion {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* Children get the `animating` class assigned if they are about to be
+  animated. The implementation relies on the `transitionend` event, so this
+  class _must_ define a transition on the `transform` property.*/
+  howto-accordion > *.animating {
+    transition: transform 0.3s ease-in-out;
+  }
+  /* Headings need a background color so they are not transparent. Otherwise
+  the content will shine through during the animation. */
+  howto-accordion > button {
+    background-color: white;
+    border: 1px solid black;
+    padding: 20px;
+  }
+  howto-accordion > button[aria-expanded="true"] {
+    background-color: bisque;
+  }
+  howto-accordion > *:not(button) {
+    padding: 20px;
+    background-color: lightgray;
+  }
+  howto-accordion > *:not(button).collapsed {
+    display: none;
+  }
+  howto-accordion > *:not(button).expanded {
+    display: block;
+  }
+</style>
+
+<howto-accordion>
+  <button>Tab 1</button>
+  <section>Content 1</section>
+  <button>Tab 2</button>
+  <section>Content 2</section>
+  <button>Tab 3</button>
+  <section>Content 3</section>
+</howto-accordion>
