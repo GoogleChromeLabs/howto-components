@@ -2,13 +2,13 @@
   const expect = chai.expect;
 
   describe('dash-combobox', function() {
-    before(dashElements.before());
-    after(dashElements.after());
+    before(howtoComponents.before());
+    after(howtoComponents.after());
     beforeEach(function() {
       this.container.innerHTML = `
       `;
       return Promise.all([
-        dashElements.waitForElement('dash-combobox'),
+        howtoComponents.waitForElement('dash-combobox'),
       ]).then(_ => {
         this.combobox = this.container.querySelector('dash-combobox');
       });
