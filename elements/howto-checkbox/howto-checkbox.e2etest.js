@@ -1,3 +1,5 @@
+/* eslint max-len: ["off"] */
+
 const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {Key, By} = require('selenium-webdriver');
@@ -65,6 +67,52 @@ describe('howto-checkbox', function() {
       expect(success).to.equal(true);
       await this.driver.findElement(By.css('[role=checkbox]')).click();
       success = await this.driver.executeScript(isChecked);
+      expect(success).to.equal(true);
+    }
+  );
+});
+
+describe('howto-checkbox pre-upgrade', function() {
+  let success;
+
+  beforeEach(function() {
+    return this.driver.get(`${this.address}/howto-checkbox_demo.html?nojs`);
+  });
+
+  it('should handle attributes set before upgrade',
+    async function() {
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox = document.querySelector('howto-checkbox')
+      );
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox.setAttribute('checked', '')
+      );
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
+      success = await this.driver.executeScript(_ =>
+        window.expectedCheckbox.checked === true &&
+        window.expectedCheckbox.getAttribute('aria-checked') === 'true'
+      );
+      expect(success).to.equal(true);
+    }
+  );
+
+  it('should handle instance properties set before upgrade',
+    async function() {
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox = document.querySelector('howto-checkbox')
+      );
+      await this.driver.executeScript(_ =>
+        window.expectedCheckbox.checked = true
+      );
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
+      success = await this.driver.executeScript(_ =>
+        window.expectedCheckbox.hasAttribute('checked') &&
+        window.expectedCheckbox.getAttribute('aria-checked') === 'true'
+      );
       expect(success).to.equal(true);
     }
   );
