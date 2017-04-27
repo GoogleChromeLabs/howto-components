@@ -43,7 +43,6 @@
       ]).then(_ => {
         // Acquire all tabs and panels inside the element
         const tabs = this._allTabs();
-        const panels = this._allPanels();
         // If there are no tabs, there is no way to switch between panels.
         // Abort.
         if (tabs.length === 0) return;
@@ -60,7 +59,6 @@
 
           tab.setAttribute('aria-controls', panel.id);
           panel.setAttribute('aria-labelledby', tab.id);
-
         });
 
         // For progressive enhancement, the markup should alternate between tabs
