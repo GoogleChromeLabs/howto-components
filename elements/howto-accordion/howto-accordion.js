@@ -47,7 +47,7 @@
       // instructed to expand. The custom event is a nice abstraction because
       // expansion can be triggered by clicks, keyboard input and attribute
       // and property changes alike.
-      this.addEventListener('change', this._onHowtoChange);
+      this.addEventListener('change', this._onChange);
       // The element also implements roving tab index to switch focus between
       // the headers. Therefore key presses are intercepted.
       this.addEventListener('keydown', this._onKeyDown);
@@ -109,7 +109,7 @@
      * `connectedCallback` added.
      */
     disconnectedCallback() {
-      this.removeEventListener('change', this._onHowtoChange);
+      this.removeEventListener('change', this._onChange);
       this.removeEventListener('keydown', this._onKeyDown);
     }
 
@@ -122,20 +122,30 @@
     }
 
     /**
-     * `_onHowtoChange` handles the custom `change` event. The event’s
-     * target is the heading that has been instructed to expand (by click,
-     * keyboard input or by changing the `expanded` attribute or property).
+     * `_onChange` handles the `change` event. The event’s
+     * target is the heading that has been instructed to expand by click,
+     * keyboard input.
      */
-    _onHowtoChange(event) {
+    _onChange(event) {
+      this._animatePanelForHeading(event.target, event.detail.isExpandedNow);
+    }
+
+    /**
+     * `_animatePanelForHeading` animates the expansion of a panel, provided
+     * there is no other animation running.
+     */
+    _animatePanelForHeading(heading, expand) {
       // If there’s an animation running, ignore the event.
       if (this.classList.contains('animating'))
         return;
-      const heading = event.target;
       const panel = this._panelForHeading(heading);
-      if(event.detail.isExpandedNow)
-        this._expand(heading, panel);
-      else
-        this._collapse(heading, panel);
+      if(expand) {
+        this._expandPanel(panel);
+        this._animateIn(panel);
+      } else {
+        this._animateOut(panel)
+          .then(_ => this._collapsePanel(panel));
+      }
     }
 
     /**
@@ -268,9 +278,7 @@
      * animation.
      */
     _expandPanel(panel) {
-      panel.setAttribute('aria-hidden', 'false');
-      panel.classList.remove('collapsed');
-      panel.classList.add('expanded');
+      panel.expanded = true;
     }
 
     /**
@@ -278,43 +286,15 @@
      * any animation.
      */
     _expandHeading(heading) {
-      heading.setAttribute('aria-expanded', 'true');
-      heading.classList.add('expanded');
-    }
-
-    /**
-     * `_expand` expands both the given heading and panel using an animation.
-     */
-    _expand(heading, panel) {
-      // Put both the heading and the panel in the expanded state immediately.
-      // The animation function will hide the panel.
-      this._expandHeading(heading);
-      this._expandPanel(panel);
-
-      this._animateIn(panel);
+      heading.expanded = true;
     }
 
     _collapsePanel(panel) {
-      panel.setAttribute('aria-hidden', 'true');
-      panel.classList.remove('expanded');
-      panel.classList.add('collapsed');
+      panel.expanded = false;
     }
 
     _collapseHeading(heading) {
-      heading.setAttribute('aria-expanded', 'false');
-      heading.classList.remove('expanded');
-    }
-
-    _collapse(heading, panel) {
-      // Only put the heading in the collapsed state. The collapsed styles
-      // for the panel might remove it from the DOM, so the animation needs to
-      // finish first.
-      this._collapseHeading(heading);
-
-      this._animateOut(panel)
-        .then(_ => {
-          this._collapsePanel(panel);
-        });
+      heading.expanded = false;
     }
 
     /**
@@ -503,15 +483,6 @@
       // actual value is irrelevant.
       const value = this.hasAttribute('expanded');
       this._shadowButton.setAttribute('aria-expanded', value);
-
-      // Dispatch an event that signals a request to expand to the
-      // `<howto-accordion>` element.
-      this.dispatchEvent(
-        new CustomEvent('change', {
-          detail: {isExpandedNow: value},
-          bubbles: true,
-        })
-      );
     }
 
     get expanded() {
@@ -547,6 +518,15 @@
      */
     _onClick() {
       this.expanded = !this.expanded;
+
+      // Dispatch an event that signals a request to expand to the
+      // `<howto-accordion>` element.
+      this.dispatchEvent(
+        new CustomEvent('change', {
+          detail: {isExpandedNow: this.expanded},
+          bubbles: true,
+        })
+      );
     }
   }
   window.customElements
@@ -567,6 +547,10 @@
    * also cause the heading to expand.≤
    */
   class HowtoAccordionPanel extends HTMLElement {
+    static get observedAttributes() {
+      return ['expanded'];
+    }
+
     constructor() {
       super();
     }
@@ -579,6 +563,22 @@
         this.setAttribute('role', 'region');
       if(!this.id)
         this.id = `howto-accordion-panel-generated-${panelIdCounter++}`;
+    }
+
+    get expanded() {
+      return this.hasAttribute('expanded');
+    }
+
+    set expanded(val) {
+      const value = Boolean(val);
+      if (value)
+        this.setAttribute('expanded', '');
+      else
+        this.removeAttribute('expanded');
+    }
+
+    attributeChangedCallback(name) {
+      this.setAttribute('aria-hidden', this.expanded);
     }
   }
   window.customElements
