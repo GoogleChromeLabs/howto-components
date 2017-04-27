@@ -424,6 +424,10 @@
   // is styled in a way that it is practically invisible. This way the
   // button’s accessible functionality is preserved while still allowing
   // the developer to freely style the headings.
+  //
+  // Another advantage is focus management. If the button inside ShadowDOM has
+  // focus, `document.activeElement` returns the containing
+  // `<howto-accordion-heading>` element rather than the button itself.
   const shadowDOMTemplate = document.createElement('template');
   shadowDOMTemplate.innerHTML = `
     <style>
@@ -431,6 +435,7 @@
         display: block;
         background-color: initial;
         border: initial;
+        width: 100%;
       }
     </style>
     <button><slot></slot></button>

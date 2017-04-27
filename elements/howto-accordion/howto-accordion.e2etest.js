@@ -17,15 +17,15 @@ describe('howto-accordion', function() {
       window.expectedSecondHeading = document.querySelector('[role=heading]:nth-of-type(2)');
     });
 
-    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.expectedFirstHeading);
+    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement === window.expectedSecondHeading);
+    success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement === window.expectedFirstHeading);
+    success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstHeading);
     expect(success).to.equal(true);
   });
 
@@ -35,11 +35,11 @@ describe('howto-accordion', function() {
       window.expectedLastHeading = document.querySelector('[role=heading]:last-of-type');
     });
 
-    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.expectedFirstHeading);
+    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.END).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement === window.expectedLastHeading);
+    success = await this.driver.executeScript(_ => document.activeElement === window.expectedLastHeading);
     expect(success).to.equal(true);
   });
 
@@ -49,15 +49,15 @@ describe('howto-accordion', function() {
       window.expectedLastHeading = document.querySelector('[role=heading]:last-of-type');
     });
 
-    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.expectedFirstHeading);
+    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
-    await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.expectedLastHeading);
+    await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedLastHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.HOME).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement === window.expectedFirstHeading);
+    success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstHeading);
     expect(success).to.equal(true);
   });
 
@@ -77,14 +77,14 @@ describe('howto-accordion', function() {
     await this.driver.executeScript(_ => {
       window.firstHeading = document.querySelector('[role=heading]:nth-of-type(1)');
     });
-    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.parentElement === window.firstHeading);
+    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.firstHeading);
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement.getAttribute('aria-expanded') === 'true');
+    success = await this.driver.executeScript(_ => document.activeElement.getAttribute('aria-expanded') === 'true');
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => document.activeElement.parentElement.getAttribute('aria-expanded') === 'false');
+    success = await this.driver.executeScript(_ => document.activeElement.getAttribute('aria-expanded') === 'false');
   });
 });
