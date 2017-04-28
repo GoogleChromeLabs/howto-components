@@ -21,7 +21,7 @@ book_path: /web/fundamentals/_book.yaml
 <link rel="stylesheet" href="prism-solarizedlight.css">
 <link rel="stylesheet" href="main.css">
 
-{{=it.intro}}
+{{=it.readFile(`elements/${it.title}/README.md`)}}
 
 ## Demo {: #demo }
 {% framebox height="auto" class="demo" suppress_site_styles="true" %}

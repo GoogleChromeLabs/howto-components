@@ -19,7 +19,7 @@ limitations under the License.
 
 <h1>{{=it.title}}</h1>
 <section class="intro">
-  {{=it.intro}}
+  {{=it.readFile(`elements/${it.title}/README.md`)}}
 </section>
 <h2>Demo</h2>
 <iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>

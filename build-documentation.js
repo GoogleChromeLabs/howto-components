@@ -1,3 +1,4 @@
+/* eslint max-len: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -79,14 +80,6 @@ function parseElement(name) {
         demoSections: sectionizer(demo),
         sections: sectionizer(code),
       };
-      // The first comment is always the intro
-      const firstSection = data.sections.shift();
-      data.intro = marked(firstSection.commentText || '');
-      if (firstSection.codeText !== '') {
-        firstSection.commentText = '';
-        data.sections.unshift(firstSection);
-      }
-
       return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
@@ -136,7 +129,7 @@ function parseElement(name) {
 }
 
 function writeElement(element) {
-  const elemCopy = Object.assign({}, element, {
+  const augmentedContext = Object.assign({}, element, {
     readFile: file => origFs.readFileSync(file).toString('utf-8'),
   });
   return Promise.all([
@@ -145,13 +138,13 @@ function writeElement(element) {
     template('site-resources/demo.devsite.tpl.html'),
   ])
     .then(([elemTpl, demoTpl, demoDevsiteTpl]) => Promise.all([
-        fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
-        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
-        fs.writeFile(`docs/${element.title}_demo.devsite.html`, demoDevsiteTpl(elemCopy)),
+        fs.writeFile(`docs/${element.title}.html`, elemTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}_demo.devsite.html`, demoDevsiteTpl(augmentedContext)),
     ]))
     .then(_ =>
       template('site-resources/element.tpl.md')
-        .then(devsiteTpl => fs.writeFile(`docs/${element.title}.md`, devsiteTpl(elemCopy)))
+        .then(devsiteTpl => fs.writeFile(`docs/${element.title}.md`, devsiteTpl(augmentedContext)))
     )
     .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
