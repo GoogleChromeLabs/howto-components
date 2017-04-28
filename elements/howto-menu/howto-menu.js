@@ -6,7 +6,6 @@
  * Windows, that opens a context specific menu.
  *
  * The element that opens the menu is referenced with aria-labelledby.
- * TODO(devnook): Should it be aria-labelledby or aria-describedby?
  *
  * See: https://www.w3.org/TR/wai-aria-practices-1.1/#menu
  */
@@ -18,6 +17,7 @@
     DOWN: 40,
     UP: 38,
     ESCAPE: 27,
+    TAB: 9,
   };
 
   class HowtoMenu extends HTMLElement {
@@ -27,34 +27,36 @@
      */
     constructor() {
       super();
-      this._handleBlur = this._handleBlur.bind(this);
-      this._opener = document.getElementById(
-         this.getAttribute('aria-labelledby'));
+      this._onBlur = this._onBlur.bind(this);
     }
 
     static get observedAttributes() {
-      return ['aria-hidden'];
+      return ['hidden'];
     }
 
 
     /**
      * A getter for the first child which is a menuitem.
      */
-    get firstMenuItem() {
+    get _firstMenuItem() {
       return this.querySelector('[role^="menuitem"]:first-of-type');
     }
 
     /**
      * A getter for the last child which is a menuitem.
      */
-    get lastMenuItem() {
+    get _lastMenuItem() {
       return this.querySelector('[role^="menuitem"]:last-of-type');
     }
 
     /**
      * Moves the browser focus from one element to another.
-     * @param {Element} fromEl Element to have focus removed.
-     * @param {Element} toEl Element to get focus.
+     * HowtoMenu uses a [roving tabindex](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Technique_1_Roving_tabindex)
+     * technique to manage which menu item is currently focusable.
+     * It sets all items to a `tabindex=-1` but for the one that is currently
+     * focusable. This ensures the focus cannot enter the menu unless it
+     * is open. When the menu gets opened, focus lands
+     * on the first `menuitem`.
      */
     _moveFocus(fromEl, toEl) {
       fromEl.setAttribute('tabindex', -1);
@@ -74,7 +76,7 @@
      * Returns true if the menu is currently hidden, false otherwise.
      */
     _isHidden() {
-      return this.getAttribute('aria-hidden') === 'true';
+      return !!this.getAttribute('hidden');
     }
 
     /**
@@ -109,26 +111,23 @@
      * Opens the menu.
      */
     _open() {
-      this.firstMenuItem.setAttribute('tabindex', 0);
-      this.firstMenuItem.focus();
+      this._firstMenuItem.setAttribute('tabindex', 0);
+      this._firstMenuItem.focus();
     }
 
     /**
      * Closes the menu.
      */
     _close() {
-      const children = Array.from(this.children);
-      children.forEach(el => {
-        el.setAttribute('tabindex', -1);
-      });
-      this._opener.focus();
+      this.reset();
+      document.getElementById(
+         this.getAttribute('aria-labelledby')).focus();
     }
 
     /**
      * Makes the element unfocusable, as a reaction to blur event.
-     * @param {Event} event Blur event.
      */
-    _handleBlur(event) {
+    _onBlur(event) {
       if (this._isMenuItem(event.target)) {
         event.target.setAttribute('tabindex', -1);
       }
@@ -136,27 +135,30 @@
 
     /**
      * Hanldes keyboard interaction.
-     * @param {Event} event Keydown event.
      */
-    _handleKeyDown(event) {
+    _onKeyDown(event) {
       let el = event.target;
       switch (event.keyCode) {
         case KEYCODE.DOWN:
           // If arrow down, move to next item. Wrap if necessary.
           event.preventDefault();
-          this._moveFocus(el, this._nextMenuItem(el) || this.firstMenuItem);
+          this._moveFocus(el, this._nextMenuItem(el) || this._firstMenuItem);
           break;
 
        case KEYCODE.UP:
          // If arrow up, move to previous item. Wrap if necessary.
          event.preventDefault();
-         this._moveFocus(el, this._previousMenuItem(el) || this.lastMenuItem);
+         this._moveFocus(el, this._previousMenuItem(el) || this._lastMenuItem);
          break;
 
        case KEYCODE.ESCAPE:
          // If escape, exit the menu.
          event.preventDefault();
-         this.setAttribute('aria-hidden', 'true');
+         this.setAttribute('hidden', true);
+         break;
+
+       case KEYCODE.TAB:
+         this.setAttribute('hidden', true);
          break;
 
        default:
@@ -168,6 +170,7 @@
           if (child.innerText.trim()[0] === event.key) {
             event.preventDefault();
             this._moveFocus(el, child);
+            break;
           }
         }
       }
@@ -178,14 +181,13 @@
      */
     connectedCallback() {
       // Make children unfocusable by default.
-      const children = Array.from(this.children);
-      children.forEach(el => {
-        el.setAttribute('tabindex', -1);
-        el.addEventListener('blur', this._handleBlur);
-      });
-      this.setAttribute('role', 'menu');
-      this.setAttribute('aria-hidden', 'true');
-      this.addEventListener('keydown', this._handleKeyDown);
+      this.reset();
+      this.addEventListener('blur', this._onBlur, true);
+      if (!this.hasAttribute('role')) {
+        this.setAttribute('role', 'menu');
+      }
+      this.setAttribute('hidden', true);
+      this.addEventListener('keydown', this._onKeyDown);
     }
 
     /**
@@ -194,21 +196,31 @@
     disconnectedCallback() {
       const children = Array.from(this.children);
       children.forEach(el => {
-        el.removeEventListener('blur', this._handleBlur);
+        el.removeEventListener('blur', this._onBlur, true);
       });
-      this.removeEventListener('keydown', this._handleKeyDown);
+      this.removeEventListener('keydown', this._onKeyDown);
     }
 
     /**
-     * Opens or closes the menu based on aria-hidden attribute change.
-     * Only caller for 'aria-hidden' due to observedAttributes property.
+     * Opens or closes the menu based on hidden attribute change.
+     * Only caller for 'hidden' due to observedAttributes property.
      */
     attributeChangedCallback(name, oldValue, newValue) {
-      if (newValue === 'true') {
+      if (newValue) {
         this._close();
       } else {
         this._open();
       }
+    }
+
+    /**
+     * Resets the menu by setting tabindex to -1 on all menu items.
+     */
+    reset() {
+      const children = Array.from(this.children);
+      children.forEach(el => {
+        el.setAttribute('tabindex', -1);
+      });
     }
   }
 
