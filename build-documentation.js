@@ -101,28 +101,7 @@ function parseElement(name) {
               accumulator.push(copy);
             }
             return accumulator;
-          }, [])
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.javascript)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
-
-      contents.demoSections =
-        contents.demoSections
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.markup)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
+          }, []);
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
@@ -131,6 +110,17 @@ function parseElement(name) {
 function writeElement(element) {
   const augmentedContext = Object.assign({}, element, {
     readFile: file => origFs.readFileSync(file).toString('utf-8'),
+    highlightJS: text =>
+      prism.highlight(text, prism.languages.javascript)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    highlightHTML: text =>
+      prism.highlight(text, prism.languages.markup)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    markdown: text => marked(text),
   });
   return Promise.all([
     template('site-resources/element.tpl.html'),
