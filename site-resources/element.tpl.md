@@ -24,7 +24,9 @@ book_path: /web/fundamentals/_book.yaml
 {{=it.intro}}
 
 ## Demo {: #demo }
-<iframe src="https://googlechrome.github.io/howto-components/{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
+{% framebox height="auto" class="demo" suppress_site_styles="true" %}
+{{=it.readFile(`docs/${it.title}_demo.devsite.html`)}}
+{% endframebox %}
 
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">
@@ -45,5 +47,3 @@ book_path: /web/fundamentals/_book.yaml
 </li>
 {{ } }}
 </ul>
-
-<script src="iframesizer.js"></script>

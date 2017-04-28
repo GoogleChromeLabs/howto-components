@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "node build-documentation.js && cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts/",
+    "build": "cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts/ && node build-documentation.js",
     "docker-build": "docker build -t googlechrome/howto-components .",
     "docker-test": "docker run -e TRAVIS=$TRAVIS googlechrome/howto-components",
     "docker": "npm run docker-build && npm run docker-test",

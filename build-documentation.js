@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 /* eslint require-jsdoc: 0 */
+const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
@@ -135,16 +136,24 @@ function parseElement(name) {
 }
 
 function writeElement(element) {
+  const elemCopy = Object.assign({}, element, {
+    readFile: file => origFs.readFileSync(file).toString('utf-8'),
+  });
   return Promise.all([
     template('site-resources/element.tpl.html'),
-    template('site-resources/element.tpl.md'),
     template('site-resources/demo.tpl.html'),
+    template('site-resources/demo.devsite.tpl.html'),
   ])
-    .then(([elemTpl, elemTplMd, demoTpl]) => Promise.all([
+    .then(([elemTpl, demoTpl, demoDevsiteTpl]) => Promise.all([
         fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
-        fs.writeFile(`docs/${element.title}.md`, elemTplMd(element)),
         fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
-    ])).then(_ => element)
+        fs.writeFile(`docs/${element.title}_demo.devsite.html`, demoDevsiteTpl(elemCopy)),
+    ]))
+    .then(_ =>
+      template('site-resources/element.tpl.md')
+        .then(devsiteTpl => fs.writeFile(`docs/${element.title}.md`, devsiteTpl(elemCopy)))
+    )
+    .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
 }
 
