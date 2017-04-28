@@ -1,7 +1,6 @@
 <!doctype html>
 
 <style>
-  /* The tooltip is by default unstyled. */
   howto-menu {
     position: absolute;
     display: block;
@@ -15,14 +14,14 @@
     border: 1px solid lightgrey;
   }
 
-  /* The menu is closed. */
-  howto-menu[aria-hidden="true"] {
+  /* We need this because `display` overrides hidden in this case. */
+  howto-menu[hidden] {
     display: none;
   }
 </style>
 
 <div class="text">
-   <button id="menu-btn">open menu</button>
+   <button id="menu-btn">options</button>
    <howto-menu aria-labelledby="menu-btn">
      <span role="menuitem">first option</span>
      <span role="menuitem">second option</span>
@@ -34,6 +33,12 @@
 <script>
   document.getElementById('menu-btn').addEventListener('click', e => {
     var menu = document.querySelector('howto-menu');
-    menu.setAttribute('aria-hidden', false);
+    if (menu.hasAttribute('hidden')) {
+      menu.removeAttribute('hidden');
+    } else {
+      menu.setAttribute('hidden', true);
+    }
+
+
   })
 </script>

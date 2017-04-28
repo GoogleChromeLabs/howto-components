@@ -13,7 +13,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
         window.expectedMenuItem = document.querySelector('[role="menuitem"]');
       });
       success = await this.driver.executeScript(
@@ -27,7 +27,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
       });
       await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
       success = await this.driver.executeScript(`
@@ -42,7 +42,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
         const items = document.querySelectorAll('[role="menuitem"]');
         items[items.length - 1].focus();
       });
@@ -59,7 +59,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
         const items = document.querySelectorAll('[role="menuitem"]');
         items[1].focus();
       });
@@ -76,7 +76,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
       });
       await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
       success = await this.driver.executeScript(`
@@ -91,7 +91,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
       });
       await this.driver.actions().sendKeys('s').perform();
       success = await this.driver.executeScript(`
@@ -106,7 +106,7 @@ describe('howto-menu', function() {
     async function() {
       await this.driver.executeScript(_ => {
         window.menu = document.querySelector('howto-menu');
-        window.menu.setAttribute('aria-hidden', false);
+        window.menu.removeAttribute('hidden');
       });
       await this.driver.actions().sendKeys(Key.ESCAPE).perform();
       const focusedMenuBtn = await this.driver.executeScript(`
@@ -115,7 +115,22 @@ describe('howto-menu', function() {
       expect(focusedMenuBtn).to.equal(true);
       const closedMenu = await this.driver.executeScript(`
         const menu = document.querySelector('howto-menu');
-        return menu.getAttribute('aria-hidden') === 'true';
+        return menu.hasAttribute('hidden');
+      `);
+      expect(closedMenu).to.equal(true);
+    }
+  );
+
+  it('should exit the menu on [TAB]',
+    async function() {
+      await this.driver.executeScript(_ => {
+        window.menu = document.querySelector('howto-menu');
+        window.menu.removeAttribute('hidden');
+      });
+      await this.driver.actions().sendKeys(Key.TAB).perform();
+      const closedMenu = await this.driver.executeScript(`
+        const menu = document.querySelector('howto-menu');
+        return menu.hasAttribute('hidden');
       `);
       expect(closedMenu).to.equal(true);
     }
