@@ -21,7 +21,7 @@ book_path: /web/fundamentals/_book.yaml
 <link rel="stylesheet" href="prism-solarizedlight.css">
 <link rel="stylesheet" href="main.css">
 
-{{=it.intro}}
+{{=it.readFile(`elements/${it.title}/README.md`)}}
 
 ## Demo {: #demo }
 {% framebox height="auto" class="demo" suppress_site_styles="true" %}
@@ -32,8 +32,8 @@ book_path: /web/fundamentals/_book.yaml
 <ul class="literate demo" id="{{=it.title}}_demo">
 {{ for (let section of it.demoSections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightHTML(section.codeText)}}</code>
 </li>
 {{ } }}
 </ul>
@@ -42,8 +42,8 @@ book_path: /web/fundamentals/_book.yaml
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightJS(section.codeText)}}</code>
 </li>
 {{ } }}
 </ul>

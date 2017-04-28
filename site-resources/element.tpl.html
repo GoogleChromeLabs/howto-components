@@ -19,7 +19,7 @@ limitations under the License.
 
 <h1>{{=it.title}}</h1>
 <section class="intro">
-  {{=it.intro}}
+  {{=it.markdown(it.readFile(`elements/${it.title}/README.md`))}}
 </section>
 <h2>Demo</h2>
 <iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
@@ -27,8 +27,8 @@ limitations under the License.
 <ul class="literate demo" id="{{=it.title}}_demo">
   {{ for (let section of it.demoSections) { }}
   <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-    <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</aside>
-    <code class="{{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+    <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</aside>
+    <code class="{{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightHTML(section.codeText)}}</code>
   </li>
   {{ } }}
 </ul>
@@ -36,8 +36,8 @@ limitations under the License.
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
   <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-    <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</aside>
-    <code class="{{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+    <aside class="{{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</aside>
+    <code class="{{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightJS(section.codeText)}}</code>
   </li>
   {{ } }}
 </ul>
