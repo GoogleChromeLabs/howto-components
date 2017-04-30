@@ -32,9 +32,7 @@
     // sending any message.
     window.addEventListener('message', sendSize);
 
-    // If there’s a `nojs` in the URL’s query string, don’t load the elements,
-    // somewhat emulating disabled JavaScript.
-    if (!document.location.search.includes('nojs')) {
+    window._loadJavaScript = _ => {
       const whenScriptsLoaded = [
         'scripts/custom-elements.min.js',
         '{{=it.title}}.js',
@@ -42,9 +40,15 @@
         chain.then(_ => loadScript(src)),
         Promise.resolve()
       );
-      whenScriptsLoaded
+      return whenScriptsLoaded
         .then(_ => customElements.whenDefined('{{=it.title}}'))
         .then(_ => sendSize());
+    };
+
+    // If there’s a `nojs` in the URL’s query string, don’t load the elements,
+    // somewhat emulating disabled JavaScript.
+    if (!document.location.search.includes('nojs')) {
+      _loadJavaScript();
     }
 
     // Hook up ResizeObserver for dynamic size adjustments

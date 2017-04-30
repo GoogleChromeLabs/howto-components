@@ -1,3 +1,4 @@
+/* eslint max-len: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -14,6 +15,7 @@
  * limitations under the License.
  */
 /* eslint require-jsdoc: 0 */
+const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
@@ -78,14 +80,6 @@ function parseElement(name) {
         demoSections: sectionizer(demo),
         sections: sectionizer(code),
       };
-      // The first comment is always the intro
-      const firstSection = data.sections.shift();
-      data.intro = marked(firstSection.commentText || '');
-      if (firstSection.codeText !== '') {
-        firstSection.commentText = '';
-        data.sections.unshift(firstSection);
-      }
-
       return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
@@ -100,51 +94,49 @@ function parseElement(name) {
             const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
             nextSegment.codeText = lines[0] + '\n';
             accumulator.push(nextSegment);
-            if (lines.length >= 2 && lines[1] !== '') {
+            if (lines.length >= 2) {
               copy.commentType = 'LineComment';
               copy.commentText = '';
               copy.codeText = lines.slice(1).join('\n');
               accumulator.push(copy);
             }
             return accumulator;
-          }, [])
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.javascript)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
-
-      contents.demoSections =
-        contents.demoSections
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.markup)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
+          }, []);
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
 }
 
 function writeElement(element) {
+  const augmentedContext = Object.assign({}, element, {
+    readFile: file => origFs.readFileSync(file).toString('utf-8'),
+    highlightJS: text =>
+      prism.highlight(text, prism.languages.javascript)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    highlightHTML: text =>
+      prism.highlight(text, prism.languages.markup)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    markdown: text => marked(text),
+  });
   return Promise.all([
     template('site-resources/element.tpl.html'),
-    template('site-resources/element.tpl.md'),
     template('site-resources/demo.tpl.html'),
+    template('site-resources/demo.devsite.tpl.html'),
   ])
-    .then(([elemTpl, elemTplMd, demoTpl]) => Promise.all([
-        fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
-        fs.writeFile(`docs/${element.title}.md`, elemTplMd(element)),
-        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
-    ])).then(_ => element)
+    .then(([elemTpl, demoTpl, demoDevsiteTpl]) => Promise.all([
+        fs.writeFile(`docs/${element.title}.html`, elemTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}_demo.devsite.html`, demoDevsiteTpl(augmentedContext)),
+    ]))
+    .then(_ =>
+      template('site-resources/element.tpl.md')
+        .then(devsiteTpl => fs.writeFile(`docs/${element.title}.md`, devsiteTpl(augmentedContext)))
+    )
+    .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
 }
 

@@ -1,7 +1,14 @@
 project_path: /web/_project.yaml
 book_path: /web/fundamentals/_book.yaml
 
-{# wf_updated_on: {{ {const d = new Date(); out += `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;} }}#}
+{# wf_updated_on: {{ {
+  const d = new Date();
+  const month = d.getMonth() + 1;
+  const paddedMonth = (month<10?'0':'')+month;
+  const day = d.getDate();
+  const paddedDay = (day<10?'0':'')+day;
+  out += `${d.getFullYear()}-${paddedMonth}-${paddedDay}`;
+} }}#}
 {# wf_published_on: 2017-04-06 #}
 
 # HowTo: Components – {{=it.title}} {: .page-title }
@@ -14,17 +21,19 @@ book_path: /web/fundamentals/_book.yaml
 <link rel="stylesheet" href="prism-solarizedlight.css">
 <link rel="stylesheet" href="main.css">
 
-{{=it.intro}}
+{{=it.readFile(`elements/${it.title}/README.md`)}}
 
 ## Demo {: #demo }
-<iframe src="https://googlechrome.github.io/howto-components/{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
+{% framebox height="auto" class="demo" suppress_site_styles="true" %}
+{{=it.readFile(`docs/${it.title}_demo.devsite.html`)}}
+{% endframebox %}
 
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">
 {{ for (let section of it.demoSections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightHTML(section.codeText)}}</code>
 </li>
 {{ } }}
 </ul>
@@ -33,10 +42,8 @@ book_path: /web/fundamentals/_book.yaml
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightJS(section.codeText)}}</code>
 </li>
 {{ } }}
 </ul>
-
-<script src="iframesizer.js"></script>
