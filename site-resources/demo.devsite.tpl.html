@@ -7,9 +7,8 @@
 
 {{=it.demo}}
 
-<script>
-{{=it.readFile('docs/scripts/custom-elements.min.js')}}
-</script>
+<script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
+<script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
 <script>
   if (!document.location.search.includes('nojs')) {
     (function() {
