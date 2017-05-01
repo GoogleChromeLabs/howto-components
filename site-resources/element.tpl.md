@@ -24,7 +24,7 @@ book_path: /web/fundamentals/_book.yaml
 {{=it.readFile(`elements/${it.title}/README.md`)}}
 
 ## Demo {: #demo }
-{% framebox height="auto" class="demo" suppress_site_styles="true" %}
+{% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
 {{=it.readFile(`docs/${it.title}_demo.devsite.html`)}}
 {% endframebox %}
 
