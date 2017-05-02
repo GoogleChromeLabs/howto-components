@@ -5,7 +5,7 @@
   <a href="?">Load with JavaScript</a>
 </p>
 
-{{=it.demo}}
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '/web/fundamentals/architecture/howto-components/')}}
 
 <script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
 <script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
@@ -13,7 +13,7 @@
   devsite.framebox.AutoSizeClient.initAutoSize(true);
   if (!document.location.search.includes('nojs')) {
     (function() {
-      {{=it.readFile(`docs/${it.title}.js`)}}
+      {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
     })();
   }
 </script>
