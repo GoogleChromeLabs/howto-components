@@ -5,7 +5,7 @@
   <a href="?">Load with JavaScript</a>
 </p>
 
-{{=it.demo}}
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '../')}}
 
 <script>
   (function() {
@@ -34,7 +34,7 @@
 
     window._loadJavaScript = _ => {
       const whenScriptsLoaded = [
-        'scripts/custom-elements.min.js',
+        '../scripts/custom-elements.min.js',
         '{{=it.title}}.js',
       ].reduce((chain, src) =>
         chain.then(_ => loadScript(src)),
@@ -52,7 +52,7 @@
     }
 
     // Hook up ResizeObserver for dynamic size adjustments
-    loadScript('scripts/resizeobserver.min.js')
+    loadScript('../scripts/resizeobserver.min.js')
       .then(_ => {
         const ResizeObserver =
           self.ResizeObserver || self.ResizeObserverPolyfill;

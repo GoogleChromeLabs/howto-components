@@ -15,14 +15,14 @@ limitations under the License.
 <title>HowTo: Components – {{=it.title}}</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<link rel="stylesheet" href="styles/main.css" />
+<link rel="stylesheet" href="../styles/main.css" />
 
 <h1>{{=it.title}}</h1>
 <section class="intro">
   {{=it.markdown(it.readFile(`elements/${it.title}/README.md`))}}
 </section>
 <h2>Demo</h2>
-<iframe src="{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
+<iframe src="demo.html" class="demo" aria-label="live demo" role="region"></iframe>
 <h2>Example usage</h2>
 <ul class="literate demo" id="{{=it.title}}_demo">
   {{ for (let section of it.demoSections) { }}
@@ -41,5 +41,5 @@ limitations under the License.
   </li>
   {{ } }}
 </ul>
-<script src="scripts/bootstrap.js" defer></script>
+<script src="../scripts/bootstrap.js" defer></script>
 </html>
