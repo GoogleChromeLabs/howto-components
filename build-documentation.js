@@ -139,17 +139,13 @@ function writeElement(element) {
   return Promise.all([
     template('site-resources/element.tpl.html'),
     template('site-resources/demo.tpl.html'),
-    template('site-resources/demo.devsite.tpl.html'),
+    template('site-resources/element.tpl.md'),
   ])
-    .then(([elemTpl, demoTpl, demoDevsiteTpl]) => Promise.all([
+    .then(([elemTpl, demoTpl, devsite]) => Promise.all([
         fs.writeFile(`docs/${element.title}/index.html`, elemTpl(augmentedContext)),
         fs.writeFile(`docs/${element.title}/demo.html`, demoTpl(augmentedContext)),
-        fs.writeFile(`docs/${element.title}/demo.devsite.html`, demoDevsiteTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}/${element.title}.md`, devsite(augmentedContext)),
     ]))
-    .then(_ =>
-      template('site-resources/element.tpl.md')
-        .then(devsiteTpl => fs.writeFile(`docs/${element.title}/${element.title}.md`, devsiteTpl(augmentedContext)))
-    )
     .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
 }

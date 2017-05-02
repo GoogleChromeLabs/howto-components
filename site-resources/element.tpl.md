@@ -24,7 +24,27 @@ book_path: /web/fundamentals/_book.yaml
 
 ## Demo {: #demo }
 {% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
-{{=it.readFile(`docs/${it.title}/demo.devsite.html`)}}
+<!doctype html>
+<html lang="en">
+<p>
+  <a href="?nojs">Load without JavaScript</a>
+  <a href="?">Load with JavaScript</a>
+</p>
+
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '/web/fundamentals/architecture/howto-components/')}}
+
+<script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
+<script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
+<script>
+  devsite.framebox.AutoSizeClient.initAutoSize(true);
+  if (!document.location.search.includes('nojs')) {
+    (function() {
+      {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
+    })();
+  }
+</script>
+</html>
+
 {% endframebox %}
 
 ## Example usage {: #usage }
