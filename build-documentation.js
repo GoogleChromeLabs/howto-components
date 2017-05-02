@@ -107,8 +107,8 @@ function parseElement(name) {
     .catch(err => console.error(err.toString(), err.stack));
 }
 
-function writeElement(element) {
-  const augmentedContext = Object.assign({}, element, {
+function addHelperFunctionsToContext(context) {
+  return Object.assign({}, context, {
     readFile: file => origFs.readFileSync(file).toString('utf-8'),
     highlightJS: text =>
       prism.highlight(text, prism.languages.javascript)
@@ -121,7 +121,16 @@ function writeElement(element) {
         .replace(/\s*$/, '')
         .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
     markdown: text => marked(text),
+    escape: text =>
+      text
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;'),
+    indentLines: text => text.replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
   });
+}
+
+function writeElement(element) {
+  const augmentedContext = addHelperFunctionsToContext(element);
   return Promise.all([
     template('site-resources/element.tpl.html'),
     template('site-resources/demo.tpl.html'),

@@ -107,3 +107,8 @@ code.literate-code.example {
   margin: 20px 0;
   padding: 20px;
 }
+pre.prettyprint {
+  width: 100%;
+  margin: 0;
+  line-height: initial;
+}

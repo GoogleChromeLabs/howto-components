@@ -18,7 +18,6 @@ book_path: /web/fundamentals/_book.yaml
 {% include "web/_shared/contributors/robdodson.html" %}
 {% include "web/_shared/contributors/surma.html" %}
 
-<link rel="stylesheet" href="prism-solarizedlight.css">
 <link rel="stylesheet" href="main.css">
 
 {{=it.readFile(`elements/${it.title}/README.md`)}}
@@ -33,7 +32,7 @@ book_path: /web/fundamentals/_book.yaml
 {{ for (let section of it.demoSections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
 <div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightHTML(section.codeText)}}</code>
+<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
@@ -43,7 +42,7 @@ book_path: /web/fundamentals/_book.yaml
   {{ for (let section of it.sections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
 <div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.highlightJS(section.codeText)}}</code>
+<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
