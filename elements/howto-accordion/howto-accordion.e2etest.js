@@ -7,7 +7,7 @@ const {Key, By} = require('selenium-webdriver');
 describe('howto-accordion', function() {
   let success;
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-accordion_demo.html`)
+    return this.driver.get(`${this.address}/howto-accordion/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-accordion'));
   });
 
