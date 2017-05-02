@@ -26,7 +26,7 @@ describe('howto-checkbox', function() {
   };
 
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-checkbox_demo.html`)
+    return this.driver.get(`${this.address}/howto-checkbox/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-checkbox'));
   });
 
@@ -76,7 +76,7 @@ describe('howto-checkbox pre-upgrade', function() {
   let success;
 
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-checkbox_demo.html?nojs`);
+    return this.driver.get(`${this.address}/howto-checkbox/demo.html?nojs`);
   });
 
   it('should handle attributes set before upgrade',
