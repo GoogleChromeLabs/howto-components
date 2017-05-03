@@ -24,16 +24,16 @@
 
     /**
      * `connectedCallback` hooks up the even listeners and considers the
-     * `expand`  attribute on the headers to adjust their styling accordingly.
+     * `expanded` attribute on the headers to adjust their styling accordingly.
      */
     connectedCallback() {
       // `<howto-accordion-headers>` emit a custom event when the heading is
-      // instructed to expand. The custom event is a nice abstraction because
-      // expansion can be triggered by clicks, keyboard input and attribute
-      // and property changes alike.
+      // instructed to expand.
       this.addEventListener('change', this._onChange);
-      // The element also implements roving tab index to switch focus between
+      // The element also implements [roving tabindex] to switch focus between
       // the headers. Therefore key presses are intercepted.
+      //
+      // [roving tabindex]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Technique_1_oving_tabindex
       this.addEventListener('keydown', this._onKeyDown);
 
       // TODO: Set up MutationObserver to listen for `expand` attribute on the
@@ -54,22 +54,17 @@
         headings.forEach(heading => {
           // All buttons inside the `HowtoAccordionHeadings` are made
           // unfocusable here. Only the first heading will be made focusable
-          // afterwards. This is necessary to implement roving tab index.
-          heading._shadowButton.setAttribute('tabindex', -1);
+          // afterwards. This is necessary to implement roving tabindex.
+          heading.setAttribute('tabindex', -1);
           const panel = this._panelForHeading(heading);
 
           // Make headings and panels reference each other
           // with the `aria-labelledby` and `aria-controls` attributes.
           heading.setAttribute('aria-controls', panel.id);
           panel.setAttribute('aria-labelledby', heading.id);
-
-          // Assign the appropriate roles to panels. Headings are custom
-          // elements and set their role in their own `connectedCallback`.
-          if (!panel.hasAttribute('role'))
-            panel.setAttribute('role', 'region');
         });
         // Make the first heading focusable.
-        headings[0]._shadowButton.setAttribute('tabindex', 0);
+        headings[0].setAttribute('tabindex', 0);
 
         // Set all the panels to the collapsed state to have a well-defined
         // initial state.
@@ -178,8 +173,8 @@
       event.preventDefault();
       // Make the currently focused heading unfocusable, then make the new
       // heading focusable and give focus to it.
-      currentHeading._shadowButton.setAttribute('tabindex', -1);
-      newHeading._shadowButton.setAttribute('tabindex', 0);
+      currentHeading.setAttribute('tabindex', -1);
+      newHeading.setAttribute('tabindex', 0);
       newHeading._shadowButton.focus();
     }
 
@@ -398,7 +393,10 @@
   const shadowDOMTemplate = document.createElement('template');
   shadowDOMTemplate.innerHTML = `
     <style>
-      :host > button {
+      :host {
+        contain: content;
+      }
+      button {
         display: block;
         background-color: initial;
         border: initial;
@@ -417,7 +415,7 @@
    * it is supposed to expand.
    *
    * Clicking the button or pressing space or enter while the button has focus
-   * will expand the heading. Changing the `expand` attribute or property will
+   * will expand the heading. Changing the `expanded` attribute or property will
    * also cause the heading to expand.
    */
   class HowtoAccordionHeading extends HTMLElement {
@@ -435,7 +433,10 @@
       this._onClick = this._onClick.bind(this);
 
       // Import the ShadowDOM template.
-      this.attachShadow({mode: 'open'});
+      this.attachShadow({
+        mode: 'open',
+        delegateFocus: true,
+      });
       this.shadowRoot.appendChild(
         document.importNode(shadowDOMTemplate.content, true)
       );
@@ -450,7 +451,6 @@
         this.setAttribute('role', 'heading');
       if(!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
-
       this._shadowButton.addEventListener('click', this._onClick);
     }
 
