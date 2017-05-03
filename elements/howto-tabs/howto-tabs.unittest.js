@@ -75,7 +75,7 @@ describe('howto-tabs', function() {
     ).to.have.lengthOf(1);
   });
 
-  it('should switch visibility when calling `_selectTab()`', function() {
+  it('should switch visibility when calling `_selectTab()`', function(done) {
     const selectedTab =
       this.tabs.find(
         tab => tab.getAttribute('aria-selected') === 'true'
@@ -92,10 +92,13 @@ describe('howto-tabs', function() {
     expect(otherTab.getAttribute('aria-selected')).to.equal('false');
     expect(otherPanel.getAttribute('aria-hidden')).to.equal('true');
     this.tabpanel._selectTab(otherTab);
-    expect(otherTab.getAttribute('aria-selected')).to.equal('true');
-    expect(otherPanel.getAttribute('aria-hidden')).to.equal('false');
-    expect(selectedTab.getAttribute('aria-selected')).to.equal('false');
-    expect(selectedPanel.getAttribute('aria-hidden')).to.equal('true');
+    requestAnimationFrame(function() {
+      expect(otherTab.getAttribute('aria-selected')).to.equal('true');
+      expect(otherPanel.getAttribute('aria-hidden')).to.equal('false');
+      expect(selectedTab.getAttribute('aria-selected')).to.equal('false');
+      expect(selectedPanel.getAttribute('aria-hidden')).to.equal('true');
+      done();
+    });
   });
 });
 })();

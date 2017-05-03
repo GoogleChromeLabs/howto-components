@@ -60,7 +60,8 @@
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
 
-      this.setAttribute('role', 'tablist');
+      if(!this.hasAttribute('role'))
+        this.setAttribute('role', 'tablist');
 
       // Currently, `slotchange` does not fire when an element is upgraded. For
       // this reason, the element always processes the slots after the inner
@@ -111,8 +112,7 @@
       // The element checks if any of the tabs have been marked as selected.
       // If not, the first tab is now selected.
       const selectedTab =
-        tabs.find(tab =>
-          tab.getAttribute('aria-selected') === 'true') || tabs[0];
+        tabs.find(tab => tab.selected) || tabs[0];
 
       // Next, we switch to the selected tab. `selectTab` takes care of
       // marking all other tabs as deselected and hiding all other panels.
@@ -157,8 +157,7 @@
       // selected element and subtracts one to get the index of the previous
       // element.
       let newIdx =
-        tabs.findIndex(tab =>
-          tab.getAttribute('aria-selected') === 'true') - 1;
+        tabs.findIndex(tab => tab.selected) - 1;
       // Add `tabs.length` to make sure the index is a positive number
       // and get the modulus to wrap around if necessary.
       return tabs[(newIdx + tabs.length) % tabs.length];
@@ -186,9 +185,7 @@
      */
     _nextTab() {
       const tabs = this._allTabs();
-      let newIdx =
-        tabs.findIndex(tab =>
-          tab.getAttribute('aria-selected') === 'true') + 1;
+      let newIdx = tabs.findIndex(tab => tab.selected) + 1;
       return tabs[newIdx % tabs.length];
     }
 
@@ -199,14 +196,8 @@
       const tabs = this._allTabs();
       const panels = this._allPanels();
 
-      tabs.forEach(tab => {
-        tab.tabIndex = -1;
-        tab.setAttribute('aria-selected', 'false');
-      });
-
-      panels.forEach(panel => {
-        panel.setAttribute('aria-hidden', 'true');
-      });
+      tabs.forEach(tab => tab.selected = false);
+      panels.forEach(panel => panel.hidden = true);
     }
 
     /**
@@ -230,11 +221,8 @@
       const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
       if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
-
-      // Unhide the panel and mark the tab as active.
-      newPanel.setAttribute('aria-hidden', 'false');
-      newTab.setAttribute('aria-selected', 'true');
-      newTab.tabIndex = 0;
+      newTab.selected = true;
+      newPanel.hidden = false;
       newTab.focus();
     }
 
@@ -310,6 +298,10 @@
    * is specified.
    */
   class HowtoTabsTab extends HTMLElement {
+    static get observedAttributes() {
+      return ['selected'];
+    }
+
     constructor() {
       super();
     }
@@ -320,6 +312,41 @@
       this.setAttribute('role', 'tab');
       if (!this.id)
         this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
+
+      // Set a well-defined initial state.
+      this.selected = false;
+      this.setAttribute('aria-selected', 'false');
+      this.setAttribute('tabindex', -1);
+    }
+
+    /**
+     * Properties and their corresponding attributes should mirror one another.
+     * To this effect, the property setter for `selected` handles truthy/falsy
+     * values and reflects those to the state of the attribute. It’s important
+     * to note that there are no side effects taking place in the property
+     * setter. For example, the setter does not set `aria-selected`. Instead,
+     * that work happens in the `attributeChangedCallback`. As a general rule,
+     * make property setters very dumb, and if setting a property or attribute
+     * should cause a side effect (like setting a corresponding ARIA attribute)
+     * do that work in the `attributeChangedCallback`. This will avoid having to
+     * manage complex attribute/property reentrancy scenarios.
+     */
+    attributeChangedCallback() {
+      const value = this.hasAttribute('selected');
+      this.setAttribute('aria-selected', value);
+      this.setAttribute('tabindex', value?0:-1);
+    }
+
+    set selected(value) {
+      value = Boolean(value);
+      if(value)
+        this.setAttribute('selected', '');
+      else
+        this.removeAttribute('selected');
+    }
+
+    get selected() {
+      return this.hasAttribute('selected');
     }
   }
   window.customElements.define('howto-tabs-tab', HowtoTabsTab);
@@ -329,6 +356,10 @@
    * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
    */
   class HowtoTabsPanel extends HTMLElement {
+    static get observedAttributes() {
+      return ['hidden'];
+    }
+
     constructor() {
       super();
     }
@@ -337,6 +368,24 @@
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
         this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
+      this.hidden = true;
+    }
+
+    attributeChangedCallback() {
+      const value = this.hasAttribute('hidden');
+      this.setAttribute('aria-hidden', value);
+    }
+
+    set hidden(value) {
+      value = Boolean(value);
+      if(value)
+        this.setAttribute('hidden', '');
+      else
+        this.removeAttribute('hidden');
+    }
+
+    get hidden() {
+      return this.hasAttribute('hidden');
     }
   }
   window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
