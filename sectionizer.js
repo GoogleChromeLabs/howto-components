@@ -113,16 +113,6 @@ function parseBlockComment(ss) {
 }
 
 function parseCode(ss) {
-  if (ss.sneakPeek.startsWith('class ')) {
-    ss.meta.objectType = 'class';
-    ss.meta.objectName = /class\s*([^\s]*)/m.exec(ss.sneakPeek)[1];
-    while (ss.current !== '{') ss.next();
-  } else if (ss.sneakPeek.startsWith('function ')) {
-    ss.meta.objectType = 'function';
-    ss.meta.objectName = /function\s*([^\s]*).+$/m.exec(ss.sneakPeek)[1];
-    while (ss.current !== '{') ss.next();
-  }
-
   if (ss.current === '\'')
     return parseSingleQuotedString(ss);
   else if (ss.current === '\"')
@@ -224,11 +214,11 @@ function parse(str) {
           commentText: nextSegment.text,
           codeText: '',
         });
-        return accumulator;
+      } else {
+        // Otherwise append
+        const lastSegment = accumulator[accumulator.length - 1];
+        lastSegment.codeText += nextSegment.text;
       }
-      // Otherwise append
-      const lastSegment = accumulator[accumulator.length - 1];
-      lastSegment.codeText += nextSegment.text;
       return accumulator;
     }, []);
 }

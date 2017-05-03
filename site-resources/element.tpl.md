@@ -18,20 +18,41 @@ book_path: /web/fundamentals/_book.yaml
 {% include "web/_shared/contributors/robdodson.html" %}
 {% include "web/_shared/contributors/surma.html" %}
 
-<link rel="stylesheet" href="prism-solarizedlight.css">
 <link rel="stylesheet" href="main.css">
 
-{{=it.intro}}
+{{=it.readFile(`elements/${it.title}/README.md`)}}
 
 ## Demo {: #demo }
-<iframe src="https://googlechrome.github.io/howto-components/{{=it.title}}_demo.html" class="demo" aria-label="live demo" role="region"></iframe>
+{% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
+<!doctype html>
+<html lang="en">
+<p>
+  <a href="?nojs">Load without JavaScript</a>
+  <a href="?">Load with JavaScript</a>
+</p>
+
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '/web/fundamentals/architecture/howto-components/')}}
+
+<script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
+<script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
+<script>
+  devsite.framebox.AutoSizeClient.initAutoSize(true);
+  if (!document.location.search.includes('nojs')) {
+    (function() {
+      {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
+    })();
+  }
+</script>
+</html>
+
+{% endframebox %}
 
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">
 {{ for (let section of it.demoSections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
@@ -40,10 +61,8 @@ book_path: /web/fundamentals/_book.yaml
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
 <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=section.commentText}}</div>
-<code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=section.codeText}}</code>
+<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
-
-<script src="iframesizer.js"></script>

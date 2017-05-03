@@ -1,3 +1,4 @@
+/* eslint max-len: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -14,6 +15,7 @@
  * limitations under the License.
  */
 /* eslint require-jsdoc: 0 */
+const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
 const dot = require('dot');
@@ -38,7 +40,12 @@ function generateDocs() {
     .catch(_ => {})
     .then(_ => fs.readdir('elements'))
     .then(elements => Promise.all(
-      elements.map(elem => parseElement(elem).then(writeElement))
+      elements.map(elem =>
+        fs.mkdir(`docs/${elem}`)
+          .catch(_ => {})
+          .then(_ => parseElement(elem))
+          .then(writeElement)
+      )
     ))
     .then(buildIndex);
 }
@@ -70,7 +77,7 @@ function parseElement(name) {
   ])
     .then(([code, demo]) => {
       code = code.toString('utf-8');
-      demo = demo.toString('utf-8');
+      demo = demo.toString('utf-8').replace(/{%[^%]+%}/g, '');
       const data = {
         title: name,
         source: code,
@@ -78,15 +85,7 @@ function parseElement(name) {
         demoSections: sectionizer(demo),
         sections: sectionizer(code),
       };
-      // The first comment is always the intro
-      const firstSection = data.sections.shift();
-      data.intro = marked(firstSection.commentText || '');
-      if (firstSection.codeText !== '') {
-        firstSection.commentText = '';
-        data.sections.unshift(firstSection);
-      }
-
-      return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
+      return fs.writeFile(`docs/${name}/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
       contents.sections =
@@ -100,51 +99,54 @@ function parseElement(name) {
             const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
             nextSegment.codeText = lines[0] + '\n';
             accumulator.push(nextSegment);
-            if (lines.length >= 2 && lines[1] !== '') {
+            if (lines.length >= 2) {
               copy.commentType = 'LineComment';
               copy.commentText = '';
               copy.codeText = lines.slice(1).join('\n');
               accumulator.push(copy);
             }
             return accumulator;
-          }, [])
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.javascript)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
-
-      contents.demoSections =
-        contents.demoSections
-          .map(section => {
-            section.commentText = marked(section.commentText);
-            section.codeText =
-              prism.highlight(section.codeText, prism.languages.markup)
-              .replace(/^\n*/, '')
-              .replace(/\s*$/, '')
-              .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>');
-            return section;
-          });
+          }, []);
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
 }
 
+function addHelperFunctionsToContext(context) {
+  return Object.assign({}, context, {
+    readFile: file => origFs.readFileSync(file).toString('utf-8'),
+    highlightJS: text =>
+      prism.highlight(text, prism.languages.javascript)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    highlightHTML: text =>
+      prism.highlight(text, prism.languages.markup)
+        .replace(/^\n*/, '')
+        .replace(/\s*$/, '')
+        .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    markdown: text => marked(text),
+    escape: text =>
+      text
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;'),
+    indentLines: text => text.replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+  });
+}
+
 function writeElement(element) {
+  const augmentedContext = addHelperFunctionsToContext(element);
   return Promise.all([
     template('site-resources/element.tpl.html'),
-    template('site-resources/element.tpl.md'),
     template('site-resources/demo.tpl.html'),
+    template('site-resources/element.tpl.md'),
   ])
-    .then(([elemTpl, elemTplMd, demoTpl]) => Promise.all([
-        fs.writeFile(`docs/${element.title}.html`, elemTpl(element)),
-        fs.writeFile(`docs/${element.title}.md`, elemTplMd(element)),
-        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(element)),
-    ])).then(_ => element)
+    .then(([elemTpl, demoTpl, devsite]) => Promise.all([
+        fs.writeFile(`docs/${element.title}/index.html`, elemTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}/demo.html`, demoTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}/${element.title}.md`, devsite(augmentedContext)),
+    ]))
+    .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
 }
 

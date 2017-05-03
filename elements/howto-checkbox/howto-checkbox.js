@@ -1,8 +1,3 @@
-/**
- * A `HowToCheckbox` represents a boolean option in a form. The most common type
- * of checkbox is a dual-type which allows the user to toggle between two
- * choices -- checked and unchecked.
- */
 (function() {
   /**
    * Define key codes to help with handling keyboard events.
@@ -35,8 +30,34 @@
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
 
+      // A user may set a property on an _instance_ of an element,
+      // before its prototype has been connected to this class.
+      // The `upgradeProperty` method will check for any instance properties
+      // and run them through the proper class setters.
+      this.upgradeProperty('checked');
+      this.upgradeProperty('disabled');
+
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
+    }
+
+    /**
+     * Check if a property has an instance value. If so, copy the value, and
+     * delete the instance property so it doesn't shadow the class property
+     * setter. Finally, pass the value to the class property setter so it can
+     * trigger any side effects.
+     * This is to safe guard against cases where, for instance, a framework
+     * may have added the element to the page and set a value on one of its
+     * properties, but lazy loaded its definition. Without this guard, the
+     * upgraded element would miss that property and the instance property
+     * would prevent the class property setter from ever being called.
+     */
+    upgradeProperty(prop) {
+      if (this.hasOwnProperty(prop)) {
+        let value = this[prop];
+        delete this[prop];
+        this[prop] = value;
+      }
     }
 
     /**

@@ -1,0 +1,94 @@
+<style>
+  howto-tree {
+    font-family: 'Courier New', Courier, monospace;
+  }
+  howto-tree,
+  howto-tree-item,
+  howto-tree-item-group,
+  howto-tree-item-group label {
+    display: block;
+  }
+  howto-tree:focus {
+    outline: none;
+  }
+  howto-tree-item-group > div {
+    padding-left: 20px;
+  }
+  /*
+    A simple plus or minus sign is used to indicate a `HowToTreeItem` that can
+    be expanded or collapsed.
+  */
+  howto-tree-item-group > label::before {
+    content: '+';
+  }
+  howto-tree-item-group[expanded] > label::before {
+    content: '-';
+  }
+  /*
+    By default a `HowToTreeItem` is `display: block`. If it's in a collapsed
+    state, hide it with `display: none`.
+  */
+  howto-tree-item-group:not([expanded]) > div {
+    display: none;
+  }
+  /*
+    The `.active` class indicates which child is the current
+    `aria-activedescendant`. For all intents and purposes this child is
+    "focused", though actual keyboard focus remains on the `<howto-tree>` at all
+    times. This selector will style the background of the `HowToTreeItem` that
+    is active, so long as it's closed. If it's opened, the active class will
+    style the tree item's label. This is to prevent an opened `HowToTreeItem`
+    from showing a styled background on all of its children.
+  */
+  .active:not([expanded]),
+  .active[expanded] > label {
+    background: lightgrey;
+    outline: 2px solid black;
+  }
+  /*
+    The `selected` attribute indicates which child has been either clicked on
+    with a mouse, or selected via the `[space]` or `[enter]` keys. Similar to
+    the `.active` class selector above, this selector will style the
+    `HowToTreeItem` background, unless it is expanded, in which case it will
+    only style its label.
+  */
+  howto-tree-item[selected],
+  howto-tree-item.active[selected],
+  howto-tree-item-group[selected]:not([expanded]),
+  howto-tree-item-group[selected][expanded] > label {
+    background: hotpink;
+  }
+</style>
+
+<h3 id="file-tree-lbl">File Tree</h3>
+<howto-tree aria-labelledby="file-tree-lbl">
+  <howto-tree-item>Project1</howto-tree-item>
+  <howto-tree-item>Project2</howto-tree-item>
+  <howto-tree-item>Project3</howto-tree-item>
+  <howto-tree-item-group>
+    <label>Project 4</label>
+    <div>
+      <howto-tree-item>File1</howto-tree-item>
+      <howto-tree-item>File2</howto-tree-item>
+      <howto-tree-item>File3</howto-tree-item>
+      <howto-tree-item-group>
+        <label>Subproject 1</label>
+        <div>
+          <howto-tree-item>Subfile1</howto-tree-item>
+          <howto-tree-item>Subfile2</howto-tree-item>
+          <howto-tree-item>Subfile3</howto-tree-item>
+        </div>
+      </howto-tree-item-group>
+    </div>
+  </howto-tree-item-group>
+  <howto-tree-item>Project 5</howto-tree-item>
+  <howto-tree-item-group expanded>
+    <label>Project 6</label>
+    <div>
+      <howto-tree-item>File1</howto-tree-item>
+      <howto-tree-item>File2</howto-tree-item>
+      <howto-tree-item>File3</howto-tree-item>
+    </div>
+  </howto-tree-item-group>
+  <howto-tree-item>Project 7</howto-tree-item>
+</howto-tree>
