@@ -36,7 +36,7 @@
       // [roving tabindex]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Technique_1_oving_tabindex
       this.addEventListener('keydown', this._onKeyDown);
 
-      // TODO: Set up MutationObserver to listen for `expand` attribute on the
+      // TODO: Set up MutationObserver to listen for `expanded` attribute on the
       // headings.
 
       // Wait for `<howto-accordion-heading>` and `<howto-accordion-panel`
@@ -435,7 +435,7 @@
       // Import the ShadowDOM template.
       this.attachShadow({
         mode: 'open',
-        delegateFocus: true,
+        delegatesFocus: true,
       });
       this.shadowRoot.appendChild(
         document.importNode(shadowDOMTemplate.content, true)
