@@ -5,7 +5,7 @@ const {Key} = require('selenium-webdriver');
 describe('howto-menu', function() {
   let success;
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-menu_demo.html`)
+    return this.driver.get(`${this.address}/howto-menu/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-menu'));
   });
 
