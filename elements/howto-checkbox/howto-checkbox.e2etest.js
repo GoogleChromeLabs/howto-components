@@ -26,7 +26,7 @@ describe('howto-checkbox', function() {
   };
 
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-checkbox_demo.html`)
+    return this.driver.get(`${this.address}/howto-checkbox/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-checkbox'));
   });
 
@@ -76,7 +76,7 @@ describe('howto-checkbox pre-upgrade', function() {
   let success;
 
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-checkbox_demo.html?nojs`);
+    return this.driver.get(`${this.address}/howto-checkbox/demo.html?nojs`);
   });
 
   it('should handle attributes set before upgrade',
@@ -89,7 +89,7 @@ describe('howto-checkbox pre-upgrade', function() {
       );
 
       await this.driver.executeScript(_ => _loadJavaScript());
-      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
+      await helper.waitForElement(this.driver, 'howto-checkbox');
       success = await this.driver.executeScript(_ =>
         window.expectedCheckbox.checked === true &&
         window.expectedCheckbox.getAttribute('aria-checked') === 'true'
@@ -108,7 +108,7 @@ describe('howto-checkbox pre-upgrade', function() {
       );
 
       await this.driver.executeScript(_ => _loadJavaScript());
-      await this.driver.executeScript(_ => customElements.whenDefined('howto-checkbox'));
+      await helper.waitForElement(this.driver, 'howto-checkbox');
       success = await this.driver.executeScript(_ =>
         window.expectedCheckbox.hasAttribute('checked') &&
         window.expectedCheckbox.getAttribute('aria-checked') === 'true'

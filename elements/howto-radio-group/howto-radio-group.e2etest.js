@@ -5,7 +5,7 @@ const {Key, By} = require('selenium-webdriver');
 describe('howto-radio-group', function() {
   let success;
   beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-radio-group_demo.html`)
+    return this.driver.get(`${this.address}/howto-radio-group/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-radio-group'));
   });
 

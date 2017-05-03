@@ -40,7 +40,12 @@ function generateDocs() {
     .catch(_ => {})
     .then(_ => fs.readdir('elements'))
     .then(elements => Promise.all(
-      elements.map(elem => parseElement(elem).then(writeElement))
+      elements.map(elem =>
+        fs.mkdir(`docs/${elem}`)
+          .catch(_ => {})
+          .then(_ => parseElement(elem))
+          .then(writeElement)
+      )
     ))
     .then(buildIndex);
 }
@@ -72,7 +77,7 @@ function parseElement(name) {
   ])
     .then(([code, demo]) => {
       code = code.toString('utf-8');
-      demo = demo.toString('utf-8');
+      demo = demo.toString('utf-8').replace(/{%[^%]+%}/g, '');
       const data = {
         title: name,
         source: code,
@@ -80,7 +85,7 @@ function parseElement(name) {
         demoSections: sectionizer(demo),
         sections: sectionizer(code),
       };
-      return fs.writeFile(`docs/${name}.js`, code).then(_ => data);
+      return fs.writeFile(`docs/${name}/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
       contents.sections =
@@ -107,8 +112,8 @@ function parseElement(name) {
     .catch(err => console.error(err.toString(), err.stack));
 }
 
-function writeElement(element) {
-  const augmentedContext = Object.assign({}, element, {
+function addHelperFunctionsToContext(context) {
+  return Object.assign({}, context, {
     readFile: file => origFs.readFileSync(file).toString('utf-8'),
     highlightJS: text =>
       prism.highlight(text, prism.languages.javascript)
@@ -121,21 +126,26 @@ function writeElement(element) {
         .replace(/\s*$/, '')
         .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
     markdown: text => marked(text),
+    escape: text =>
+      text
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;'),
+    indentLines: text => text.replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
   });
+}
+
+function writeElement(element) {
+  const augmentedContext = addHelperFunctionsToContext(element);
   return Promise.all([
     template('site-resources/element.tpl.html'),
     template('site-resources/demo.tpl.html'),
-    template('site-resources/demo.devsite.tpl.html'),
+    template('site-resources/element.tpl.md'),
   ])
-    .then(([elemTpl, demoTpl, demoDevsiteTpl]) => Promise.all([
-        fs.writeFile(`docs/${element.title}.html`, elemTpl(augmentedContext)),
-        fs.writeFile(`docs/${element.title}_demo.html`, demoTpl(augmentedContext)),
-        fs.writeFile(`docs/${element.title}_demo.devsite.html`, demoDevsiteTpl(augmentedContext)),
+    .then(([elemTpl, demoTpl, devsite]) => Promise.all([
+        fs.writeFile(`docs/${element.title}/index.html`, elemTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}/demo.html`, demoTpl(augmentedContext)),
+        fs.writeFile(`docs/${element.title}/${element.title}.md`, devsite(augmentedContext)),
     ]))
-    .then(_ =>
-      template('site-resources/element.tpl.md')
-        .then(devsiteTpl => fs.writeFile(`docs/${element.title}.md`, devsiteTpl(augmentedContext)))
-    )
     .then(_ => element)
     .catch(err => console.log(err.toString(), err.stack));
 }
