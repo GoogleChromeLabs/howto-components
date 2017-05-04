@@ -65,11 +65,13 @@ describe('howto-accordion', function() {
     const lastHeading = await this.driver.findElement(By.css('[role=heading]:last-of-type'));
     const lastPanelId = await lastHeading.getAttribute('aria-controls');
     const lastPanel = await this.driver.findElement(By.id(lastPanelId));
-    expect(lastHeading.getAttribute('aria-expanded')).to.not.equal('true');
+    expect(await lastHeading.getAttribute('aria-expanded')).to.not.equal('true');
+    expect(await lastPanel.getAttribute('aria-hidden')).to.not.equal('false');
 
     await lastHeading.click();
     await helper.sleep(500);
     expect(await lastPanel.getAttribute('aria-hidden')).to.equal('false');
+    expect(await lastHeading.getAttribute('aria-expanded')).to.equal('true');
   });
 
   it('should toggle a panel on [space]', async function() {
