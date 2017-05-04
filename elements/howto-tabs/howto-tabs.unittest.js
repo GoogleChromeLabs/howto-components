@@ -61,9 +61,7 @@ describe('howto-tabs', function() {
 
   it('should only have one visible panel initially', function() {
     expect(
-      this.panels.filter(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
-      )
+      this.panels.filter(panel => !howtoComponents.isHidden(panel))
     ).to.have.lengthOf(1);
   });
 
@@ -90,13 +88,13 @@ describe('howto-tabs', function() {
         panel.id === otherTab.getAttribute('aria-controls'));
 
     expect(otherTab.getAttribute('aria-selected')).to.equal('false');
-    expect(otherPanel.getAttribute('aria-hidden')).to.equal('true');
+    expect(howtoComponents.isHidden(otherPanel)).to.be.true;
     this.tabpanel._selectTab(otherTab);
     requestAnimationFrame(function() {
       expect(otherTab.getAttribute('aria-selected')).to.equal('true');
-      expect(otherPanel.getAttribute('aria-hidden')).to.equal('false');
+      expect(howtoComponents.isHidden(otherPanel)).to.be.false;
       expect(selectedTab.getAttribute('aria-selected')).to.equal('false');
-      expect(selectedPanel.getAttribute('aria-hidden')).to.equal('true');
+      expect(howtoComponents.isHidden(selectedPanel)).to.be.true;
       done();
     });
   });
