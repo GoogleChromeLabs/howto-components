@@ -7,7 +7,7 @@ describe('howto-menu-button', function() {
   let driver;
   beforeEach(function() {
     driver = this.driver;
-    return this.driver.get(`${this.address}/howto-menu-button_demo.html`)
+    return this.driver.get(`${this.address}/howto-menu-button/demo.html`)
       .then(_ => helper.waitForElement(this.driver, 'howto-menu-button'));
   });
 
