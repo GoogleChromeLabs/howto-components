@@ -314,7 +314,6 @@
         this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
 
       // Set a well-defined initial state.
-      this.selected = false;
       this.setAttribute('aria-selected', 'false');
       this.setAttribute('tabindex', -1);
     }
@@ -334,7 +333,7 @@
     attributeChangedCallback() {
       const value = this.hasAttribute('selected');
       this.setAttribute('aria-selected', value);
-      this.setAttribute('tabindex', value?0:-1);
+      this.setAttribute('tabindex', value ? 0 : -1);
     }
 
     set selected(value) {
@@ -356,10 +355,6 @@
    * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
    */
   class HowtoTabsPanel extends HTMLElement {
-    static get observedAttributes() {
-      return ['hidden'];
-    }
-
     constructor() {
       super();
     }
@@ -368,24 +363,6 @@
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
         this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
-      this.hidden = true;
-    }
-
-    attributeChangedCallback() {
-      const value = this.hasAttribute('hidden');
-      this.setAttribute('aria-hidden', value);
-    }
-
-    set hidden(value) {
-      value = Boolean(value);
-      if(value)
-        this.setAttribute('hidden', '');
-      else
-        this.removeAttribute('hidden');
-    }
-
-    get hidden() {
-      return this.hasAttribute('hidden');
     }
   }
   window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
