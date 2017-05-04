@@ -414,6 +414,12 @@
    *  problematic. This element dispatches a `howto-accordion-change` event when
    * it is supposed to expand.
    *
+   * The WAI ARIA Best Practices also recommend setting `aria-level` depending
+   * on what level the headings are. It is hard to determine the level of a
+   * heading algorithmically and is not strictly necessary to have an accessible
+   * accordion. To keep the code more accessible, this element does not set
+   * `aria-level` but leaves that to the developer.
+   *
    * Clicking the button or pressing space or enter while the button has focus
    * will expand the heading. Changing the `expanded` attribute or property will
    * also cause the heading to expand.
@@ -432,11 +438,15 @@
       // handler is hooked up to other elements.
       this._onClick = this._onClick.bind(this);
 
-      // Import the ShadowDOM template.
+      // Create an open ShadowDOM mode and delegate focus. That means that the
+      // the host element can’t get focus, but elements in the  shadow root can.
+      // Note that the `:focus` selector will match on _both_ the host element
+      // as well as the focused element in the ShadowDOM.
       this.attachShadow({
         mode: 'open',
         delegatesFocus: true,
       });
+      // Import the ShadowDOM template.
       this.shadowRoot.appendChild(
         document.importNode(shadowDOMTemplate.content, true)
       );
@@ -469,7 +479,7 @@
       // `expanded` is a boolean attribute it is either set or not set. The
       // actual value is irrelevant.
       const value = this.hasAttribute('expanded');
-      this._shadowButton.setAttribute('aria-expanded', value);
+      this.setAttribute('aria-expanded', value);
     }
 
     get expanded() {
