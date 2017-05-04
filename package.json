@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "mkdir -p docs/scripts && cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts/ && node build-documentation.js",
+  "build": "mkdir -p docs/scripts && cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts/ && cp node_modules/@webcomponents/shadydom/shadydom.min.js docs/scripts && node build-documentation.js",
     "docker-build": "docker build -t googlechrome/howto-components .",
     "docker-test": "docker run -e TRAVIS=$TRAVIS googlechrome/howto-components",
     "docker": "npm run docker-build && npm run docker-test",
@@ -40,6 +40,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@webcomponents/custom-elements": "https://github.com/webcomponents/custom-elements#v1.0.0-alpha.2",
+    "@webcomponents/shadydom": "https://github.com/webcomponents/shadydom#v1.0.0-rc.4",
     "dot": "^1.1.1",
     "fs-extra": "^1.0.0",
     "marked": "^0.3.6",

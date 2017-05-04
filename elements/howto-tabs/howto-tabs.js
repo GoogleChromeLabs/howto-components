@@ -11,6 +11,15 @@
     END: 35,
   };
 
+  // To avoid invoking the parser with `.innerHTML` for every new instance, a
+  // template for the contents of the ShadowDOM is  is shared by all
+  // `<howto-tabs>` instances.
+  const shadowDOMTemplate = document.createElement('template');
+  shadowDOMTemplate.innerHTML = `
+    <slot name="tab"></slot>
+    <slot name="panel"></slot>
+  `;
+
   /**
    * `HowtoTabs` is a container element for tabs and panels.
    *
@@ -21,6 +30,24 @@
   class HowtoTabs extends HTMLElement {
     constructor() {
       super();
+
+      // Event handlers that are not attached to this element need to be bound
+      // if they need access to `this`.
+      this._onSlotChange = this._onSlotChange.bind(this);
+
+      // For progressive enhancement, the markup should alternate between tabs
+      // and panels. Elements that reorder their children tend to not work well
+      // with frameworks. Instead ShadowDOM is used to reorder the elements by
+      // using slots.
+      this.attachShadow({mode: 'open'});
+      // Import the shared template to create the slots for tabs and panels.
+      this.shadowRoot.appendChild(
+        document.importNode(shadowDOMTemplate.content, true)
+      );
+      this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
+      this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
+      this._tabSlot.addEventListener('slotchange', this._onSlotChange);
+      this._panelSlot.addEventListener('slotchange', this._onSlotChange);
     }
 
     /**
@@ -33,56 +60,63 @@
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
 
-      this.setAttribute('role', 'tablist');
+      if(!this.hasAttribute('role'))
+        this.setAttribute('role', 'tablist');
 
-      // Before the elements starts booting, it waits for
-      // the both `<howto-tab>` and `<howto-tabpanel>` to load.
+      // Currently, `slotchange` does not fire when an element is upgraded. For
+      // this reason, the element always processes the slots after the inner
+      // elements have been defined. If the current behavior of the `slotchange`
+      // event is change (as proposed in
+      // [this issue](https://github.com/whatwg/dom/issues/447)), the code below
+      // can be removed.
       Promise.all([
         customElements.whenDefined('howto-tabs-tab'),
         customElements.whenDefined('howto-tabs-panel'),
-      ]).then(_ => {
-        // Acquire all tabs and panels inside the element
-        const tabs = this._allTabs();
-        const panels = this._allPanels();
-        // If there are no tabs, there is no way to switch between panels.
-        // Abort.
-        if (tabs.length === 0) return;
+      ])
+        .then(_ => this._updateAttributes());
+    }
 
-        // Give each panel a `aria-labelledby` attribute that refers to the tab
-        // that controls it.
-        tabs.forEach(tab => {
-          const panel = tab.nextElementSibling;
-          if(panel.tagName !== 'HOWTO-TABS-PANEL') {
-            console.error(`Tab #${tab.id} is not a` +
-              `sibling of a <howto-tabs-panel>`);
-            return;
-          }
+    /**
+     * `_onSlotChange` is called whenever an element is added or removed from
+     * one of the ShadowDOM slots.
+     */
+    _onSlotChange() {
+      this._updateAttributes();
+    }
 
-          tab.setAttribute('aria-controls', panel.id);
-          panel.setAttribute('aria-labelledby', tab.id);
-        });
+    /**
+     * `_updateAttributes` links up tabs with their adjacent panels using
+     * `aria-controls` and `aria-labelledby`. Additionally, the method makes
+     * sure only one tab is active.
+     *
+     * If this function becomes a bottle neck, it can be easily optimized by
+     * only handling the new elements instead of iterating over all of the
+     * element’s children.
+     */
+    _updateAttributes() {
+      const tabs = this._allTabs();
+      // Give each panel a `aria-labelledby` attribute that refers to the tab
+      // that controls it.
+      tabs.forEach(tab => {
+        const panel = tab.nextElementSibling;
+        if(panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
+          console.error(`Tab #${tab.id} is not a` +
+            `sibling of a <howto-tabs-panel>`);
+          return;
+        }
 
-        // For progressive enhancement, the markup should alternate between tabs
-        // and panels. If JavaScript is disabled, all panels are
-        // visible with their respective tab right above them.
-        // If JavaScript is enabled, the element groups all children by type.
-        // First all the tabs, then all the panels.
-        // Calling `appendChild` on an already inserted element _moves_ the
-        // element to the last position.
-        tabs.forEach(tab => this.appendChild(tab));
-        panels.forEach(panel => this.appendChild(panel));
-
-
-        // The element checks if any of the tabs have been marked as selected.
-        // If not, the first tab is now selected.
-        const selectedTab =
-          tabs.find(tab =>
-            tab.getAttribute('aria-selected') === 'true') || tabs[0];
-
-        // Next, we switch to the selected tab. `selectTab` takes care of
-        // marking all other tabs as deselected and hiding all other panels.
-        this._selectTab(selectedTab);
+        tab.setAttribute('aria-controls', panel.id);
+        panel.setAttribute('aria-labelledby', tab.id);
       });
+
+      // The element checks if any of the tabs have been marked as selected.
+      // If not, the first tab is now selected.
+      const selectedTab =
+        tabs.find(tab => tab.selected) || tabs[0];
+
+      // Next, we switch to the selected tab. `selectTab` takes care of
+      // marking all other tabs as deselected and hiding all other panels.
+      this._selectTab(selectedTab);
     }
 
     /**
@@ -97,6 +131,7 @@
     _allPanels() {
       return Array.from(this.querySelectorAll('howto-tabs-panel'));
     }
+
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
@@ -122,8 +157,7 @@
       // selected element and subtracts one to get the index of the previous
       // element.
       let newIdx =
-        tabs.findIndex(tab =>
-          tab.getAttribute('aria-selected') === 'true') - 1;
+        tabs.findIndex(tab => tab.selected) - 1;
       // Add `tabs.length` to make sure the index is a positive number
       // and get the modulus to wrap around if necessary.
       return tabs[(newIdx + tabs.length) % tabs.length];
@@ -151,9 +185,7 @@
      */
     _nextTab() {
       const tabs = this._allTabs();
-      let newIdx =
-        tabs.findIndex(tab =>
-          tab.getAttribute('aria-selected') === 'true') + 1;
+      let newIdx = tabs.findIndex(tab => tab.selected) + 1;
       return tabs[newIdx % tabs.length];
     }
 
@@ -164,14 +196,8 @@
       const tabs = this._allTabs();
       const panels = this._allPanels();
 
-      tabs.forEach(tab => {
-        tab.tabIndex = -1;
-        tab.setAttribute('aria-selected', 'false');
-      });
-
-      panels.forEach(panel => {
-        panel.setAttribute('aria-hidden', 'true');
-      });
+      tabs.forEach(tab => tab.selected = false);
+      panels.forEach(panel => panel.hidden = true);
     }
 
     /**
@@ -195,11 +221,8 @@
       const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
       if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
-
-      // Unhide the panel and mark the tab as active.
-      newPanel.setAttribute('aria-hidden', 'false');
-      newTab.setAttribute('aria-selected', 'true');
-      newTab.tabIndex = 0;
+      newTab.selected = true;
+      newPanel.hidden = false;
       newTab.focus();
     }
 
@@ -260,9 +283,9 @@
   }
   window.customElements.define('howto-tabs', HowtoTabs);
 
-  // `dashTabCounter` counts the number of `<howto-tab>` instances created. The
+  // `howtoTabCounter` counts the number of `<howto-tab>` instances created. The
   // number is used to generated new, unique IDs.
-  let dashTabCounter = 0;
+  let howtoTabCounter = 0;
   /**
    * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tabs-tab>`
    * should always be used with `role=heading` in the markup so that the
@@ -275,6 +298,10 @@
    * is specified.
    */
   class HowtoTabsTab extends HTMLElement {
+    static get observedAttributes() {
+      return ['selected'];
+    }
+
     constructor() {
       super();
     }
@@ -284,12 +311,46 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `howto-tabs-tab-generated-${dashTabCounter++}`;
+        this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
+
+      // Set a well-defined initial state.
+      this.setAttribute('aria-selected', 'false');
+      this.setAttribute('tabindex', -1);
+    }
+
+    /**
+     * Properties and their corresponding attributes should mirror one another.
+     * To this effect, the property setter for `selected` handles truthy/falsy
+     * values and reflects those to the state of the attribute. It’s important
+     * to note that there are no side effects taking place in the property
+     * setter. For example, the setter does not set `aria-selected`. Instead,
+     * that work happens in the `attributeChangedCallback`. As a general rule,
+     * make property setters very dumb, and if setting a property or attribute
+     * should cause a side effect (like setting a corresponding ARIA attribute)
+     * do that work in the `attributeChangedCallback`. This will avoid having to
+     * manage complex attribute/property reentrancy scenarios.
+     */
+    attributeChangedCallback() {
+      const value = this.hasAttribute('selected');
+      this.setAttribute('aria-selected', value);
+      this.setAttribute('tabindex', value ? 0 : -1);
+    }
+
+    set selected(value) {
+      value = Boolean(value);
+      if(value)
+        this.setAttribute('selected', '');
+      else
+        this.removeAttribute('selected');
+    }
+
+    get selected() {
+      return this.hasAttribute('selected');
     }
   }
   window.customElements.define('howto-tabs-tab', HowtoTabsTab);
 
-  let dashPanelCounter = 0;
+  let howtoPanelCounter = 0;
   /**
    * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
    */
@@ -301,7 +362,7 @@
     connectedCallback() {
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
-        this.id = `howto-tabs-panel-generated-${dashPanelCounter++}`;
+        this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
     }
   }
   window.customElements.define('howto-tabs-panel', HowtoTabsPanel);

@@ -35,6 +35,7 @@
     window._loadJavaScript = _ => {
       const whenScriptsLoaded = [
         '../scripts/custom-elements.min.js',
+        '../scripts/shadydom.min.js',
         '{{=it.title}}.js',
       ].reduce((chain, src) =>
         chain.then(_ => loadScript(src)),
