@@ -2,7 +2,7 @@
 
 const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
-const {Key, By} = require('selenium-webdriver');
+const {Key} = require('selenium-webdriver');
 
 describe('howto-accordion', function() {
   let success;
@@ -62,16 +62,24 @@ describe('howto-accordion', function() {
   });
 
   it('should expand a panel on click', async function() {
-    const lastHeading = await this.driver.findElement(By.css('[role=heading]:last-of-type'));
-    const lastPanelId = await lastHeading.getAttribute('aria-controls');
-    const lastPanel = await this.driver.findElement(By.id(lastPanelId));
-    expect(await lastHeading.getAttribute('aria-expanded')).to.not.equal('true');
-    expect(await lastPanel.getAttribute('aria-hidden')).to.not.equal('false');
+    success = await this.driver.executeScript(_ => {
+      window.queryShadowAgnosticSelector = function(elem, s) {
+        return elem.querySelector(s) || (elem.shadowRoot && elem.shadowRoot.querySelector(s));
+      };
+      window.lastHeading = document.querySelector('[role=heading]:last-of-type');
+      window.lastPanel = document.getElementById(lastHeading.getAttribute('aria-controls'));
+      window.lastButton = queryShadowAgnosticSelector(lastHeading, 'button');
+      return [lastButton.getAttribute('aria-expanded'), lastPanel.getAttribute('aria-hidden')];
+    });
+    expect(success).to.deep.equal(['false', 'true']);
 
+    const lastHeading = await this.driver.executeScript(_ => lastHeading);
     await lastHeading.click();
     await helper.sleep(500);
-    expect(await lastPanel.getAttribute('aria-hidden')).to.equal('false');
-    expect(await lastHeading.getAttribute('aria-expanded')).to.equal('true');
+    success = await this.driver.executeScript(_ =>
+      [lastButton.getAttribute('aria-expanded'), lastPanel.getAttribute('aria-hidden')]
+    );
+    expect(success).to.deep.equal(['true', 'false']);
   });
 
   it('should toggle a panel on [space]', async function() {

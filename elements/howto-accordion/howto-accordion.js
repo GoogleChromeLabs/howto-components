@@ -175,7 +175,7 @@
       // heading focusable and give focus to it.
       currentHeading.setAttribute('tabindex', -1);
       newHeading.setAttribute('tabindex', 0);
-      newHeading._shadowButton.focus();
+      newHeading.focus();
     }
 
     /**
@@ -256,25 +256,29 @@
     }
 
     /**
-     * `_expandPanel` puts the given panel in the expanded state, without any
-     * animation.
+     * `_expandPanel` puts the given panel in the expanded state.
      */
     _expandPanel(panel) {
       panel.expanded = true;
     }
 
     /**
-     * `_expandHeading` puts the given heading in the expanded state, without
-     * any animation.
+     * `_collapsePanel` puts the given panel in the collapsed state.
+     */
+    _collapsePanel(panel) {
+      panel.expanded = false;
+    }
+
+    /**
+     * `_expandHeading` puts the given heading in the expanded state.
      */
     _expandHeading(heading) {
       heading.expanded = true;
     }
 
-    _collapsePanel(panel) {
-      panel.expanded = false;
-    }
-
+    /**
+     * `_collapseHeading` puts the given heading in the collapsed state.
+     */
     _collapseHeading(heading) {
       heading.expanded = false;
     }
@@ -462,6 +466,7 @@
       if(!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
       this._shadowButton.addEventListener('click', this._onClick);
+      this._shadowButton.setAttribute('aria-expanded', 'false');
     }
 
     /**
@@ -479,7 +484,7 @@
       // `expanded` is a boolean attribute it is either set or not set. The
       // actual value is irrelevant.
       const value = this.hasAttribute('expanded');
-      this.setAttribute('aria-expanded', value);
+      this._shadowButton.setAttribute('aria-expanded', value);
     }
 
     get expanded() {
@@ -560,6 +565,7 @@
         this.setAttribute('role', 'region');
       if(!this.id)
         this.id = `howto-accordion-panel-generated-${panelIdCounter++}`;
+      this.setAttribute('aria-hidden', 'true');
     }
 
     get expanded() {
