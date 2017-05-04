@@ -539,20 +539,13 @@
   let panelIdCounter = 0;
 
   /**
-   * `HowtoAccordionHeading` is the element for the headings in the accordion.
-   * Accordion to the WAI ARIA Best Practices, each heading needs to wrap a
-   * `<button>`. This element dispatches a `howto-accordion-change` event when
-   * it is supposed to expand.
-   *
-   * Clicking the button or pressing space or enter while the button has focus
-   * will expand the heading. Changing the `expand` attribute or property will
-   * also cause the heading to expand.≤
+   * `HowtoAccordionPanel` is the element for the expandable and collapsible
+   * content. Accordion to the WAI ARIA Best Practices, each panel should be
+   * set the `aria-hidden` attribute to `true` if it is collapsed. This element
+   * relies on CSS styles to apply `display: none` to hide it from the
+   * accessibility tree instead.
    */
   class HowtoAccordionPanel extends HTMLElement {
-    static get observedAttributes() {
-      return ['expanded'];
-    }
-
     constructor() {
       super();
     }
@@ -565,7 +558,6 @@
         this.setAttribute('role', 'region');
       if(!this.id)
         this.id = `howto-accordion-panel-generated-${panelIdCounter++}`;
-      this.setAttribute('aria-hidden', 'true');
     }
 
     get expanded() {
@@ -578,10 +570,6 @@
         this.setAttribute('expanded', '');
       else
         this.removeAttribute('expanded');
-    }
-
-    attributeChangedCallback(name) {
-      this.setAttribute('aria-hidden', !this.expanded);
     }
   }
   window.customElements

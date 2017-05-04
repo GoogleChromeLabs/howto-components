@@ -8,7 +8,19 @@ describe('howto-accordion', function() {
   let success;
   beforeEach(function() {
     return this.driver.get(`${this.address}/howto-accordion/demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'howto-accordion'));
+      .then(_ => helper.waitForElement(this.driver, 'howto-accordion'))
+      .then(_ => this.driver.executeScript(_ => {
+        window.queryShadowAgnosticSelector = function(elem, s) {
+         return elem.querySelector(s) || (elem.shadowRoot && elem.shadowRoot.querySelector(s));
+        };
+
+        window.isHidden = function(elem) {
+          return getComputedStyle(elem).display === 'none' ||
+            getComputedStyle(elem).visibility === 'hidden' ||
+            elem.hidden ||
+            (elem.getAttribute('aria-hidden') || '').toLowerCase() === 'true';
+        };
+      }));
   });
 
   it('should handle arrow keys', async function() {
@@ -63,23 +75,20 @@ describe('howto-accordion', function() {
 
   it('should expand a panel on click', async function() {
     success = await this.driver.executeScript(_ => {
-      window.queryShadowAgnosticSelector = function(elem, s) {
-        return elem.querySelector(s) || (elem.shadowRoot && elem.shadowRoot.querySelector(s));
-      };
       window.lastHeading = document.querySelector('[role=heading]:last-of-type');
       window.lastPanel = document.getElementById(lastHeading.getAttribute('aria-controls'));
       window.lastButton = queryShadowAgnosticSelector(lastHeading, 'button');
-      return [lastButton.getAttribute('aria-expanded'), lastPanel.getAttribute('aria-hidden')];
+      return [lastButton.getAttribute('aria-expanded'), isHidden(lastPanel)];
     });
-    expect(success).to.deep.equal(['false', 'true']);
+    expect(success).to.deep.equal(['false', true]);
 
     const lastHeading = await this.driver.executeScript(_ => lastHeading);
     await lastHeading.click();
     await helper.sleep(500);
     success = await this.driver.executeScript(_ =>
-      [lastButton.getAttribute('aria-expanded'), lastPanel.getAttribute('aria-hidden')]
+      [lastButton.getAttribute('aria-expanded'), isHidden(lastPanel)]
     );
-    expect(success).to.deep.equal(['true', 'false']);
+    expect(success).to.deep.equal(['true', false]);
   });
 
   it('should toggle a panel on [space]', async function() {
@@ -96,10 +105,13 @@ describe('howto-accordion', function() {
     expect(success).to.equal(true);
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => firstPanel.getAttribute('aria-hidden') === 'false');
-    expect(success).to.equal(true);
+    await helper.sleep(500);
+    success = await this.driver.executeScript(_ => isHidden(firstPanel));
+    expect(success).to.be.false;
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
-    success = await this.driver.executeScript(_ => firstPanel.getAttribute('aria-hidden') === 'true');
+    await helper.sleep(500);
+    success = await this.driver.executeScript(_ => isHidden(firstPanel));
+    expect(success).to.be.true;
   });
 });
