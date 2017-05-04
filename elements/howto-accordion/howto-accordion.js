@@ -478,14 +478,14 @@
 
     /**
      * Properties and their corresponding attributes should mirror one another.
-     * To this effect, the property setter for selected handles truthy/falsy
+     * To this effect, the property setter for `expanded` handles truthy/falsy
      * values and reflects those to the state of the attribute. It’s important
      * to note that there are no side effects taking place in the property
-     * setter. For example, the setter does not set aria-expanded. Instead,
-     * that work happens in the attributeChangedCallback. As a general rule,
+     * setter. For example, the setter does not set `aria-expanded`. Instead,
+     * that work happens in the `attributeChangedCallback`. As a general rule,
      * make property setters very dumb, and if setting a property or attribute
      * should cause a side effect (like setting a corresponding ARIA attribute)
-     * do that work in the attributeChangedCallback. This will avoid having to
+     * do that work in the `attributeChangedCallback`. This will avoid having to
      * manage complex attribute/property reentrancy scenarios.
      */
     set expanded(value) {
