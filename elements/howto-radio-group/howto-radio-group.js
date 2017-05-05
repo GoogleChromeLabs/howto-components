@@ -256,7 +256,7 @@
      */
     _focusNode(node) {
       node.focus();
-    };
+    }
 
     /**
      * If the user clicks inside of the `HowtoRadioGroup`, verify that the

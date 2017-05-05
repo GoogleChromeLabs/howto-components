@@ -12,7 +12,7 @@ describe('howto-tabs', function() {
 
   it('should focus the next tab on [arrow right]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.getAttribute('role') === 'tab');
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.executeScript(_ => {
       window.firstTab = document.querySelector('[role="tablist"] > [role="tab"]:nth-of-type(1)');
@@ -20,12 +20,12 @@ describe('howto-tabs', function() {
     });
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     const focusedSecondTab = await this.driver.executeScript(_ => window.secondTab === document.activeElement);
-    expect(focusedSecondTab).to.equal(true);
+    expect(focusedSecondTab).to.be.true;
   });
 
   it('should focus the prev tab on [arrow left]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.getAttribute('role') === 'tab');
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.executeScript(_ => {
       window.firstTab = document.querySelector('[role="tablist"] > [role="tab"]:first-of-type');
@@ -33,12 +33,12 @@ describe('howto-tabs', function() {
     });
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
     const focusedLastTab = await this.driver.executeScript(_ => window.lastTab === document.activeElement);
-    expect(focusedLastTab).to.equal(true);
+    expect(focusedLastTab).to.be.true;
   });
 
   it('should focus the last tab on [end]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.getAttribute('role') === 'tab');
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.executeScript(_ => {
       window.firstTab = document.querySelector('[role="tablist"] > [role="tab"]:first-of-type');
@@ -47,12 +47,12 @@ describe('howto-tabs', function() {
     });
     await this.driver.actions().sendKeys(Key.END).perform();
     const focusedLastTab = await this.driver.executeScript(_ => window.lastTab === document.activeElement);
-    expect(focusedLastTab).to.equal(true);
+    expect(focusedLastTab).to.be.true;
   });
 
   it('should focus the first tab on [home]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.getAttribute('role') === 'tab');
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.executeScript(_ => {
       window.firstTab = document.querySelector('[role="tablist"] > [role="tab"]:first-of-type');
@@ -61,7 +61,7 @@ describe('howto-tabs', function() {
     });
     await this.driver.actions().sendKeys(Key.HOME).perform();
     const focusedFirstTab = await this.driver.executeScript(_ => window.firstTab === document.activeElement);
-    expect(focusedFirstTab).to.equal(true);
+    expect(focusedFirstTab).to.be.true;
   });
 
  it('should focus a tab on click', async function() {
@@ -73,7 +73,7 @@ describe('howto-tabs', function() {
 
   it('should handle elements added after initialization', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement.getAttribute('role') === 'tab');
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.executeScript(_ => {
       window.tabpanel = document.querySelector('howto-tabs');
@@ -90,6 +90,6 @@ describe('howto-tabs', function() {
     success = await this.driver.executeScript(_ =>
       document.activeElement === newTab
     );
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 });

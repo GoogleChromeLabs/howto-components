@@ -1,3 +1,4 @@
+/* eslint no-console: ["off"] */
 const http = require('http');
 const fs = require('mz/fs');
 const express = require('express');

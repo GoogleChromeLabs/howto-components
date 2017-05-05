@@ -1,3 +1,5 @@
+/* eslint max-len: ["off"] */
+
 (function() {
   const expect = chai.expect;
 
@@ -24,10 +26,8 @@
       ]).then(_ => {
         this.tree = this.container.querySelector('howto-tree');
         this.firstTreeItem = this.tree.querySelector('howto-tree-item');
-        this.parentTreeItem = this.tree
-          .querySelector('howto-tree-item-group');
-        this.selectedTreeItem = this.tree
-          .querySelector('howto-tree-item[selected]');
+        this.parentTreeItem = this.tree.querySelector('howto-tree-item-group');
+        this.selectedTreeItem = this.tree.querySelector('howto-tree-item[selected]');
       });
     });
 
@@ -43,11 +43,9 @@
       expect(this.tree.getAttribute('tabindex')).to.equal('0');
     });
 
-    it('should make any [aria-selected] child the activedescendant',
-      function() {
-        expect(this.tree.getAttribute('aria-activedescendant'))
-          .to.equal(this.selectedTreeItem.getAttribute('id'));
-      });
+    it('should make any [aria-selected] child the activedescendant', function() {
+      expect(this.tree.getAttribute('aria-activedescendant')).to.equal(this.selectedTreeItem.getAttribute('id'));
+    });
 
     describe('howto-tree-item', function() {
       it('should apply [role=treeitem]', function() {
@@ -56,28 +54,23 @@
 
       it('should generate ids', function() {
         const treeItem = this.tree.querySelector('howto-tree-item');
-        expect(treeItem.getAttribute('id'))
-          .to.match(/^howto-tree-item-generated-.*$/);
+        expect(treeItem.getAttribute('id')).to.match(/^howto-tree-item-generated-.*$/);
       });
     });
 
     describe('howto-tree-item-group', function() {
       it('should apply [aria-expanded=false]', function() {
-        expect(this.parentTreeItem.getAttribute('aria-expanded'))
-          .to.equal('false');
+        expect(this.parentTreeItem.getAttribute('aria-expanded')).to.equal('false');
       });
 
       it('should toggle [aria-expanded]', function() {
         this.parentTreeItem.expanded = true;
-        expect(this.parentTreeItem.getAttribute('aria-expanded'))
-          .to.equal('true');
+        expect(this.parentTreeItem.getAttribute('aria-expanded')).to.equal('true');
       });
 
-      it('should use `<label>` to apply [aria-label] to parent nodes',
-        function() {
-          expect(this.parentTreeItem.getAttribute('aria-label'))
-            .to.equal('Project 2');
-        });
+      it('should use `<label>` to apply [aria-label] to parent nodes', function() {
+        expect(this.parentTreeItem.getAttribute('aria-label')).to.equal('Project 2');
+      });
     });
   });
 })();

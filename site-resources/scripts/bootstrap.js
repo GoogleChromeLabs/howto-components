@@ -17,7 +17,7 @@
   const asyncStyles = [
     '../styles/prism-solarizedlight.css',
   ];
-  for(let asyncStyle of asyncStyles) {
+  for (let asyncStyle of asyncStyles) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = asyncStyle;
