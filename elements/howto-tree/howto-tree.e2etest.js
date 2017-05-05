@@ -12,7 +12,7 @@ describe('howto-tree', function() {
 
   it('should make the first tree-item the activedescendant on focus', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const tree = await this.driver.findElement(By.css('howto-tree'));
     const activeDescendant = await tree.getAttribute('aria-activedescendant');
@@ -24,7 +24,7 @@ describe('howto-tree', function() {
 
   it('should make the next tree-item the activedescendant on [arrow down]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
     const tree = await this.driver.findElement(By.css('howto-tree'));
@@ -37,7 +37,7 @@ describe('howto-tree', function() {
 
   it('should make the previous tree-item the activedescendant on [arrow up]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
     await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
@@ -51,7 +51,7 @@ describe('howto-tree', function() {
 
   it('should expand parent tree-items on [arrow right]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const parentTreeItem = await this.driver.executeScript(_ =>
       Array.from(document.querySelectorAll('[role=treeitem]'))
@@ -65,7 +65,7 @@ describe('howto-tree', function() {
 
   it('should collapse parent tree-items on [arrow left]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const parentTreeItem = await this.driver.executeScript(_ =>
       Array.from(document.querySelectorAll('[role=treeitem]'))
@@ -82,7 +82,7 @@ describe('howto-tree', function() {
 
   it('should make the first visible tree-item the activedescendant on [home]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     await this.driver.actions().sendKeys(Key.HOME).perform();
@@ -94,7 +94,7 @@ describe('howto-tree', function() {
 
   it('should make the last visible tree-item the activedescendant on [end]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const lastVisibleTreeItem = await this.driver.executeScript(_ => {
       const treeItems = [];
@@ -118,7 +118,7 @@ describe('howto-tree', function() {
 
   it('should select an item on [space]', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const firstTreeItem = await this.driver.findElement(By.css('howto-tree-item'));
     await this.driver.actions().sendKeys(Key.SPACE).perform();
@@ -127,7 +127,7 @@ describe('howto-tree', function() {
 
   it('should select and expand parent tree-items on click', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     const parentTreeItem = await this.driver.executeScript(_ =>
       Array.from(document.querySelectorAll('[role=treeitem]'))
@@ -140,7 +140,7 @@ describe('howto-tree', function() {
 
   it('should collapse expanded parent tree-items on click', async function() {
     const found = await helper.pressKeyUntil(this.driver, Key.TAB, `return document.activeElement.getAttribute('role') === 'tree';`);
-    expect(found).to.equal(true);
+    expect(found).to.be.true;
 
     let parentTreeItem = await this.driver.executeScript(_ =>
       document.querySelector('howto-tree-item-group')

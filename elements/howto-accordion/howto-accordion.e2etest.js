@@ -30,15 +30,15 @@ describe('howto-accordion', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should focus the last panel on [end]', async function() {
@@ -48,11 +48,11 @@ describe('howto-accordion', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.END).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedLastHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should focus the first panel on [home]', async function() {
@@ -62,15 +62,15 @@ describe('howto-accordion', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
     await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedLastHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.HOME).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should expand a panel on click', async function() {
@@ -96,13 +96,13 @@ describe('howto-accordion', function() {
       window.firstHeading = document.querySelector('[role=heading]:nth-of-type(1)');
     });
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.firstHeading);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     success = await this.driver.executeScript(_ => {
       window.firstPanel = document.getElementById(firstHeading.getAttribute('aria-controls'));
       return !!window.firstPanel;
     });
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.SPACE).perform();
     await helper.sleep(500);

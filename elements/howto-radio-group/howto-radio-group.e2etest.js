@@ -18,23 +18,23 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should wrap focus', async function() {
@@ -44,15 +44,15 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_UP).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedLastRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_DOWN).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should focus the last radio on [end]', async function() {
@@ -62,10 +62,10 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
     await this.driver.actions().sendKeys(Key.END).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedLastRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should focus the first radio on [home]', async function() {
@@ -75,13 +75,13 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
     await this.driver.actions().sendKeys(Key.ARROW_LEFT).perform();
     await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedLastRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
     await this.driver.actions().sendKeys(Key.HOME).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should mark the selected element as aria-checked=true', async function() {
@@ -91,11 +91,11 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     success = await this.driver.executeScript(_ => window.expectedSecondRadio.getAttribute('aria-checked') === 'true');
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   });
 
   it('should return focus to the checked element', async function() {
@@ -105,7 +105,7 @@ describe('howto-radio-group', function() {
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
 
     await this.driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
     // Hold SHIFT, then press TAB
@@ -115,7 +115,7 @@ describe('howto-radio-group', function() {
     // Release SHIFT, then press TAB
     await this.driver.actions().sendKeys(Key.SHIFT, Key.TAB).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondRadio);
-    expect(success).to.equal(true);
+    expect(success).to.be.true;
   }
 );
 
