@@ -14,6 +14,7 @@
     "valid-jsdoc": "off",
     "require-jsdoc": "off",
     "keyword-spacing": ["error"],
-    "no-console": ["error", {"allow": ["warn", "error"]}]
+    "no-console": ["error", {"allow": ["warn", "error"]}],
+    "no-extra-semi": ["error"]
   }
 }
