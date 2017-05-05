@@ -1,4 +1,3 @@
-/* eslint max-len: ["off"], no-console: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -14,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint require-jsdoc: 0 */
+/* eslint max-len: ["off"], no-console: ["off"], require-jsdoc: 0 */
 const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
@@ -88,6 +87,9 @@ function parseElement(name) {
       return fs.writeFile(`docs/${name}/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
+      // Remove copyright blocks
+      removeCopyright(contents.sections);
+      removeCopyright(contents.demoSections);
       contents.sections =
         contents.sections
           // Make jsdoc blocks only belong to _one_
@@ -110,6 +112,16 @@ function parseElement(name) {
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
+}
+
+function removeCopyright(sections) {
+  if (sections[0].commentType === 'BlockComment'
+    && sections[0].commentText.indexOf('Copyright 2017 Google') !== -1) {
+      sections[0].commentText = '';
+    }
+  sections.forEach(section => {
+    section.codeText = section.codeText.replace(/<!--([^-]|-[^>])+-->/g, '');
+  });
 }
 
 function addHelperFunctionsToContext(context) {
