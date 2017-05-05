@@ -75,7 +75,7 @@
         headings
           .forEach(heading => {
             const panel = this._panelForHeading(heading);
-            if(!heading.expanded) {
+            if (!heading.expanded) {
               this._collapseHeading(heading);
               this._collapsePanel(panel);
             } else {
@@ -121,7 +121,7 @@
       if (this.classList.contains('animating'))
         return;
       const panel = this._panelForHeading(heading);
-      if(expand) {
+      if (expand) {
         this._expandPanel(panel);
         this._animateIn(panel);
       } else {
@@ -203,7 +203,7 @@
      */
     _panelForHeading(heading) {
       const next = heading.nextElementSibling;
-      if(next.tagName.toLowerCase() !== 'howto-accordion-panel') {
+      if (next.tagName.toLowerCase() !== 'howto-accordion-panel') {
         console.error('Sibling element to a heading need to be a panel.');
         return;
       }
@@ -310,7 +310,7 @@
       // If start and end are the same there is nothing to do. The reason for
       // explicitly handling this case is that this method waits for an
       // `transitionend` event which won’t fire if there is no animation.
-      if(startOffset === endOffset) return Promise.resolve();
+      if (startOffset === endOffset) return Promise.resolve();
       // Set the `animating` class on the `<howto-accordion>` element. This
       // discards all further `change` events until the animation is done.
       this.classList.add('animating');
@@ -461,9 +461,9 @@
      * `connectedCallback()` sets up the role, event handler and initial state.
      */
     connectedCallback() {
-      if(!this.hasAttribute('role'))
+      if (!this.hasAttribute('role'))
         this.setAttribute('role', 'heading');
-      if(!this.id)
+      if (!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
       this._shadowButton.addEventListener('click', this._onClick);
       this._shadowButton.setAttribute('aria-expanded', 'false');
@@ -508,7 +508,7 @@
       // it’s converted to a proper boolean value using JavaScript’s truthiness
       // & falsiness principles.
       value = Boolean(value);
-      if(value)
+      if (value)
         this.setAttribute('expanded', '');
       else
         this.removeAttribute('expanded');
@@ -554,9 +554,9 @@
      * `connectedCallback()` sets up the role and the ID of the element.
      */
     connectedCallback() {
-      if(!this.hasAttribute('role'))
+      if (!this.hasAttribute('role'))
         this.setAttribute('role', 'region');
-      if(!this.id)
+      if (!this.id)
         this.id = `howto-accordion-panel-generated-${panelIdCounter++}`;
     }
 

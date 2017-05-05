@@ -7,10 +7,11 @@
   "parserOptions": {
     "ecmaVersion": "2017"
   },
-  "extends": "google",
+  "extends": ["google"],
   "rules": {
     "arrow-parens": 0,
     "valid-jsdoc": "off",
-    "require-jsdoc": "off"
+    "require-jsdoc": "off",
+    "keyword-spacing": ["error"]
   }
 }

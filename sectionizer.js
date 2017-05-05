@@ -126,7 +126,7 @@ function parseCode(ss) {
 function parseBlock(ss) {
   ss.meta.indentationLevel++;
   ss.next();
-  while(ss.current !== '}') {
+  while (ss.current !== '}') {
     parseExpression(ss);
     eatWhitespace(ss);
   }

@@ -60,7 +60,7 @@
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
 
-      if(!this.hasAttribute('role'))
+      if (!this.hasAttribute('role'))
         this.setAttribute('role', 'tablist');
 
       // Currently, `slotchange` does not fire when an element is upgraded. For
@@ -99,7 +99,7 @@
       // that controls it.
       tabs.forEach(tab => {
         const panel = tab.nextElementSibling;
-        if(panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
+        if (panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
           console.error(`Tab #${tab.id} is not a` +
             `sibling of a <howto-tabs-panel>`);
           return;
@@ -338,7 +338,7 @@
 
     set selected(value) {
       value = Boolean(value);
-      if(value)
+      if (value)
         this.setAttribute('selected', '');
       else
         this.removeAttribute('selected');
