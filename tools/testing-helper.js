@@ -32,4 +32,14 @@ window.howtoComponents.after = function(f) {
     this.container = null;
     f && f.call(this);
   };
+
+};
+
+/**
+ * `isHidden` returns true if an element is hidden, taken both the `hidden`
+ * and `aria-hidden` attribute into account.
+ */
+window.howtoComponents.isHidden = function(elem) {
+  return elem.hidden ||
+    (elem.getAttribute('aria-hidden') || '').toLowerCase() === 'true';
 };

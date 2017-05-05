@@ -7,4 +7,6 @@ By either clicking or by using the arrow keys the user changes the
 selection of the active tab.
 
 If JavaScript is disabled, all panels are shown interleaved with the
-respective tabs. The tabs now function as headings
+respective tabs. The tabs now function as headings.
+
+See: https://www.w3.org/TR/wai-aria-practices-1.1/#tabpanel
