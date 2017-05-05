@@ -1,4 +1,3 @@
-/* eslint max-len: ["off"], no-console: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -14,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint require-jsdoc: 0 */
+/* eslint max-len: ["off"], no-console: ["off"], require-jsdoc: 0 */
 const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
