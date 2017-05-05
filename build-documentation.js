@@ -1,4 +1,4 @@
-/* eslint max-len: ["off"] */
+/* eslint max-len: ["off"], no-console: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
