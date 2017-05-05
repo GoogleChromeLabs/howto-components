@@ -87,6 +87,9 @@ function parseElement(name) {
       return fs.writeFile(`docs/${name}/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
+      // Remove copyright blocks
+      removeCopyright(contents.sections);
+      removeCopyright(contents.demoSections);
       contents.sections =
         contents.sections
           // Make jsdoc blocks only belong to _one_
@@ -109,6 +112,16 @@ function parseElement(name) {
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
+}
+
+function removeCopyright(sections) {
+  if (sections[0].commentType === 'BlockComment'
+    && sections[0].commentText.indexOf('Copyright 2017 Google') !== -1) {
+      sections[0].commentText = '';
+    }
+  sections.forEach(section => {
+    section.codeText = section.codeText.replace(/<!--([^-]|-[^>])+-->/g, '');
+  });
 }
 
 function addHelperFunctionsToContext(context) {
