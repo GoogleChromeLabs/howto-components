@@ -130,3 +130,61 @@ describe('howto-accordion', function() {
     expect(success).to.be.true;
   });
 });
+
+describe('howto-accordion pre-upgrade', function() {
+  let success;
+
+  beforeEach(function() {
+    return this.driver.get(`${this.address}/howto-accordion/demo.html?nojs`)
+      .then(_ => this.driver.executeScript(_ => {
+        window.queryShadowAgnosticSelector = function(elem, s) {
+         return elem.querySelector(s) || (elem.shadowRoot && elem.shadowRoot.querySelector(s));
+        };
+
+        window.isHidden = function(elem) {
+          return getComputedStyle(elem).display === 'none' ||
+            getComputedStyle(elem).visibility === 'hidden' ||
+            elem.hidden ||
+            (elem.getAttribute('aria-hidden') || '').toLowerCase() === 'true';
+        };
+      }));
+  });
+
+  it('should handle attributes set before upgrade', async function() {
+      await this.driver.executeScript(_ => {
+        window.firstHeading = document.querySelector('howto-accordion > howto-accordion-heading:first-of-type');
+        window.firstPanel = firstHeading.nextElementSibling;
+
+        window.firstHeading.setAttribute('expanded', '');
+      });
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-accordion'));
+      await helper.sleep(500);
+      success = await this.driver.executeScript(_ =>
+        queryShadowAgnosticSelector(firstHeading, 'button').getAttribute('aria-expanded') === 'true' &&
+        !isHidden(firstPanel)
+      );
+      expect(success).to.equal(true);
+    }
+  );
+
+  it('should handle instance properties set before upgrade', async function() {
+      await this.driver.executeScript(_ => {
+        window.firstHeading = document.querySelector('howto-accordion > howto-accordion-heading:first-of-type');
+        window.firstPanel = firstHeading.nextElementSibling;
+
+        window.firstHeading.expanded = true;
+      });
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-accordion'));
+      await helper.sleep(500);
+      success = await this.driver.executeScript(_ =>
+        queryShadowAgnosticSelector(firstHeading, 'button').getAttribute('aria-expanded') === 'true' &&
+        !isHidden(firstPanel)
+      );
+      expect(success).to.equal(true);
+    }
+  );
+});
