@@ -54,7 +54,7 @@
 
       // The Mutation Observer observes this element as well as all the
       // headings. The
-      // Mutation Observer only watches the headings for changed to their
+      // Mutation Observer only watches the headings for changes to their
       // `expanded` attribute.
       this._mo.observe(this, {childList: true});
       Array.from(this.children)
@@ -65,8 +65,8 @@
             attributeFilter: ['expanded'],
           }));
 
-      // `_linkHeadings()` relies on the elements to have generated their IDs,
-      // which is guaranteed to have happend once `whenDefined()` resolves.
+      // `_linkHeadings()` needs all children to have IDs, which is only
+      // guaranteed to have happened once their `connectedCallback()` has run.
       Promise.all([
         customElements.whenDefined('howto-accordion-heading'),
         customElements.whenDefined('howto-accordion-panel'),
@@ -80,12 +80,12 @@
     /**
      * On every mutation – that is adding/removing a child node or changing the
      * `expanded` attribute on one of the headings – the MutationObserver calls
-     * calls `_updateAttributes()` to update the state of all headings and
-     * panels. Additionally, the Mutation Observer starts observing all new
-     * headings.
+     * `_animateAll()` to animate all panels to their currently specified state.
      */
     _onMutation(mutations) {
       mutations.forEach(mutation => {
+        // All new children need to be observed as well to be notified about
+        // changes to their `expanded` attribute.
         Array.from(mutation.addedNodes)
           .filter(node => this._isHeading(node))
           .forEach(node =>
