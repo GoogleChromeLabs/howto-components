@@ -137,7 +137,8 @@
      */
     _animateAll() {
       this._allHeadings().forEach(heading =>
-        this._animatePanelForHeading(heading, heading.expanded));
+        this._animatePanelForHeading(heading, heading.expanded)
+      );
     }
 
     /**
@@ -511,7 +512,30 @@
       if (!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
       this._shadowButton.addEventListener('click', this._onClick);
-      this._shadowButton.setAttribute('aria-expanded', 'false');
+
+      if (!this._shadowButton.hasAttribute('aria-expanded'))
+        this._shadowButton.setAttribute('aria-expanded', 'false');
+
+      this._upgradeProperty('expanded');
+    }
+
+    /**
+    * Check if a property has an instance value. If so, copy the value, and
+    * delete the instance property so it doesn't shadow the class property
+    * setter. Finally, pass the value to the class property setter so it can
+    * trigger any side effects.
+    * This is to safe guard against cases where, for instance, a framework
+    * may have added the element to the page and set a value on one of its
+    * properties, but lazy loaded its definition. Without this guard, the
+    * upgraded element would miss that property and the instance property
+    * would prevent the class property setter from ever being called.
+    */
+    _upgradeProperty(prop) {
+      if (this.hasOwnProperty(prop)) {
+        let value = this[prop];
+        delete this[prop];
+        this[prop] = value;
+      }
     }
 
     /**
