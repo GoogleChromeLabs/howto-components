@@ -101,10 +101,63 @@ describe('howto-tabs', function() {
       tabpanel.appendChild(newTab);
       tabpanel.appendChild(newPanel);
     });
+    success = await this.driver.executeScript(_ =>
+      newTab.getAttribute('aria-controls') === newPanel.id && newPanel.getAttribute('aria-labelledby') === newTab.id
+    );
+    expect(success).to.be.true;
+
     await this.driver.actions().sendKeys(Key.END).perform();
     success = await this.driver.executeScript(_ =>
       document.activeElement === newTab
     );
     expect(success).to.be.true;
   });
+});
+
+describe('howto-tabs pre-upgrade', function() {
+  let success;
+
+  beforeEach(function() {
+    return this.driver.get(`${this.address}/howto-tabs/demo.html?nojs`)
+      .then(_ => this.driver.executeScript(_ => {
+        window.isHidden = function(elem) {
+          return getComputedStyle(elem).display === 'none' ||
+            getComputedStyle(elem).visibility === 'hidden' ||
+            elem.hidden ||
+            (elem.getAttribute('aria-hidden') || '').toLowerCase() === 'true';
+        };
+      }));
+  });
+
+  it('should handle attributes set before upgrade', async function() {
+      await this.driver.executeScript(_ => {
+        window.lastTab = document.querySelector('howto-tabs > howto-tabs-tab:last-of-type');
+        window.lastPanel = lastTab.nextElementSibling;
+
+        window.lastTab.setAttribute('selected', '');
+      });
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-tabs'));
+      await helper.sleep(500);
+      success = await this.driver.executeScript(_ => lastTab.selected && !isHidden(lastPanel));
+      expect(success).to.equal(true);
+    }
+  );
+
+  it('should handle instance properties set before upgrade', async function() {
+      await this.driver.executeScript(_ => {
+        window.lastTab = document.querySelector('howto-tabs > howto-tabs-tab:last-of-type');
+        window.lastPanel = lastTab.nextElementSibling;
+
+        window.lastTab.selected = true;
+      });
+
+      await this.driver.executeScript(_ => _loadJavaScript());
+      await this.driver.executeScript(_ => customElements.whenDefined('howto-tabs'));
+      await helper.sleep(500);
+      success = await this.driver.executeScript(_ => lastTab.hasAttribute('selected') && !isHidden(lastPanel));
+      expect(success).to.equal(true);
+    }
+  );
 });
