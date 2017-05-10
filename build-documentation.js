@@ -177,7 +177,8 @@ function template(path) {
 function copy(a, b) {
   return new Promise((resolve, reject) =>
     fsExtra.copy(a, b, (err) => {
-      if (err) return reject(err);
+      if (err)
+        return reject(err);
       resolve();
     })
   );

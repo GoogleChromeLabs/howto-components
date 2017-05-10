@@ -15,6 +15,7 @@
     "require-jsdoc": "off",
     "keyword-spacing": ["error"],
     "no-console": ["error", {"allow": ["warn", "error"]}],
-    "no-extra-semi": ["error"]
+    "no-extra-semi": ["error"],
+    "nonblock-statement-body-position": ["error", "below"]
   }
 }

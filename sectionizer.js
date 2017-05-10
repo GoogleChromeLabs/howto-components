@@ -36,7 +36,8 @@ class ParserState {
   }
 
   get current() {
-    if (this._index >= this._str.length) return null;
+    if (this._index >= this._str.length)
+      return null;
     return this._str[this._index];
   }
 
@@ -61,7 +62,8 @@ class ParserState {
   }
 
   pushSegment(meta = {}) {
-    if (this._currentSegmentStart === this._index) return;
+    if (this._currentSegmentStart === this._index)
+      return;
     const segment = Object.assign(
       {},
       this.meta,
@@ -81,13 +83,15 @@ class ParserState {
 }
 
 function eatWhitespace(ss) {
-  while (ParserState.whitespace.includes(ss.current)) ss.next();
+  while (ParserState.whitespace.includes(ss.current))
+    ss.next();
 }
 
 function parseExpression(ss) {
   eatWhitespace(ss);
   if (ss.current === '/') {
-      if (ss.nonWhitespaceInSegment) ss.pushSegment({type: 'code'});
+      if (ss.nonWhitespaceInSegment)
+        ss.pushSegment({type: 'code'});
       ss.next();
       return parseComment(ss);
   }
@@ -108,7 +112,8 @@ function parseComment(ss) {
 }
 
 function parseLineComment(ss) {
-  while (ss.current !== '\n') ss.next();
+  while (ss.current !== '\n')
+    ss.next();
   ss.next();
   if (ss.segmentStartsAfterNewline)
     ss.pushSegment({type: 'LineComment'});
@@ -118,7 +123,8 @@ function parseLineComment(ss) {
 
 function parseBlockComment(ss) {
   while (true) {
-    while (ss.current !== '*') ss.next();
+    while (ss.current !== '*')
+      ss.next();
     ss.next();
     if (ss.current === '/') {
       ss.next();
@@ -151,7 +157,8 @@ function parseBlock(ss) {
 function parseDoubleQuotedString(ss) {
   ss.next();
   while (ss.current !== '"') {
-    if (ss.current === '\\') ss.next();
+    if (ss.current === '\\')
+      ss.next();
     ss.next();
   }
   ss.next();
@@ -160,7 +167,8 @@ function parseDoubleQuotedString(ss) {
 function parseSingleQuotedString(ss) {
   ss.next();
   while (ss.current !== '\'') {
-    if (ss.current === '\\') ss.next();
+    if (ss.current === '\\')
+      ss.next();
     ss.next();
   }
   ss.next();
@@ -170,7 +178,8 @@ function parse(str) {
   const ss = new ParserState(str);
   ss.meta.indentationLevel = 0;
 
-  while (!ss.isEOF()) parseExpression(ss);
+  while (!ss.isEOF())
+    parseExpression(ss);
   ss.pushSegment({type: 'code'});
 
   // Always start with a comment block. Add an empty one if necessary.
@@ -185,7 +194,8 @@ function parse(str) {
   return ss.segments
     // Coalesc sequences of line comments
     .reduce((accumulator, nextSegment) => {
-      if (accumulator.length <= 0) return [nextSegment];
+      if (accumulator.length <= 0)
+        return [nextSegment];
       const lastSegment = accumulator[accumulator.length - 1];
       if (
         lastSegment.type === 'LineComment'

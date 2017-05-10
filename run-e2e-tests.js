@@ -74,7 +74,8 @@ async function buildMocha() {
 function unsandboxChrome(browser) {
   const isChrome = browser.getReleaseName() === 'stable'
     && ['chrome'].includes(browser.getId());
-  if (!isChrome) return browser;
+  if (!isChrome)
+    return browser;
   browser
     .getSeleniumOptions()
     // Disabling sandboxing is needed for Chrome to run in Docker (and Travis)
@@ -144,6 +145,7 @@ main()
   .then(_ => console.log('e2e tests done.'))
   .catch(err => {
     console.error(err);
-    if (err.stack) console.error(err.stack);
+    if (err.stack)
+      console.error(err.stack);
     process.exit(1);
   });

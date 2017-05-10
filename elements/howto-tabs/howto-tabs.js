@@ -235,7 +235,8 @@
       // Get the panel that the `newTab` is associated with.
       const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
-      if (!newPanel) throw new Error(`No panel with id ${newPanelId}`);
+      if (!newPanel)
+        throw new Error(`No panel with id ${newPanelId}`);
       newTab.selected = true;
       newPanel.hidden = false;
       newTab.focus();
@@ -247,9 +248,11 @@
     _onKeyDown(event) {
       // If the keypress did not originate from a tab element itself,
       // it was a keypress inside the a panel or on empty space. Nothing to do.
-      if (event.target.getAttribute('role') !== 'tab') return;
+      if (event.target.getAttribute('role') !== 'tab')
+        return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
-      if (event.altKey) return;
+      if (event.altKey)
+        return;
 
       // The switch-case will determine which tab should be marked as active
       // depending on the key that was pressed.
@@ -291,7 +294,8 @@
     _onClick(event) {
       // If the click was not targeted on a tab element itself,
       // it was a click inside the a panel or on empty space. Nothing to do.
-      if (event.target.getAttribute('role') !== 'tab') return;
+      if (event.target.getAttribute('role') !== 'tab')
+        return;
       // If it was on a tab element, though, select that tab.
       this._selectTab(event.target);
     }

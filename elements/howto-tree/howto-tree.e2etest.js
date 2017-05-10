@@ -100,9 +100,11 @@ describe('howto-tree', function() {
       const treeItems = [];
       function findTreeItems(node) {
         for (let el of node.children) {
-          if (el.getAttribute('role') === 'treeitem') treeItems.push(el);
+          if (el.getAttribute('role') === 'treeitem')
+            treeItems.push(el);
           if (el.getAttribute('role') === 'treeitem' &&
-              el.getAttribute('aria-expanded') !== 'true') continue;
+              el.getAttribute('aria-expanded') !== 'true')
+              continue;
           findTreeItems(el);
         }
       }
