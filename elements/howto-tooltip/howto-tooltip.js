@@ -36,16 +36,14 @@ class HowtoTooltip extends HTMLElement {
     this.setAttribute('role', 'tooltip');
 
     // Tooltips cannot be focused themselves.
-    this.tabIndex = -1;
+    this.setAttribute('tabindex', -1);
 
-    // 'aria-hidden' is used to show or hide the tooltip. A tooltip should
-    // check to see if its `aria-hidden` value has been set by the user.
-    // Otherwise, it should use the default value.
-    this.setAttribute('aria-hidden', this.getAttribute('aria-hidden') || true);
+    this._hide();
 
     // The element that triggers the tooltip references the tooltip
     // element with aria-describedby.
     this._target = document.querySelector('[aria-describedby=' + this.id + ']');
+    if (!this._target) return;
 
     // The tooltip needs to listen to focus/blur events from the target,
     // as well as hover events over the target.
@@ -73,17 +71,11 @@ class HowtoTooltip extends HTMLElement {
   }
 
   _show() {
-    // If the tooltip is hidden, show it.
-    if (this.getAttribute('aria-hidden') === 'true') {
-      this.setAttribute('aria-hidden', 'false');
-    }
+    this.hidden = false;
   }
 
   _hide() {
-    // If the tooltip is visible, hide.
-    if (this.getAttribute('aria-hidden') === 'false') {
-      this.setAttribute('aria-hidden', 'true');
-    }
+    this.hidden = true;
   }
 }
 
