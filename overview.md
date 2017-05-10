@@ -46,19 +46,20 @@ explaining why that is.
 
 ### Maintainable code
 
-As `<HowTo>` is aimed to be read and function as a reference implementation, we
-spent extra time on writing readable and easily comprehensible code that is
-densely commented.
+As HowTo: Components is aimed to be read and function as a reference
+implementation, we spent extra time on writing readable and easily
+comprehensible code that is densely commented.
 
 ## Non-Goals
 
 ### Be a library / framework / toolkit
 
-`<HowTo>` components are not published on npm, bower or any other platform
+`<howto>` components are not published on npm, bower or any other platform
 because they are not meant to be used in production. For the sake of terse,
-readable code, we are using modern JavaScript APIs and are supporting a subset
-of modern browsers. The idea is that you, the reader, are able adapt the code to
-fit your own needs after reading these implementations.
+readable code, we are using modern JavaScript APIs and are supporting modern
+browsers which implement the Web Components standards. The idea is that you, the
+reader, are able adapt the code to fit your own needs after reading these
+implementations.
 
 ### Be backwards compatible
 
@@ -71,6 +72,6 @@ explore, and discuss best practices for building web UIs.
 
 We currently don't (and probably won't) implement **all* *components that can be
 found in the WAI ARIA Authoring Practices. However, re-using the principles used
-in other `<HowTo>` components should enable readers to implement any components
+in other `<howto>` components should enable readers to implement any components
 that are missing.
 
