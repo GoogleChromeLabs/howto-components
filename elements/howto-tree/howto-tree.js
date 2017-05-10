@@ -195,7 +195,8 @@
         // the element.
         const treeItems = this._allTreeItems();
         // If there are no `treeItems`, then the tree is empty. Abort.
-        if (treeItems.length === 0) return;
+        if (treeItems.length === 0)
+          return;
 
         // The element checks if any child has been marked as selected.
         // If so, it will mark it as the current `aria-activedescendant`.

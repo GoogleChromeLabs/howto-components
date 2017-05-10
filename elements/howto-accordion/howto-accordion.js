@@ -153,9 +153,11 @@
       // If the currently focused element is not a heading, the keypress
       // originated from inside a panel or empty space. Nothing to do.
       const currentHeading = event.target;
-      if (!this._isHeading(currentHeading)) return;
+      if (!this._isHeading(currentHeading))
+        return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
-      if (event.altKey) return;
+      if (event.altKey)
+        return;
 
       // The switch-case will determine which heading should be focused next
       // depending on the key that was pressed.
@@ -326,7 +328,8 @@
       // If start and end are the same there is nothing to do. The reason for
       // explicitly handling this case is that this method waits for an
       // `transitionend` event which won’t fire if there is no animation.
-      if (startOffset === endOffset) return Promise.resolve();
+      if (startOffset === endOffset)
+        return Promise.resolve();
       // Set the `animating` class on the `<howto-accordion>` element. This
       // discards all further `change` events until the animation is done.
       this.classList.add('animating');
