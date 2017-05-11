@@ -32,11 +32,9 @@ book_path: /web/fundamentals/_book.yaml
 <script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
 <script>
   devsite.framebox.AutoSizeClient.initAutoSize(true);
-  if (!document.location.search.includes('nojs')) {
-    (function() {
-      {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
-    })();
-  }
+  (function() {
+    {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
+  })();
 </script>
 </html>
 
@@ -45,9 +43,9 @@ book_path: /web/fundamentals/_book.yaml
 ## Example usage {: #usage }
 <ul class="literate demo" id="{{=it.title}}_demo">
 {{ for (let section of it.demoSections) { }}
-<li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
-<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
+<li class="{{=section.commentType.toLowerCase()}} {{? it.isEmpty(section.commentText) && it.isEmpty(section.codeText)}}empty{{?}}">
+<div class="literate-text {{? it.isEmpty(section.commentText)}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<pre><code class="literate-code {{? it.isEmpty(section.codeText)}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
@@ -55,9 +53,9 @@ book_path: /web/fundamentals/_book.yaml
 ## Code {: #code }
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
-<li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
-<div class="literate-text {{? section.commentText.length <= 0}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
-<pre><code class="literate-code {{? section.codeText.length <= 0}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
+<li class="{{=section.commentType.toLowerCase()}} {{? it.isEmpty(section.commentText) && it.isEmpty(section.codeText)}}empty{{?}}">
+<div class="literate-text {{? it.isEmpty(section.commentText)}}empty{{?}}">{{=it.markdown(section.commentText)}}</div>
+<pre><code class="literate-code {{? it.isEmpty(section.codeText)}}empty{{?}}">{{=it.indentLines(it.escape(section.codeText))}}</code></pre>
 </li>
 {{ } }}
 </ul>
