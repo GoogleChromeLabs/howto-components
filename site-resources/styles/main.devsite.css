@@ -86,6 +86,9 @@ ul.literate > li:last-of-type > .literate-text {
   ul.literate li.blockcomment {
     margin-top: 1em;
   }
+  ul.literate > li:last-of-type > .literate-text {
+    padding-bottom: 0;
+  }
 }
 
 .demo {
