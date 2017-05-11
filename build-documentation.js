@@ -94,13 +94,13 @@ function parseElement(name) {
         contents.sections
           // Make jsdoc blocks only belong to _one_
           // line of code for better visuals
-          .reduce((accumulator, nextSegment) => {
-            if (nextSegment.commentType !== 'BlockComment')
-              return [...accumulator, nextSegment];
-            const copy = Object.assign({}, nextSegment);
-            const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
-            nextSegment.codeText = lines[0] + '\n';
-            accumulator.push(nextSegment);
+          .reduce((accumulator, nextSection) => {
+            if (nextSection.commentType !== 'BlockComment')
+              return [...accumulator, nextSection];
+            const copy = Object.assign({}, nextSection);
+            const lines = nextSection.codeText.replace(/^\n*/, '').split('\n');
+            nextSection.codeText = lines[0] + '\n';
+            accumulator.push(nextSection);
             if (lines.length >= 2) {
               copy.commentType = 'LineComment';
               copy.commentText = '';
@@ -142,7 +142,11 @@ function addHelperFunctionsToContext(context) {
       text
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;'),
-    indentLines: text => text.replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    indentLines: text => text
+      .replace(/^\n*/, '')
+      .replace(/\s*$/, '')
+      .replace(/  /g, '<sPan class="indent">&nbsp;&nbsp;</span>'),
+    isEmpty: text => text.trim().length <= 0,
   });
 }
 
