@@ -7,10 +7,15 @@
   "parserOptions": {
     "ecmaVersion": "2017"
   },
-  "extends": "google",
+  // "extends": ["eslint:recommended", "google"],
+  "extends": ["google"],
   "rules": {
     "arrow-parens": 0,
     "valid-jsdoc": "off",
-    "require-jsdoc": "off"
+    "require-jsdoc": "off",
+    "keyword-spacing": ["error"],
+    "no-console": ["error", {"allow": ["warn", "error"]}],
+    "no-extra-semi": ["error"],
+    "nonblock-statement-body-position": ["error", "below"]
   }
 }

@@ -1,3 +1,15 @@
+<!--
+Copyright 2017 Google Inc. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <!doctype html>
 
 <style>
@@ -8,28 +20,8 @@
     background-color: #616161;
     color: #fff;
     border-radius: 3px;
-    opacity: 0;
-
-    /* Optionally, animate the tooltip. */
-    transition: opacity 1s;
-
-    /* will-change tells the browser we will be animating the opacity, so
-     * it can try to optimize that
-     * https://developer.mozilla.org/en-US/docs/Web/CSS/will-change */
-    will-change: opacity;
   }
 
-  /* The tooltip is hidden. */
-  howto-tooltip[aria-hidden="true"] {
-    opacity: 0;
-  }
-
-  /* The tooltip is showing. */
-  howto-tooltip[aria-hidden="false"] {
-    /* Optionally, add a delay to showing the tooltip. */
-    transition-delay: 0.3s;
-    opacity: 1;
-  }
 </style>
 
 <div class="text">

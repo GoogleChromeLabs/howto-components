@@ -1,0 +1,52 @@
+<!--
+Copyright 2017 Google Inc. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!doctype html>
+<style>
+  howto-accordion {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* Headings need a background color so they are not transparent. Otherwise
+  the content will shine through during the animation. */
+  howto-accordion-heading {
+    background-color: white;
+    border: 1px solid black;
+  }
+  howto-accordion-heading[expanded] {
+    background-color: bisque;
+  }
+  howto-accordion-panel {
+    padding: 20px;
+    background-color: lightgray;
+  }
+  /* The accordion gets the `animating` class assigned if its children are about
+  to be animated. The implementation relies on the `transitionend` event, so
+  this class _must_ define a transition on the `transform` property. */
+  howto-accordion > *.animating {
+    transition: transform 0.3s ease-in-out;
+  }
+  howto-accordion-panel:not([expanded]) {
+    display: none;
+  }
+</style>
+
+<howto-accordion>
+  <howto-accordion-heading>Tab 1</howto-accordion-heading>
+  <howto-accordion-panel>Content 1</howto-accordion-panel>
+  <howto-accordion-heading>Tab 2</howto-accordion-heading>
+  <howto-accordion-panel>Content 2</howto-accordion-panel>
+  <howto-accordion-heading>Tab 3</howto-accordion-heading>
+  <howto-accordion-panel>Content 3</howto-accordion-panel>
+</howto-accordion>

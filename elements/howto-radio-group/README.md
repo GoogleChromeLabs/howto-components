@@ -18,3 +18,5 @@ of its `HowtoRadioButton` children. Only one child may be set to
 `aria-checked=true`.  Note that unlike most boolean attributes in HTML,
 boolean ARIA attributes take a literal string value of either `"true"` or
 `"false"`.
+
+See: https://www.w3.org/TR/wai-aria-practices-1.1/#radiobutton

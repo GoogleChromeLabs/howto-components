@@ -1,4 +1,3 @@
-/* eslint max-len: ["off"] */
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -14,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint require-jsdoc: 0 */
+/* eslint max-len: ["off"], no-console: ["off"], require-jsdoc: 0 */
 const origFs = require('fs');
 const fs = require('mz/fs');
 const fsExtra = require('fs-extra');
@@ -88,17 +87,20 @@ function parseElement(name) {
       return fs.writeFile(`docs/${name}/${name}.js`, code).then(_ => data);
     })
     .then(contents => {
+      // Remove copyright blocks
+      removeCopyright(contents.sections);
+      removeCopyright(contents.demoSections);
       contents.sections =
         contents.sections
           // Make jsdoc blocks only belong to _one_
           // line of code for better visuals
-          .reduce((accumulator, nextSegment) => {
-            if (nextSegment.commentType !== 'BlockComment')
-              return [...accumulator, nextSegment];
-            const copy = Object.assign({}, nextSegment);
-            const lines = nextSegment.codeText.replace(/^\n*/, '').split('\n');
-            nextSegment.codeText = lines[0] + '\n';
-            accumulator.push(nextSegment);
+          .reduce((accumulator, nextSection) => {
+            if (nextSection.commentType !== 'BlockComment')
+              return [...accumulator, nextSection];
+            const copy = Object.assign({}, nextSection);
+            const lines = nextSection.codeText.replace(/^\n*/, '').split('\n');
+            nextSection.codeText = lines[0] + '\n';
+            accumulator.push(nextSection);
             if (lines.length >= 2) {
               copy.commentType = 'LineComment';
               copy.commentText = '';
@@ -110,6 +112,16 @@ function parseElement(name) {
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
+}
+
+function removeCopyright(sections) {
+  if (sections[0].commentType === 'BlockComment'
+    && sections[0].commentText.indexOf('Copyright 2017 Google') !== -1) {
+      sections[0].commentText = '';
+    }
+  sections.forEach(section => {
+    section.codeText = section.codeText.replace(/<!--([^-]|-[^>])+-->/g, '');
+  });
 }
 
 function addHelperFunctionsToContext(context) {
@@ -130,7 +142,11 @@ function addHelperFunctionsToContext(context) {
       text
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;'),
-    indentLines: text => text.replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
+    indentLines: text => text
+      .replace(/^\n*/, '')
+      .replace(/\s*$/, '')
+      .replace(/  /g, '<sPan class="indent">&nbsp;&nbsp;</span>'),
+    isEmpty: text => text.trim().length <= 0,
   });
 }
 
@@ -165,7 +181,8 @@ function template(path) {
 function copy(a, b) {
   return new Promise((resolve, reject) =>
     fsExtra.copy(a, b, (err) => {
-      if (err) return reject(err);
+      if (err)
+        return reject(err);
       resolve();
     })
   );

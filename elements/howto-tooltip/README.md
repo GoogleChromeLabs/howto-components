@@ -5,4 +5,3 @@ pressed or on mouse out. The element that triggers the tooltip references
 the tooltip element with aria-describedby.
 
 See: https://www.w3.org/TR/wai-aria-practices-1.1/#tooltip
-

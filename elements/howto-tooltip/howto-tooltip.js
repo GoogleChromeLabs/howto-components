@@ -1,3 +1,19 @@
+/**
+ * Copyright 2017 Google Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 class HowtoTooltip extends HTMLElement {
   /**
   * The constructor does work that needs to be executed _exactly_ once.
@@ -20,16 +36,15 @@ class HowtoTooltip extends HTMLElement {
     this.setAttribute('role', 'tooltip');
 
     // Tooltips cannot be focused themselves.
-    this.tabIndex = -1;
+    this.setAttribute('tabindex', -1);
 
-    // 'aria-hidden' is used to show or hide the tooltip. A tooltip should
-    // check to see if its `aria-hidden` value has been set by the user.
-    // Otherwise, it should use the default value.
-    this.setAttribute('aria-hidden', this.getAttribute('aria-hidden') || true);
+    this._hide();
 
     // The element that triggers the tooltip references the tooltip
     // element with aria-describedby.
     this._target = document.querySelector('[aria-describedby=' + this.id + ']');
+    if (!this._target)
+      return;
 
     // The tooltip needs to listen to focus/blur events from the target,
     // as well as hover events over the target.
@@ -57,17 +72,11 @@ class HowtoTooltip extends HTMLElement {
   }
 
   _show() {
-    // If the tooltip is hidden, show it.
-    if (this.getAttribute('aria-hidden') === 'true') {
-      this.setAttribute('aria-hidden', 'false');
-    }
+    this.hidden = false;
   }
 
   _hide() {
-    // If the tooltip is visible, hide.
-    if (this.getAttribute('aria-hidden') === 'false') {
-      this.setAttribute('aria-hidden', 'true');
-    }
+    this.hidden = true;
   }
 }
 
