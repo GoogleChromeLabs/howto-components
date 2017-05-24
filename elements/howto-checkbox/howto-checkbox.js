@@ -22,7 +22,7 @@
   };
 
   /**
-   * The `HowToCheckbox` exposes a `checked` attribute/property for
+   * The `<howto-checkbox>` exposes a `checked` attribute/property for
    * toggling its state. Changes to the `checked` property will also be
    * reflected to an `aria-checked` attribute. Similarly, the `disabled`
    * property/attribute is reflected to an `aria-disabled` attribute. Although
@@ -47,10 +47,10 @@
 
       // A user may set a property on an _instance_ of an element,
       // before its prototype has been connected to this class.
-      // The `upgradeProperty` method will check for any instance properties
+      // The `_upgradeProperty` method will check for any instance properties
       // and run them through the proper class setters.
-      this.upgradeProperty('checked');
-      this.upgradeProperty('disabled');
+      this._upgradeProperty('checked');
+      this._upgradeProperty('disabled');
 
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
@@ -67,7 +67,7 @@
      * upgraded element would miss that property and the instance property
      * would prevent the class property setter from ever being called.
      */
-    upgradeProperty(prop) {
+    _upgradeProperty(prop) {
       if (this.hasOwnProperty(prop)) {
         let value = this[prop];
         delete this[prop];
