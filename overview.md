@@ -1,6 +1,5 @@
 # HowTo: Components – Overview {: .page-title }
 {% include "web/_shared/contributors/ewagasperowicz.html" %}
-{% include "web/_shared/contributors/noms.html" %}
 {% include "web/_shared/contributors/robdodson.html" %}
 {% include "web/_shared/contributors/surma.html" %}
 
@@ -10,6 +9,9 @@ patterns. The purpose of these implementations is to be an educational resource.
 You can read through the densely commented implementation of different
 components and hopefully learn from them. Note that they are explicitly **NOT**
 a UI library and should **NOT** be used in production.
+
+Note: Howto: Components is currently under development. We will start adding
+articles soon.
 
 ## Goals
 
@@ -24,7 +26,7 @@ Practices](https://www.w3.org/TR/wai-aria-practices-1.1/), which is a guide to
 explain and show ARIA, the [Accessible Rich Internet Application
 standard](https://www.w3.org/TR/wai-aria-1.1/). If you are unfamiliar with ARIA,
 [check out our introduction on
-WebFundamentals](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/).
+WebFundamentals](/web/fundamentals/accessibility/semantics-aria/).
 Each component links to the relevant section of the Authoring Practices. While
 not strictly necessary, we do recommend reading the section of the Authoring
 Practices before diving into the code.
