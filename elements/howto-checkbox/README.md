@@ -158,7 +158,7 @@ attributeChangedCallback(name, oldValue, newValue) {
   switch (name) {
     case 'checked':
       // Note the attributeChangedCallback is only handling the *side effects*
-      // of setting the property.
+      // of setting the attribute.
       this.setAttribute('aria-checked', hasValue);
       break;
     ...
