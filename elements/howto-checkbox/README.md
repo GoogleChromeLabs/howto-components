@@ -1,4 +1,4 @@
-## Summary {: summary }
+## Summary {: #summary }
 
 A `<howto-checkbox` represents a boolean option in a form. The most common type
 of checkbox is a dual-type which allows the user to toggle between two
@@ -21,7 +21,7 @@ The checkbox also supports a `disabled` state. If either the `disabled` property
 is set to true or the `[disabled]` attribute is applied, the checkbox sets
 `aria-disabled="true"` and set `tabindex="-1"`.
 
-## Tips and best practices {: tips-best-practices }
+## Tips and best practices {: #tips-best-practices }
 
 ### Why do ARIA attributes need a "true" or "false" string? {: why-aria }
 
@@ -38,7 +38,7 @@ indicates that a control can be toggled, but is currently in the off state.
 Whereas the absence of an `aria-pressed` attribute indicates that the control is
 not toggleable at all.
 
-### Don't override the page author {: dont-override }
+### Don't override the page author {: #dont-override }
 
 It's possible that a developer using this element might want to give it a
 different role, for example, `role="switch"`. Similarly they might want the
@@ -55,7 +55,7 @@ connectedCallback() {
     this.setAttribute('tabindex', 0);
 ```
 
-### Make properties lazy {: lazy-properties }
+### Make properties lazy {: #lazy-properties }
 
 A developer might attempt to set a property on the element before its definition
 has been loaded. This is especially true if the developer is using a framework
@@ -96,7 +96,7 @@ the property so it does not shadow the Custom Element's own property setter.
 This way, when the element's definition does finally load, it can immediately
 reflect the correct state.
 
-### Avoid reentrancy issues {: avoid-reentrancy }
+### Avoid reentrancy issues {: #avoid-reentrancy }
 
 It's tempting to use the `attributeChangedCallback` to reflect state to an
 underlying property, for example:
@@ -162,7 +162,7 @@ attributeChangedCallback(name, oldValue, newValue) {
 ```
 
 
-## Reference {: reference }
+## Reference {: #reference }
 
 - [Checkbox pattern in ARIA Authoring Practices 1.1][checkbox-pattern]
 - [What can ARIA do?][what-aria]
