@@ -28,15 +28,16 @@ class HowtoTooltip extends HTMLElement {
   }
 
   /**
-   * `connectedCallback` gets the element that triggers the tooltip and
-   * sets up the event listeners on it.
+   * `connectedCallback` fires when the element is inserted into the DOM.
+   * It's a good place to set the initial `role`, `tabindex`, internal state,
+   * and install event listeners.
    */
   connectedCallback() {
-    // A tooltip should always set its `role` to `tooltip`
-    this.setAttribute('role', 'tooltip');
+    if (!this.hasAttribute('role'))
+      this.setAttribute('role', 'tooltip');
 
-    // Tooltips cannot be focused themselves.
-    this.setAttribute('tabindex', -1);
+    if (!this.hasAttribute('tooltip'))
+      this.setAttribute('tabindex', -1);
 
     this._hide();
 
