@@ -33,10 +33,12 @@ class HowtoTooltip extends HTMLElement {
    */
   connectedCallback() {
     // A tooltip should always set its `role` to `tooltip`
-    this.setAttribute('role', 'tooltip');
+    if (!this.hasAttribute('role'))
+      this.setAttribute('role', 'tooltip');
 
     // Tooltips cannot be focused themselves.
-    this.setAttribute('tabindex', -1);
+    if (!this.hasAttribute('tooltip'))
+      this.setAttribute('tabindex', -1);
 
     this._hide();
 
