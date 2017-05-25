@@ -21,23 +21,15 @@
     SPACE: 32,
   };
 
-  /**
-   * The `<howto-checkbox>` exposes a `checked` attribute/property for
-   * toggling its state. Changes to the `checked` property will also be
-   * reflected to an `aria-checked` attribute. Similarly, the `disabled`
-   * property/attribute is reflected to an `aria-disabled` attribute. Although
-   * native checkbox elements also provide a `value` property, because it is
-   * only used for `<form>` submissions, and this element can't take part in
-   * that process, it has been omitted.
-   */
   class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
       return ['checked', 'disabled'];
     }
 
     /**
-     * `connectedCallback` sets the initial `role`, `tabindex`,
-     * internal state, and installs event listeners.
+     * `connectedCallback` fires when the element is inserted into the DOM.
+     * It's a good place to set the initial `role`, `tabindex`, internal state,
+     * and install event listeners.
      */
     connectedCallback() {
       if (!this.hasAttribute('role'))
@@ -49,6 +41,7 @@
       // before its prototype has been connected to this class.
       // The `_upgradeProperty` method will check for any instance properties
       // and run them through the proper class setters.
+      // See the [lazy properites](#lazy-properties) section for more details.
       this._upgradeProperty('checked');
       this._upgradeProperty('disabled');
 
@@ -56,17 +49,6 @@
       this.addEventListener('click', this._onClick);
     }
 
-    /**
-     * Check if a property has an instance value. If so, copy the value, and
-     * delete the instance property so it doesn't shadow the class property
-     * setter. Finally, pass the value to the class property setter so it can
-     * trigger any side effects.
-     * This is to safe guard against cases where, for instance, a framework
-     * may have added the element to the page and set a value on one of its
-     * properties, but lazy loaded its definition. Without this guard, the
-     * upgraded element would miss that property and the instance property
-     * would prevent the class property setter from ever being called.
-     */
     _upgradeProperty(prop) {
       if (this.hasOwnProperty(prop)) {
         let value = this[prop];
@@ -76,9 +58,9 @@
     }
 
     /**
-     * `disconnectedCallback` fires whenever the element is removed from
-     * the DOM. It's a good place to do clean up work like releasing
-     * references and removing event listeners.
+     * `disconnectedCallback` fireswhen the element is removed from the DOM.
+     * It's a good place to do clean up work like releasing references and
+     * removing event listeners.
      */
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
@@ -87,17 +69,9 @@
 
     /**
      * Properties and their corresponding attributes should mirror one another.
-     * To this effect, the property setter for `checked` handles truthy/falsy
-     * values and reflects those to the state of the attribute.
-     * It's important to note that there are no side effects taking place in
-     * the property setter. For example, the setter does not set
-     * `aria-checked`.
-     * Instead, that work happens in the `attributeChangedCallback`.
-     * As a general rule, make property setters very dumb, and if setting a
-     * property or attribute should cause a side effect (like setting a
-     * corresponding ARIA attribute) do that work in the
-     * `attributeChangedCallback`. This will avoid having to manage complex
-     * attribute/property reentrancy scenarios.
+     * The property setter for `checked` handles truthy/falsy values and
+     * reflects those to the state of the attribute. See the [avoid
+     * reentrancy](#avoid-reentrancy) section for more details.
      */
     set checked(value) {
       const isChecked = Boolean(value);
@@ -124,10 +98,9 @@
     }
 
     /**
-     * `attributeChangedCallback` watches for changes to the `checked` and
-     * `disabled` attributes and reflects their states to the corresponding
-     * properties and ARIA attributes. It will be called at startup time if
-     * either attribute has been set.
+     * `attributeChangedCallback` is called when any of the attributes in the
+     * `observedAttributes` array are changed. It's a good place to handle
+     * side effects, like setting ARIA attributes.
      */
     attributeChangedCallback(name, oldValue, newValue) {
       const hasValue = newValue !== null;

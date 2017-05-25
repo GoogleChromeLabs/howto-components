@@ -1,31 +1,29 @@
-# `<howto-checkbox>`
-
-## Summary
+## Summary {: summary }
 
 A `<howto-checkbox` represents a boolean option in a form. The most common type
 of checkbox is a dual-type which allows the user to toggle between two
 choices -- checked and unchecked.
 
-The element should attempt to self apply the attributes `role="checkbox"` and
+The element attempts to self apply the attributes `role="checkbox"` and
 `tabindex="0"` when it is first created. The `role` attribute helps assistive
 technology like a screen reader tell the user what kind of control this is.
 The `tabindex` attribute opts the element into the tab order, making it keyboard
 focusable and operable. To learn more about these two topics, check out
-[What can ARIA do?][What can ARIA do?] and [Using tabindex][Using tabindex].
+[What can ARIA do?][what-aria] and [Using tabindex][using-tabindex].
 
-When the checkbox is checked, it should add a
-`[checked]` boolean attribute, and set a corresponding `checked` property to
-`true`. In addition, the element should set an `[aria-checked]` attribute to
-either `"true"` or `"false"`, depending on its state. Clicking on the checkbox
-with a mouse, or space bar, should toggle these checked states.
+When the checkbox is checked, it adds a `[checked]` boolean attribute, and sets
+a corresponding `checked` property to `true`. In addition, the element sets an
+`[aria-checked]` attribute to either `"true"` or `"false"`, depending on its
+state. Clicking on the checkbox with a mouse, or space bar, toggles these
+checked states.
 
-The checkbox should also support a `disabled` state. If either the
-`disabled` property is set to true or the `[disabled]` attribute is applied, the
-element should set `aria-disabled="true"` and set `tabindex="-1"`.
+The checkbox also supports a `disabled` state. If either the `disabled` property
+is set to true or the `[disabled]` attribute is applied, the checkbox sets
+`aria-disabled="true"` and set `tabindex="-1"`.
 
-## Tips and best practices
+## Tips and best practices {: tips-best-practices }
 
-### Why do ARIA attributes need a "true" or "false" string?
+### Why do ARIA attributes need a "true" or "false" string? {: why-aria }
 
 Unlike other boolean attributes, ARIA attributes require a literal string of
 either `"true"` or `"false"`.
@@ -40,10 +38,14 @@ indicates that a control can be toggled, but is currently in the off state.
 Whereas the absence of an `aria-pressed` attribute indicates that the control is
 not toggleable at all.
 
-### Don't override the page author
+### Don't override the page author {: dont-override }
 
-When the checkbox is created it should attempt to set its `role` and `tabindex`
-in the `connectedCallback`.
+It's possible that a developer using this element might want to give it a
+different role, for example, `role="switch"`. Similarly they might want the
+control to not be focusable just yet, so they might set `tabindex="-1"`. It's
+important to respect the developer's wishes and not surpise them by overiding
+their configuration. For this reason, the element checks to see if those
+attributes have been set, before applying its own values.
 
 ```js
 connectedCallback() {
@@ -53,17 +55,9 @@ connectedCallback() {
     this.setAttribute('tabindex', 0);
 ```
 
-It's possible that a developer using this element might want to give it a
-different role, for example, `role="switch"`, if they're using it in a different
-context. Similarly they might want the control to not be focusable just yet, so
-they may set `tabindex="-1"`. It's important to respect the developer's wishes
-and not surpise them by overiding their configuration. For this reason, the
-element should check to see if those attributes have been set, before applying
-its own values.
+### Make properties lazy {: lazy-properties }
 
-### Make properties lazy
-
-A developer may attempt to set a property on the element before its definition
+A developer might attempt to set a property on the element before its definition
 has been loaded. This is especially true if the developer is using a framework
 which handles loading components, stamping them to the page, and binding their
 properties to a model.
@@ -71,15 +65,16 @@ properties to a model.
 ```html
 <!--
 Here Angular is declaratively binding its model's isChecked property to the
-checkbox's checked property.
+checkbox's checked property. If the definition for howto-checkbox was lazy loaded
+it's possible that Angular might attempt to set the checked property before
+the element has upgraded.
 -->
 <howto-checkbox [checked]="defaults.isChecked"></howto-checkbox>
 ```
 
-A Custom Element should be able to handle this scenario by checking its instance
-for any already set properties during its connected phase. The
-`<howto-checkbox>` demonstrates this pattern using a method called
-`_upgradeProperty`.
+A Custom Element should handle this scenario by checking if any properties have
+already been set on its instance. The `<howto-checkbox>` demonstrates this
+pattern using a method called `_upgradeProperty`.
 
 ```js
 connectedCallback() {
@@ -101,7 +96,7 @@ the property so it does not shadow the Custom Element's own property setter.
 This way, when the element's definition does finally load, it can immediately
 reflect the correct state.
 
-### Avoid reentrancy issues
+### Avoid reentrancy issues {: avoid-reentrancy }
 
 It's tempting to use the `attributeChangedCallback` to reflect state to an
 underlying property, for example:
@@ -146,11 +141,11 @@ get checked() {
 }
 ```
 
-In this example, removing the attribute will also effectively set the property
-to `false`.
+In this example, adding or removing the attribute will also effectively set the
+property.
 
-Finally, the `attributeChangedCallback` can be used to handle side effects like
-applying ARIA states.
+Finally, the `attributeChangedCallback` can be used to just handle side effects
+like applying ARIA states.
 
 ```js
 attributeChangedCallback(name, oldValue, newValue) {
@@ -167,14 +162,12 @@ attributeChangedCallback(name, oldValue, newValue) {
 ```
 
 
-## Reference
+## Reference {: reference }
 
-[Checkbox pattern in ARIA Authoring Practices 1.1][Checkbox pattern in ARIA Authoring Practices 1.1]
+- [Checkbox pattern in ARIA Authoring Practices 1.1][checkbox-pattern]
+- [What can ARIA do?][what-aria]
+- [Using tabindex][using-tabindex]
 
-[What can ARIA do?][What can ARIA do?]
-
-[Using tabindex][Using tabindex]
-
-[Checkbox pattern in ARIA Authoring Practices 1.1]: https://www.w3.org/TR/wai-aria-practices-1.1/#checkbox
-[What can ARIA do?]: https://developers.google.com/web/fundamentals/accessibility/semantics-aria/#what_can_aria_do
-[Using tabindex]: https://developers.google.com/web/fundamentals/accessibility/focus/using-tabindex
+[checkbox-pattern]: https://www.w3.org/TR/wai-aria-practices-1.1/#checkbox
+[what-aria]: https://developers.google.com/web/fundamentals/accessibility/semantics-aria/#what_can_aria_do
+[using-tabindex]: https://developers.google.com/web/fundamentals/accessibility/focus/using-tabindex
