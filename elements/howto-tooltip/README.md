@@ -8,27 +8,24 @@ The element that triggers the tooltip references the tooltip element with
 The element self-applies the role `tooltip` and sets `tabindex` to -1, as the
 tooltip itself can never be focused.
 
-## Tips and best practices
+## Tips and best practices {: #tips-best-practices }
 
-### Don't override the page author
+### Don't override the page author {: #dont-override }
 
-When the tooltip is created it should attempt to set its `role` and `tabindex`
-in the `connectedCallback`.
+It's possible that a developer using this element might want to give it a
+different role, for example, `role="switch"`. Similarly they might want the
+control to not be focusable just yet, so they might set `tabindex="-1"`. It's
+important to respect the developer's wishes and not surpise them by overiding
+their configuration. For this reason, the element checks to see if those
+attributes have been set, before applying its own values.
 
 ```js
 connectedCallback() {
   if (!this.hasAttribute('role'))
-    this.setAttribute('role', 'tooltip');
+    this.setAttribute('role', 'checkbox');
   if (!this.hasAttribute('tabindex'))
-    this.setAttribute('tabindex', -1);
+    this.setAttribute('tabindex', 0);
 ```
-
-It's possible that a developer using this element might want to give it a
-different role if they're using it in a different
-context. It's important to respect the developer's wishes
-and not surpise them by overiding their configuration. For this reason, the
-element should check to see if those attributes have been set, before applying
-its own values.
 
 ## References
 
