@@ -2,10 +2,7 @@
 
 ![Travis CI Build status badge](https://travis-ci.org/GoogleChrome/howto-components.svg?branch=master)
 
-“HowTo: Components” is [a subsection on Web Fundamentals Architecture section](https://developers.google.com/web/fundamentals/architecture/howto-components), containing a collection of web components that implement common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read and learn from their implementations. They are explicitly **NOT** a UI library meant to be used in production.
-
-Note: The section will launch within the next few days.
-
+“HowTo: Components” is [a subsection on Web Fundamentals Architecture section]https://developers.google.com/web/fundamentals/architecture/howto-components/overview), containing a collection of web components that implement common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read and learn from their implementations. They are explicitly **NOT** a UI library meant to be used in production.
 
 ## Demos
 
