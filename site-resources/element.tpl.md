@@ -14,7 +14,6 @@ book_path: /web/fundamentals/_book.yaml
 # HowTo: Components – {{=it.title}} {: .page-title }
 
 {% include "web/_shared/contributors/ewagasperowicz.html" %}
-{% include "web/_shared/contributors/noms.html" %}
 {% include "web/_shared/contributors/robdodson.html" %}
 {% include "web/_shared/contributors/surma.html" %}
 
