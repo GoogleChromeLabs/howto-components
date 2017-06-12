@@ -2,8 +2,7 @@
 
 ![Travis CI Build status badge](https://travis-ci.org/GoogleChrome/howto-components.svg?branch=master)
 
-“HowTo: Components” is a subsection on Web Fundamentals Architecture section, containing a collection of web components that implement common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read and learn from their implementations. They are explicitly **NOT** a UI library meant to be used in production.
-
+“HowTo: Components” is [a subsection on Web Fundamentals Architecture section](https://developers.google.com/web/fundamentals/architecture/howto-components/overview), containing a collection of web components that implement common web UI patterns using modern web technologies like Custom Elements v1 and ESnext with a special focus on accessibility, performance and progressive enhancement. Their purpose is to be an educational resource. Users are supposed to read and learn from their implementations. They are explicitly **NOT** a UI library meant to be used in production.
 
 ## Demos
 
@@ -27,7 +26,7 @@ to continuously run the build whenever a file changes.
 
 ### WebFundamentals
 
-To generate the content for [WebFundamentals](https://github.com/Google/WebFundamentals], run the `build-webfundamentals.sh` script. It will create a `webfundamentals` folder. The contents needs to be moved into the WebFundamentals repository. If new components have been created, they need to be added manually to `[WebFundamentals repo root]/src/content/en/fundamentals/architecture/_toc.yaml`.
+To generate the content for [WebFundamentals](https://github.com/Google/WebFundamentals), run the `build-webfundamentals.sh` script. It will create a `webfundamentals` folder. The contents needs to be moved into the WebFundamentals repository. If new components have been created, they need to be added manually to `[WebFundamentals repo root]/src/content/en/fundamentals/architecture/_toc.yaml`.
 
 ## Testing
 
