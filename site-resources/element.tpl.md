@@ -23,10 +23,6 @@ book_path: /web/fundamentals/_book.yaml
 
 ## Demo {: #demo }
 {% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
-<!doctype html>
-<html lang="en">
-<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=false,minimum-scale=1.0">
-<meta encoding="utf8">
 {{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '/web/fundamentals/architecture/howto-components/')}}
 
 <script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
