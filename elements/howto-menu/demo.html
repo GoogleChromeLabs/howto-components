@@ -14,8 +14,7 @@
     border: 1px solid lightgrey;
   }
 
-  /* We need this because `display` overrides hidden in this case. */
-  howto-menu[hidden] {
+  howto-menu:not([opened]) {
     display: none;
   }
 </style>
@@ -31,14 +30,8 @@
 </div>
 
 <script>
+var menu = document.querySelector('howto-menu');
   document.getElementById('menu-btn').addEventListener('click', e => {
-    var menu = document.querySelector('howto-menu');
-    if (menu.hasAttribute('hidden')) {
-      menu.removeAttribute('hidden');
-    } else {
-      menu.setAttribute('hidden', true);
-    }
-
-
+    menu.opened = true;
   })
 </script>
