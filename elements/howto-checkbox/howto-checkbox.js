@@ -21,9 +21,55 @@
     SPACE: 32,
   };
 
+  /**
+   * Cloning contents from a <template> element is more performant
+   * than using innerHTML because it avoids addtional HTML parse costs.
+   */
+  const template = document.createElement('template');
+  template.innerHTML = `
+    <style>
+      :host {
+        display: inline-block;
+        background: url('./images/unchecked-checkbox.svg') no-repeat;
+        background-size: contain;
+        width: 24px;
+        height: 24px;
+      }
+      :host([hidden]) {
+        display: none;
+      }
+      :host([aria-checked="true"]) {
+        background: url('./images/checked-checkbox.svg') no-repeat;
+        background-size: contain;
+      }
+      :host([aria-disabled="true"]) {
+        background: url('./images/unchecked-checkbox-disabled.svg') no-repeat;
+        background-size: contain;
+      }
+      :host([aria-checked="true"][aria-disabled="true"]) {
+        background: url('./images/checked-checkbox-disabled.svg') no-repeat;
+        background-size: contain;
+      }
+    </style>
+  `;
+
   class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
       return ['checked', 'disabled'];
+    }
+
+    /**
+     * The element's constructor is run anytime a new instance is created.
+     * Instances are created either by parsing HTML, calling
+     * document.createElement('howto-checkbox), or calling new HowToCheckbox();
+     * The construtor is a good place to create Shadow DOM, though you should
+     * avoid touching any attributes or Light DOM children as they may not
+     * be available yet.
+     */
+    constructor() {
+      super();
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 
     /**
@@ -58,7 +104,7 @@
     }
 
     /**
-     * `disconnectedCallback` fireswhen the element is removed from the DOM.
+     * `disconnectedCallback` fires when the element is removed from the DOM.
      * It's a good place to do clean up work like releasing references and
      * removing event listeners.
      */
