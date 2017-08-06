@@ -39,15 +39,15 @@
         display: none;
       }
       :host([aria-checked="true"]) {
-        background: url('./images/checked-checkbox.svg') no-repeat;
+        background: url('../images/checked-checkbox.svg') no-repeat;
         background-size: contain;
       }
       :host([aria-disabled="true"]) {
-        background: url('./images/unchecked-checkbox-disabled.svg') no-repeat;
+        background: url('../images/unchecked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
       :host([aria-checked="true"][aria-disabled="true"]) {
-        background: url('./images/checked-checkbox-disabled.svg') no-repeat;
+        background: url('../images/checked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
     </style>
