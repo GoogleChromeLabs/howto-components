@@ -23,14 +23,14 @@ book_path: /web/fundamentals/_book.yaml
 
 ## Demo {: #demo }
 {% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
-{{=it.readFile(`elements/${it.title}/demo.html`).replace(/{%PATH%}/g, '/web/fundamentals/architecture/howto-components/')}}
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/howto-components')}}
 
 <script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
 <script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
 <script>
   devsite.framebox.AutoSizeClient.initAutoSize(true);
   (function() {
-    {{=it.readFile(`elements/${it.title}/${it.title}.js`)}}
+    {{=it.readFile(`elements/${it.title}/${it.title}.js`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/howto-components')}}
   })();
 </script>
 </html>
