@@ -18,17 +18,19 @@
    * Define key codes to help with handling keyboard events.
    */
   const KEYCODE = {
+    A: 65,
     DOWN: 40,
     ESCAPE: 27,
     TAB: 9,
     UP: 38,
+    Z: 90,
   };
 
   class HowtoMenu extends HTMLElement {
     /**
-     * A getter for the first child which is a menuitem.
+     * Returns the first child which is a menuitem.
      */
-    get _firstMenuItem() {
+    _firstMenuItem() {
       let child = this.firstElementChild;
       while (child) {
         if (this._isMenuItem(child)) {
@@ -40,9 +42,9 @@
     }
 
     /**
-     * A getter for the last child which is a menuitem.
+     * Returns the last child which is a menuitem.
      */
-    get _lastMenuItem() {
+    _lastMenuItem() {
       let child = this.lastElementChild;
       while (child) {
         if (this._isMenuItem(child)) {
@@ -58,7 +60,7 @@
      */
     _isMenuItem(node) {
       let ariaRoles = ['menuitem', 'menuitemcheckbox', 'menuitemradio'];
-      return ariaRoles.indexOf(node.getAttribute('role') > -1);
+      return ariaRoles.includes(node.getAttribute('role'));
     }
 
     /**
@@ -98,13 +100,13 @@
         case KEYCODE.DOWN:
           // If arrow down, move to next item. Wrap if necessary.
           event.preventDefault();
-          let next = this._nextMenuItem(el) || this._firstMenuItem;
+          let next = this._nextMenuItem(el) || this._firstMenuItem();
           next.focus();
           break;
        case KEYCODE.UP:
          // If arrow up, move to previous item. Wrap if necessary.
          event.preventDefault();
-         let prev = this._previousMenuItem(el) || this._lastMenuItem;
+         let prev = this._previousMenuItem(el) || this._lastMenuItem();
          prev.focus();
          break;
        case KEYCODE.ESCAPE:
@@ -113,7 +115,7 @@
          this.opened = false;
          break;
        case KEYCODE.TAB:
-         // If escape, close the menu.
+         // If tab, close the menu.
          event.preventDefault();
          this.opened = false;
          break;
@@ -121,7 +123,7 @@
          break;
       }
       // If letter key, move to an item which starts with that letter.
-      if (event.keyCode > 64 && event.keyCode < 91) {
+      if (event.keyCode >= KEYCODE.A && event.keyCode <= KEYCODE.Z) {
         for (let i = 0, child; child = this.children[i]; i++) {
           if (child.innerText.trim()[0] === event.key) {
             event.preventDefault();
@@ -133,8 +135,9 @@
     }
 
     open() {
-      this._setTabindex(true);
-      this._firstMenuItem.focus();
+      this._addTabindex();
+      let first = this._firstMenuItem();
+      first && first.focus();
     }
 
     set opened(isOpened) {
@@ -143,7 +146,7 @@
         this.open();
       } else {
         this.removeAttribute('opened');
-        this._setTabindex(false);
+        this._removeTabindex();
       }
     }
 
@@ -195,17 +198,21 @@
     }
 
     /**
-     * Resets the menu by removing tabindex on all menu items.
+     * Adds tabindex to all menu items to make them selectable.
      */
-    _setTabindex(set) {
-      const children = Array.from(this.children);
-      children.forEach(el => {
-        if (set) {
-          el.setAttribute('tabindex', '0');
-        } else {
-          el.removeAttribute('tabindex');
-        }
-      });
+    _addTabindex() {
+      for (let i = 0, el; el = this.children[i]; i++) {
+        el.setAttribute('tabindex', '0');
+      }
+    }
+
+    /**
+     * Removes tabindex from all menu items to make them unselectable.
+     */
+    _removeTabindex() {
+      for (let i = 0, el; el = this.children[i]; i++) {
+        el.removeAttribute('tabindex');
+      }
     }
   }
 
