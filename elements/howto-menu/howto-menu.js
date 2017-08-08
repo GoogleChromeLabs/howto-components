@@ -153,12 +153,10 @@
     }
 
     set opened(isOpened) {
-      if (!!isOpened) {
+      if (Boolean(isOpened)) {
         this.setAttribute('opened', 'true');
-        this.open();
       } else {
         this.removeAttribute('opened');
-        this._removeTabindex();
       }
     }
 
@@ -216,7 +214,7 @@
      */
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'opened') {
-        if (!!newValue) {
+        if (Boolean(newValue)) {
           this.open();
         } else {
           this._removeTabindex();
