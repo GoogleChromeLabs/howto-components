@@ -26,6 +26,15 @@
     Z: 90,
   };
 
+  /**
+   * Aria roles corresponding to a menu item.
+   */
+  const MENUITEM_ARIA_ROLES = [
+    'menuitem',
+    'menuitemcheckbox',
+    'menuitemradio',
+  ];
+
   class HowtoMenu extends HTMLElement {
     /**
      * Returns the first child which is a menuitem.
@@ -59,8 +68,7 @@
      * Checks if a node is a 'menuitem', 'menuitemcheckbox' or 'menuitemradio'.
      */
     _isMenuItem(node) {
-      let ariaRoles = ['menuitem', 'menuitemcheckbox', 'menuitemradio'];
-      return ariaRoles.includes(node.getAttribute('role'));
+      return MENUITEM_ARIA_ROLES.includes(node.getAttribute('role'));
     }
 
     /**
@@ -124,7 +132,7 @@
       }
       // If letter key, move to an item which starts with that letter.
       if (event.keyCode >= KEYCODE.A && event.keyCode <= KEYCODE.Z) {
-        for (let i = 0, child; child = this.children[i]; i++) {
+        for (child of this.children) {
           if (child.innerText.trim()[0] === event.key) {
             event.preventDefault();
             child.focus();
@@ -201,8 +209,8 @@
      * Adds tabindex to all menu items to make them selectable.
      */
     _addTabindex() {
-      for (let i = 0, el; el = this.children[i]; i++) {
-        el.setAttribute('tabindex', '0');
+      for (let child of this.children) {
+        child.setAttribute('tabindex', '0');
       }
     }
 
@@ -210,8 +218,8 @@
      * Removes tabindex from all menu items to make them unselectable.
      */
     _removeTabindex() {
-      for (let i = 0, el; el = this.children[i]; i++) {
-        el.removeAttribute('tabindex');
+      for (let child of this.children) {
+        child.removeAttribute('tabindex');
       }
     }
   }
