@@ -76,6 +76,7 @@ function parseElement(name) {
   ])
     .then(([code, demo]) => {
       code = code.toString('utf-8');
+      code = code.replace(/\{%PATH%\}/g, '..');
       demo = demo.toString('utf-8').replace(/{%[^%]+%}/g, '');
       const data = {
         title: name,
@@ -145,7 +146,7 @@ function addHelperFunctionsToContext(context) {
     indentLines: text => text
       .replace(/^\n*/, '')
       .replace(/\s*$/, '')
-      .replace(/  /g, '<sPan class="indent">&nbsp;&nbsp;</span>'),
+      .replace(/  /g, '<span class="indent">&nbsp;&nbsp;</span>'),
     isEmpty: text => text.trim().length <= 0,
   });
 }
