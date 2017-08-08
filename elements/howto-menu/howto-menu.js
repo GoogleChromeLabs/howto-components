@@ -146,7 +146,7 @@
       }
     }
 
-    open() {
+    _open() {
       this._addTabindex();
       let first = this._firstMenuItem();
       first && first.focus();
@@ -215,7 +215,7 @@
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'opened') {
         if (Boolean(newValue)) {
-          this.open();
+          this._open();
         } else {
           this._removeTabindex();
         }
