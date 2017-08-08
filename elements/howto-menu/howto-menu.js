@@ -36,6 +36,10 @@
   ];
 
   class HowtoMenu extends HTMLElement {
+    static get observedAttributes() {
+      return ['opened'];
+    }
+
     /**
      * Returns the first child which is a menuitem.
      */
@@ -132,7 +136,7 @@
       }
       // If letter key, move to an item which starts with that letter.
       if (event.keyCode >= KEYCODE.A && event.keyCode <= KEYCODE.Z) {
-        for (child of this.children) {
+        for (let child of this.children) {
           if (child.innerText.trim()[0] === event.key) {
             event.preventDefault();
             child.focus();
@@ -150,7 +154,7 @@
 
     set opened(isOpened) {
       if (!!isOpened) {
-        this.setAttribute('opened', '');
+        this.setAttribute('opened', 'true');
         this.open();
       } else {
         this.removeAttribute('opened');
@@ -203,6 +207,21 @@
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
       this.removeEventListener('focusout', this._onKeyDown);
+    }
+
+    /**
+     * `attributeChangedCallback` is called when any of the attributes in the
+     * `observedAttributes` array are changed. It's a good place to handle
+     * side effects, like changing the state of the widget.
+     */
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'opened') {
+        if (!!newValue) {
+          this.open();
+        } else {
+          this._removeTabindex();
+        }
+      }
     }
 
     /**
