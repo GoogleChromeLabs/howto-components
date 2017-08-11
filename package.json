@@ -35,6 +35,10 @@
     {
       "name": "Monica Dinculescu",
       "email": "noms@google.com"
+    },
+    {
+      "name": "Ewa Gasperowicz",
+      "email": "ewag@google.com"
     }
   ],
   "license": "Apache-2.0",
