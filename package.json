@@ -10,7 +10,7 @@
     "watch": "npm-watch",
     "test-lint": "eslint elements site-resources *.js",
     "test-unit": "karma start",
-    "test-e2e": "node --harmony-async-await run-e2e-tests.js",
+    "test-e2e": "node run-e2e-tests.js",
     "test": "npm run test-lint && npm run test-unit && npm run test-e2e"
   },
   "watch": {

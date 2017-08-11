@@ -27,13 +27,26 @@
   };
 
   // To avoid invoking the parser with `.innerHTML` for every new instance, a
-  // template for the contents of the ShadowDOM is  is shared by all
+  // template for the contents of the ShadowDOM is shared by all
   // `<howto-tabs>` instances.
-  const shadowDOMTemplate = document.createElement('template');
-  shadowDOMTemplate.innerHTML = `
-    <slot name="tab"></slot>
-    <slot name="panel"></slot>
-  `;
+  const template = Object.assign(
+    document.createElement('template'),
+    {
+      innerHTML: `
+        <style>
+          :host {
+            display: flex;
+            flex-wrap: wrap;
+          }
+          ::slotted(howto-tabs-panel) {
+            flex-basis: 100%;
+          }
+        </style>
+        <slot name="tab"></slot>
+        <slot name="panel"></slot>
+      `,
+    }
+  );
 
   /**
    * `HowtoTabs` is a container element for tabs and panels.
@@ -57,10 +70,15 @@
       this.attachShadow({mode: 'open'});
       // Import the shared template to create the slots for tabs and panels.
       this.shadowRoot.appendChild(
-        document.importNode(shadowDOMTemplate.content, true)
+        document.importNode(template.content, true)
       );
       this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
       this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
+
+      // This element needs to react to new children as it links up tabs and
+      // panel semantically using `aria-labelledby` and `aria-controls`.
+      // New children will get slotted automatically and cause `slotchange`
+      // to fire, so not `MutationObserver` is needed.
       this._tabSlot.addEventListener('slotchange', this._onSlotChange);
       this._panelSlot.addEventListener('slotchange', this._onSlotChange);
     }
@@ -78,17 +96,24 @@
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'tablist');
 
-      // Currently, `slotchange` does not fire when an element is upgraded. For
-      // this reason, the element always processes the slots after the inner
-      // elements have been defined. If the current behavior of the `slotchange`
-      // event is change (as proposed in
-      // [this issue](https://github.com/whatwg/dom/issues/447)), the code below
-      // can be removed.
+      // Up until recently, `slotchange` events did not fire when an element is
+      // upgraded by the parser. For this reason, the element invokes the
+      // handler manually. Once the new behavior lands in all browsers, the code
+      // below can be removed.
       Promise.all([
         customElements.whenDefined('howto-tabs-tab'),
         customElements.whenDefined('howto-tabs-panel'),
       ])
         .then(_ => this._linkPanels());
+    }
+
+    /**
+     * `disconnectedCallback` removes the event listeners that
+     * `connectedCallback` added.
+     */
+    disconnectedCallback() {
+      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('click', this._onClick);
     }
 
     /**
@@ -215,14 +240,6 @@
       panels.forEach(panel => panel.hidden = true);
     }
 
-    /**
-     * `disconnectedCallback` removes the event listeners that
-     * `connectedCallback` added.
-     */
-    disconnectedCallback() {
-      this.removeEventListener('keydown', this._onKeyDown);
-      this.removeEventListener('click', this._onClick);
-    }
 
     /**
      * `_selectTab` marks the given tab as selected.

@@ -11,40 +11,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <style>
-  howto-tabs {
-    /**
-     * The element uses flex box to line up the tabs in the first line
-     * and wraps if necessary.
-     */
-    display: flex;
-    flex-wrap: wrap;
-  }
   howto-tabs-tab {
     border: 1px solid black;
     padding: 20px;
   }
   howto-tabs-panel {
-    /**
-     * Each panel has a base size of 100%, forcing it to be in its
-     * own row.
-     */
-    flex-basis: 100%;
     padding: 20px;
     background-color: lightgray;
-  }
-  howto-tabs-panel[hidden] {
-    display: none;
   }
   howto-tabs-tab[selected] {
     background-color: bisque;
   }
 
   /**
-   * If JavaScript does not run, the element will stay `:unresolved`.
+   * If JavaScript does not run, the element will not match `:defined`.
    * In that case this style adds spacing between tabs and previous panel.
    */
-  howto-tabs:unresolved howto-tabs-tab:unresolved {
-    margin-top: 10px;
+  howto-tabs:not(:defined), howto-tabs-tab:not(:defined), howto-tabs-panel:not(:defined) {
+    display: block;
   }
 </style>
 
