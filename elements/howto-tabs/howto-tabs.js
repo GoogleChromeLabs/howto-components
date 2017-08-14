@@ -29,24 +29,20 @@
   // To avoid invoking the parser with `.innerHTML` for every new instance, a
   // template for the contents of the ShadowDOM is shared by all
   // `<howto-tabs>` instances.
-  const template = Object.assign(
-    document.createElement('template'),
-    {
-      innerHTML: `
-        <style>
-          :host {
-            display: flex;
-            flex-wrap: wrap;
-          }
-          ::slotted(howto-tabs-panel) {
-            flex-basis: 100%;
-          }
-        </style>
-        <slot name="tab"></slot>
-        <slot name="panel"></slot>
-      `,
-    }
-  );
+  const template = document.createElement('template');
+  template.innerHTML = `
+    <style>
+      :host {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      ::slotted(howto-tabs-panel) {
+        flex-basis: 100%;
+      }
+    </style>
+    <slot name="tab"></slot>
+    <slot name="panel"></slot>
+  `;
 
   /**
    * `HowtoTabs` is a container element for tabs and panels.
@@ -69,9 +65,8 @@
       // using slots.
       this.attachShadow({mode: 'open'});
       // Import the shared template to create the slots for tabs and panels.
-      this.shadowRoot.appendChild(
-        document.importNode(template.content, true)
-      );
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+
       this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
       this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
 
@@ -317,7 +312,7 @@
       this._selectTab(event.target);
     }
   }
-  window.customElements.define('howto-tabs', HowtoTabs);
+  customElements.define('howto-tabs', HowtoTabs);
 
   // `howtoTabCounter` counts the number of `<howto-tab>` instances created. The
   // number is used to generated new, unique IDs.
@@ -404,7 +399,7 @@
       return this.hasAttribute('selected');
     }
   }
-  window.customElements.define('howto-tabs-tab', HowtoTabsTab);
+  customElements.define('howto-tabs-tab', HowtoTabsTab);
 
   let howtoPanelCounter = 0;
   /**
@@ -421,7 +416,7 @@
         this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
     }
   }
-  window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
+  customElements.define('howto-tabs-panel', HowtoTabsPanel);
 })();
 
 
