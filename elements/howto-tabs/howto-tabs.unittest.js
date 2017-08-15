@@ -24,31 +24,31 @@ describe('howto-tabs', function() {
   beforeEach(function() {
     this.container.innerHTML = `
       <howto-tabs>
-        <howto-tabs-tab role="heading">Tab 1</howto-tabs-tab>
-        <howto-tabs-panel role="region">Content 1</howto-tabs-panel>
-        <howto-tabs-tab role="heading">Tab 2</howto-tabs-tab>
-        <howto-tabs-panel role="region">Content 2</howto-tabs-panel>
-        <howto-tabs-tab role="heading">Tab 3</howto-tabs-tab>
-        <howto-tabs-panel role="region">Content 3</howto-tabs-panel>
+        <howto-tab role="heading">Tab 1</howto-tab >
+        <howto-panel role="region">Content 1</howto-panel>
+        <howto-tab  role="heading">Tab 2</howto-tab >
+        <howto-panel role="region">Content 2</howto-panel>
+        <howto-tab  role="heading">Tab 3</howto-tab >
+        <howto-panel role="region">Content 3</howto-panel>
       </howto-tabs>
     `;
     return Promise.all([
       howtoComponents.waitForElement('howto-tabs'),
-      howtoComponents.waitForElement('howto-tabs-tab'),
-      howtoComponents.waitForElement('howto-tabs-panel'),
+      howtoComponents.waitForElement('howto-tab'),
+      howtoComponents.waitForElement('howto-panel'),
     ]).then(_ => {
       this.tabpanel = this.container.querySelector('howto-tabs');
-      this.tabs = Array.from(this.container.querySelectorAll('howto-tabs-tab'));
-      this.panels = Array.from(this.container.querySelectorAll('howto-tabs-panel'));
+      this.tabs = Array.from(this.container.querySelectorAll('howto-tab'));
+      this.panels = Array.from(this.container.querySelectorAll('howto-panel'));
     });
   });
 
   it('should know about all the tabs', function() {
-    expect(this.tabpanel._allTabs()).to.have.length(this.container.querySelectorAll('howto-tabs-tab').length);
+    expect(this.tabpanel._allTabs()).to.have.length(this.container.querySelectorAll('howto-tab ').length);
   });
 
   it('should know about all the panels', function() {
-    expect(this.tabpanel._allPanels()).to.have.length(this.container.querySelectorAll('howto-tabs-panel').length);
+    expect(this.tabpanel._allPanels()).to.have.length(this.container.querySelectorAll('howto-panel').length);
   });
 
   it('should add `aria-labelledby` to panels', function() {

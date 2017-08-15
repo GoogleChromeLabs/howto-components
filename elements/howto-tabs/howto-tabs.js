@@ -27,10 +27,19 @@
   };
 
   // To avoid invoking the parser with `.innerHTML` for every new instance, a
-  // template for the contents of the ShadowDOM is  is shared by all
+  // template for the contents of the ShadowDOM is shared by all
   // `<howto-tabs>` instances.
-  const shadowDOMTemplate = document.createElement('template');
-  shadowDOMTemplate.innerHTML = `
+  const template = document.createElement('template');
+  template.innerHTML = `
+    <style>
+      :host {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      ::slotted(howto-panel) {
+        flex-basis: 100%;
+      }
+    </style>
     <slot name="tab"></slot>
     <slot name="panel"></slot>
   `;
@@ -56,11 +65,15 @@
       // using slots.
       this.attachShadow({mode: 'open'});
       // Import the shared template to create the slots for tabs and panels.
-      this.shadowRoot.appendChild(
-        document.importNode(shadowDOMTemplate.content, true)
-      );
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+
       this._tabSlot = this.shadowRoot.querySelector('slot[name=tab]');
       this._panelSlot = this.shadowRoot.querySelector('slot[name=panel]');
+
+      // This element needs to react to new children as it links up tabs and
+      // panel semantically using `aria-labelledby` and `aria-controls`.
+      // New children will get slotted automatically and cause `slotchange`
+      // to fire, so not `MutationObserver` is needed.
       this._tabSlot.addEventListener('slotchange', this._onSlotChange);
       this._panelSlot.addEventListener('slotchange', this._onSlotChange);
     }
@@ -78,17 +91,24 @@
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'tablist');
 
-      // Currently, `slotchange` does not fire when an element is upgraded. For
-      // this reason, the element always processes the slots after the inner
-      // elements have been defined. If the current behavior of the `slotchange`
-      // event is change (as proposed in
-      // [this issue](https://github.com/whatwg/dom/issues/447)), the code below
-      // can be removed.
+      // Up until recently, `slotchange` events did not fire when an element is
+      // upgraded by the parser. For this reason, the element invokes the
+      // handler manually. Once the new behavior lands in all browsers, the code
+      // below can be removed.
       Promise.all([
-        customElements.whenDefined('howto-tabs-tab'),
-        customElements.whenDefined('howto-tabs-panel'),
+        customElements.whenDefined('howto-tab'),
+        customElements.whenDefined('howto-panel'),
       ])
         .then(_ => this._linkPanels());
+    }
+
+    /**
+     * `disconnectedCallback` removes the event listeners that
+     * `connectedCallback` added.
+     */
+    disconnectedCallback() {
+      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('click', this._onClick);
     }
 
     /**
@@ -114,9 +134,9 @@
       // that controls it.
       tabs.forEach(tab => {
         const panel = tab.nextElementSibling;
-        if (panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
+        if (panel.tagName.toLowerCase() !== 'howto-panel') {
           console.error(`Tab #${tab.id} is not a` +
-            `sibling of a <howto-tabs-panel>`);
+            `sibling of a <howto-panel>`);
           return;
         }
 
@@ -144,14 +164,14 @@
      * cheap to read.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('howto-tabs-panel'));
+      return Array.from(this.querySelectorAll('howto-panel'));
     }
 
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
     _allTabs() {
-      return Array.from(this.querySelectorAll('howto-tabs-tab'));
+      return Array.from(this.querySelectorAll('howto-tab'));
     }
 
     /**
@@ -215,14 +235,6 @@
       panels.forEach(panel => panel.hidden = true);
     }
 
-    /**
-     * `disconnectedCallback` removes the event listeners that
-     * `connectedCallback` added.
-     */
-    disconnectedCallback() {
-      this.removeEventListener('keydown', this._onKeyDown);
-      this.removeEventListener('click', this._onClick);
-    }
 
     /**
      * `_selectTab` marks the given tab as selected.
@@ -300,23 +312,23 @@
       this._selectTab(event.target);
     }
   }
-  window.customElements.define('howto-tabs', HowtoTabs);
+  customElements.define('howto-tabs', HowtoTabs);
 
   // `howtoTabCounter` counts the number of `<howto-tab>` instances created. The
   // number is used to generated new, unique IDs.
   let howtoTabCounter = 0;
   /**
-   * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tabs-tab>`
+   * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tab>`
    * should always be used with `role=heading` in the markup so that the
    * semantics remain useable when JavaScript is failing.
    *
-   * A `<howto-tabs-tab>` declares which `<howto-tabs=panel>` it belongs to by
+   * A `<howto-tab>` declares which `<howto-panel>` it belongs to by
    * using that panel’s ID as the value for the `aria-controls` attribute.
    *
-   * A `<howto-tabs-tab>` will automatically generate a unique ID if none
+   * A `<howto-tab>` will automatically generate a unique ID if none
    * is specified.
    */
-  class HowtoTabsTab extends HTMLElement {
+  class HowtoTab extends HTMLElement {
     static get observedAttributes() {
       return ['selected'];
     }
@@ -330,7 +342,7 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
+        this.id = `howto-tab-generated-${howtoTabCounter++}`;
 
       // Set a well-defined initial state.
       this.setAttribute('aria-selected', 'false');
@@ -387,13 +399,13 @@
       return this.hasAttribute('selected');
     }
   }
-  window.customElements.define('howto-tabs-tab', HowtoTabsTab);
+  customElements.define('howto-tab', HowtoTab);
 
   let howtoPanelCounter = 0;
   /**
-   * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
+   * `HowtoPanel` is a panel for a `<howto-tabs>` tab panel.
    */
-  class HowtoTabsPanel extends HTMLElement {
+  class HowtoPanel extends HTMLElement {
     constructor() {
       super();
     }
@@ -401,10 +413,10 @@
     connectedCallback() {
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
-        this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
+        this.id = `howto-panel-generated-${howtoPanelCounter++}`;
     }
   }
-  window.customElements.define('howto-tabs-panel', HowtoTabsPanel);
+  customElements.define('howto-panel', HowtoPanel);
 })();
 
 
