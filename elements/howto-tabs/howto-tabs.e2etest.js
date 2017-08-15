@@ -92,10 +92,10 @@ describe('howto-tabs', function() {
 
     await this.driver.executeScript(_ => {
       window.tabpanel = document.querySelector('howto-tabs');
-      window.newTab = document.createElement('howto-tabs-tab');
+      window.newTab = document.createElement('howto-tab');
       newTab.slot = 'tab';
       newTab.textContent = 'New Tab';
-      window.newPanel = document.createElement('howto-tabs-panel');
+      window.newPanel = document.createElement('howto-panel');
       newPanel.slot = 'panel';
       newPanel.textContent = 'Some content';
       tabpanel.appendChild(newTab);
@@ -131,7 +131,7 @@ describe('howto-tabs pre-upgrade', function() {
 
   it('should handle attributes set before upgrade', async function() {
       await this.driver.executeScript(_ => {
-        window.lastTab = document.querySelector('howto-tabs > howto-tabs-tab:last-of-type');
+        window.lastTab = document.querySelector('howto-tabs > howto-tab:last-of-type');
         window.lastPanel = lastTab.nextElementSibling;
 
         window.lastTab.setAttribute('selected', '');
@@ -147,7 +147,7 @@ describe('howto-tabs pre-upgrade', function() {
 
   it('should handle instance properties set before upgrade', async function() {
       await this.driver.executeScript(_ => {
-        window.lastTab = document.querySelector('howto-tabs > howto-tabs-tab:last-of-type');
+        window.lastTab = document.querySelector('howto-tabs > howto-tab:last-of-type');
         window.lastPanel = lastTab.nextElementSibling;
 
         window.lastTab.selected = true;

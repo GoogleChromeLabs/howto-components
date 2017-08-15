@@ -36,7 +36,7 @@
         display: flex;
         flex-wrap: wrap;
       }
-      ::slotted(howto-tabs-panel) {
+      ::slotted(howto-panel) {
         flex-basis: 100%;
       }
     </style>
@@ -96,8 +96,8 @@
       // handler manually. Once the new behavior lands in all browsers, the code
       // below can be removed.
       Promise.all([
-        customElements.whenDefined('howto-tabs-tab'),
-        customElements.whenDefined('howto-tabs-panel'),
+        customElements.whenDefined('howto-tab'),
+        customElements.whenDefined('howto-panel'),
       ])
         .then(_ => this._linkPanels());
     }
@@ -134,9 +134,9 @@
       // that controls it.
       tabs.forEach(tab => {
         const panel = tab.nextElementSibling;
-        if (panel.tagName.toLowerCase() !== 'howto-tabs-panel') {
+        if (panel.tagName.toLowerCase() !== 'howto-panel') {
           console.error(`Tab #${tab.id} is not a` +
-            `sibling of a <howto-tabs-panel>`);
+            `sibling of a <howto-panel>`);
           return;
         }
 
@@ -164,14 +164,14 @@
      * cheap to read.
      */
     _allPanels() {
-      return Array.from(this.querySelectorAll('howto-tabs-panel'));
+      return Array.from(this.querySelectorAll('howto-panel'));
     }
 
     /**
      * `_allTabs` returns all the tabs in the tab panel.
      */
     _allTabs() {
-      return Array.from(this.querySelectorAll('howto-tabs-tab'));
+      return Array.from(this.querySelectorAll('howto-tab'));
     }
 
     /**
@@ -318,17 +318,17 @@
   // number is used to generated new, unique IDs.
   let howtoTabCounter = 0;
   /**
-   * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tabs-tab>`
+   * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tab>`
    * should always be used with `role=heading` in the markup so that the
    * semantics remain useable when JavaScript is failing.
    *
-   * A `<howto-tabs-tab>` declares which `<howto-tabs=panel>` it belongs to by
+   * A `<howto-tab>` declares which `<howto-panel>` it belongs to by
    * using that panel’s ID as the value for the `aria-controls` attribute.
    *
-   * A `<howto-tabs-tab>` will automatically generate a unique ID if none
+   * A `<howto-tab>` will automatically generate a unique ID if none
    * is specified.
    */
-  class HowtoTabsTab extends HTMLElement {
+  class HowtoTab extends HTMLElement {
     static get observedAttributes() {
       return ['selected'];
     }
@@ -342,7 +342,7 @@
       // changes its role to `tab`.
       this.setAttribute('role', 'tab');
       if (!this.id)
-        this.id = `howto-tabs-tab-generated-${howtoTabCounter++}`;
+        this.id = `howto-tab-generated-${howtoTabCounter++}`;
 
       // Set a well-defined initial state.
       this.setAttribute('aria-selected', 'false');
@@ -399,13 +399,13 @@
       return this.hasAttribute('selected');
     }
   }
-  customElements.define('howto-tabs-tab', HowtoTabsTab);
+  customElements.define('howto-tab', HowtoTab);
 
   let howtoPanelCounter = 0;
   /**
-   * `HowtoTabsPanel` is a panel for a `<howto-tabs>` tab panel.
+   * `HowtoPanel` is a panel for a `<howto-tabs>` tab panel.
    */
-  class HowtoTabsPanel extends HTMLElement {
+  class HowtoPanel extends HTMLElement {
     constructor() {
       super();
     }
@@ -413,10 +413,10 @@
     connectedCallback() {
       this.setAttribute('role', 'tabpanel');
       if (!this.id)
-        this.id = `howto-tabs-panel-generated-${howtoPanelCounter++}`;
+        this.id = `howto-panel-generated-${howtoPanelCounter++}`;
     }
   }
-  customElements.define('howto-tabs-panel', HowtoTabsPanel);
+  customElements.define('howto-panel', HowtoPanel);
 })();
 
 
