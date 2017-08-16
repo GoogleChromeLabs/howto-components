@@ -91,11 +91,21 @@ function parseElement(name) {
       // Remove copyright blocks
       removeCopyright(contents.sections);
       removeCopyright(contents.demoSections);
+      removeHiddenSections(contents.sections);
       contents.sections =
         contents.sections
           // Make jsdoc blocks only belong to _one_
           // line of code for better visuals
           .reduce((accumulator, nextSection) => {
+            nextSection.commentText = nextSection.commentText.trim();
+            // Dismiss empty blocks
+            if (nextSection.commentText.length === 0 && nextSection.codeText.length === 0)
+              return accumulator;
+            // Blocks without a comment get joined with the previous block
+            if (accumulator.length > 0 && nextSection.commentText.length === 0 && nextSection.codeText.length > 0) {
+              accumulator[accumulator.length - 1].codeText += nextSection.codeText;
+              return accumulator;
+            }
             if (nextSection.commentType !== 'BlockComment')
               return [...accumulator, nextSection];
             const copy = Object.assign({}, nextSection);
@@ -113,6 +123,23 @@ function parseElement(name) {
       return contents;
     })
     .catch(err => console.error(err.toString(), err.stack));
+}
+
+function removeHiddenSections(sections) {
+  let removing = false;
+  for (const section of sections) {
+    if (section.commentText.trim().startsWith('HIDE')) {
+      section.commentText = '';
+      section.codeText = '';
+      removing = true;
+    } else if (section.commentText.trim().startsWith('/HIDE') && removing) {
+      section.commentText = section.commentText.replace('/HIDE', '');
+      removing = false;
+    } else if (removing) {
+      section.commentText = '';
+      section.codeText = '';
+    }
+  }
 }
 
 function removeCopyright(sections) {
