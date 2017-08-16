@@ -25,8 +25,7 @@ book_path: /web/fundamentals/_book.yaml
 {% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
 {{=it.readFile(`elements/${it.title}/demo.html`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/howto-components')}}
 
-<script src="https://cdn.rawgit.com/webcomponents/custom-elements/master/custom-elements.min.js"></script>
-<script src="https://cdn.rawgit.com/webcomponents/shadydom/master/shadydom.min.js"></script>
+<script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/d5b7ca65/webcomponents-sd-ce.js"></script>
 <script>
   devsite.framebox.AutoSizeClient.initAutoSize(true);
   (function() {
