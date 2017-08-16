@@ -24,13 +24,13 @@ book_path: /web/fundamentals/_book.yaml
 
 ## Demo {: #demo }
 {% framebox height="auto" width="100%" class="demo" suppress_site_styles="true" %}
-{{=it.readFile(`elements/${it.title}/demo.html`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/howto-components')}}
+{{=it.readFile(`elements/${it.title}/demo.html`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/building-components/examples')}}
 
 <script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/d5b7ca65/webcomponents-sd-ce.js"></script>
 <script>
   devsite.framebox.AutoSizeClient.initAutoSize(true);
   (function() {
-    {{=it.readFile(`elements/${it.title}/${it.title}.js`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/howto-components')}}
+    {{=it.readFile(`elements/${it.title}/${it.title}.js`).replace(/\{%PATH%\}/g, '/web/fundamentals/architecture/building-components/examples')}}
   })();
 </script>
 </html>
