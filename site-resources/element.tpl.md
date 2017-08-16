@@ -12,7 +12,7 @@ book_path: /web/fundamentals/_book.yaml
 {# wf_published_on: 2017-04-06 #}
 {# wf_blink_components: Blink>DOM #}
 
-# HowTo: Components – <{{=it.title}}> {: .page-title }
+# HowTo: Components – &lt;{{=it.title}}&gt; {: .page-title }
 
 {% include "web/_shared/contributors/ewagasperowicz.html" %}
 {% include "web/_shared/contributors/robdodson.html" %}
