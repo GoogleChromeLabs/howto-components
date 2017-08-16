@@ -68,9 +68,9 @@
     /**
      * The element's constructor is run anytime a new instance is created.
      * Instances are created either by parsing HTML, calling
-     * document.createElement('howto-checkbox), or calling new HowToCheckbox();
-     * The construtor is a good place to create Shadow DOM, though you should
-     * avoid touching any attributes or Light DOM children as they may not
+     * document.createElement('howto-checkbox'), or calling new HowToCheckbox();
+     * The construtor is a good place to create shadow DOM, though you should
+     * avoid touching any attributes or light DOM children as they may not
      * be available yet.
      */
     constructor() {
@@ -80,13 +80,13 @@
     }
 
     /**
-     * `connectedCallback` fires when the element is inserted into the DOM.
+     * `connectedCallback()` fires when the element is inserted into the DOM.
      * It's a good place to set the initial `role`, `tabindex`, internal state,
      * and install event listeners.
      */
     connectedCallback() {
       // HIDE
-      // Shim Shadow DOM styles. This needs to be run in connectedCallback
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
       // because if you shim Custom Properties (CSS variables) the element
       // will need access to its parent node.
       ShadyCSS.styleElement(this);
@@ -99,9 +99,10 @@
 
       // A user may set a property on an _instance_ of an element,
       // before its prototype has been connected to this class.
-      // The `_upgradeProperty` method will check for any instance properties
+      // The `_upgradeProperty()` method will check for any instance properties
       // and run them through the proper class setters.
-      // See the [lazy properites](#lazy-properties) section for more details.
+      // See the [lazy properites](/web/fundamentals/architecture/building-components/best-practices#lazy-properties)
+      // section for more details.
       this._upgradeProperty('checked');
       this._upgradeProperty('disabled');
 
@@ -118,7 +119,7 @@
     }
 
     /**
-     * `disconnectedCallback` fires when the element is removed from the DOM.
+     * `disconnectedCallback()` fires when the element is removed from the DOM.
      * It's a good place to do clean up work like releasing references and
      * removing event listeners.
      */
@@ -131,7 +132,8 @@
      * Properties and their corresponding attributes should mirror one another.
      * The property setter for `checked` handles truthy/falsy values and
      * reflects those to the state of the attribute. See the [avoid
-     * reentrancy](#avoid-reentrancy) section for more details.
+     * reentrancy](/web/fundamentals/architecture/building-components/best-practices#avoid-reentrancy)
+     * section for more details.
      */
     set checked(value) {
       const isChecked = Boolean(value);

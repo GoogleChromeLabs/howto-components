@@ -11,14 +11,14 @@ The `tabindex` attribute opts the element into the tab order, making it keyboard
 focusable and operable. To learn more about these two topics, check out
 [What can ARIA do?][what-aria] and [Using tabindex][using-tabindex].
 
-When the checkbox is checked, it adds a `[checked]` boolean attribute, and sets
+When the checkbox is checked, it adds a `checked` boolean attribute, and sets
 a corresponding `checked` property to `true`. In addition, the element sets an
-`[aria-checked]` attribute to either `"true"` or `"false"`, depending on its
+`aria-checked` attribute to either `"true"` or `"false"`, depending on its
 state. Clicking on the checkbox with a mouse, or space bar, toggles these
 checked states.
 
 The checkbox also supports a `disabled` state. If either the `disabled` property
-is set to true or the `[disabled]` attribute is applied, the checkbox sets
+is set to true or the `disabled` attribute is applied, the checkbox sets
 `aria-disabled="true"` and set `tabindex="-1"`.
 
 ## Reference {: #reference }
