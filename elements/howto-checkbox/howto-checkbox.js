@@ -54,9 +54,10 @@
       }
     </style>
   `;
-  // Modifies the element template with scoping classes.
-  // This only needs to be called once.
+
+  // HIDE
   ShadyCSS.prepareTemplate(template, 'howto-checkbox');
+  // /HIDE
 
   class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
@@ -83,10 +84,12 @@
      * and install event listeners.
      */
     connectedCallback() {
+      // HIDE
       // Shim Shadow DOM styles. This needs to be run in connectedCallback
       // because if you shim Custom Properties (CSS variables) the element
       // will need access to its parent node.
       ShadyCSS.styleElement(this);
+      // /HIDE
 
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'checkbox');
