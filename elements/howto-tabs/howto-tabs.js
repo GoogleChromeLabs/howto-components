@@ -44,6 +44,11 @@
     <slot name="panel"></slot>
   `;
 
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(template, 'howto-tabs');
+  // /HIDE
+
   /**
    * `HowtoTabs` is a container element for tabs and panels.
    *
@@ -83,6 +88,13 @@
      * exactly one tab is active.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in connectedCallback
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       // The element needs to do some manual input event handling to allow
       // switching with arrow keys and Home/End.
       this.addEventListener('keydown', this._onKeyDown);
