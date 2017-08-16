@@ -16,11 +16,9 @@
 module.exports = function(config) {
   const configuration = {
     basePath: '',
-    frameworks: ['mocha'],
+    frameworks: ['mocha', 'chai'],
     files: [
-      'node_modules/chai/chai.js',
-      'node_modules/@webcomponents/custom-elements/custom-elements.min.js',
-      'node_modules/@webcomponents/shadydom/shadydom.min.js',
+      'https://cdn.rawgit.com/webcomponents/webcomponentsjs/d5b7ca65/webcomponents-sd-ce.js',
       'tools/testing-helper.js',
       'elements/*/*.js',
     ],
