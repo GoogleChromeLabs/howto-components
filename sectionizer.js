@@ -138,6 +138,8 @@ function parseCode(ss) {
     return parseSingleQuotedString(ss);
   else if (ss.current === '\"')
     return parseDoubleQuotedString(ss);
+  else if (ss.current === '`')
+    return parseTemplateString(ss);
   else if (ss.current === '{')
     return parseBlock(ss);
   else
@@ -157,6 +159,16 @@ function parseBlock(ss) {
 function parseDoubleQuotedString(ss) {
   ss.next();
   while (ss.current !== '"') {
+    if (ss.current === '\\')
+      ss.next();
+    ss.next();
+  }
+  ss.next();
+}
+
+function parseTemplateString(ss) {
+  ss.next();
+  while (ss.current !== '`') {
     if (ss.current === '\\')
       ss.next();
     ss.next();
