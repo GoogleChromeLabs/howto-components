@@ -10,6 +10,7 @@ book_path: /web/fundamentals/_book.yaml
   out += `${d.getFullYear()}-${paddedMonth}-${paddedDay}`;
 } }}#}
 {# wf_published_on: 2017-04-06 #}
+{# wf_blink_components: Blink>DOM #}
 
 # HowTo: Components – <{{=it.title}}> {: .page-title }
 
