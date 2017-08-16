@@ -56,6 +56,7 @@
   `;
 
   // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
   ShadyCSS.prepareTemplate(template, 'howto-checkbox');
   // /HIDE
 
