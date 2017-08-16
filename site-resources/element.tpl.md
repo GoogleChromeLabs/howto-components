@@ -11,7 +11,7 @@ book_path: /web/fundamentals/_book.yaml
 } }}#}
 {# wf_published_on: 2017-04-06 #}
 
-# HowTo: Components – {{=it.title}} {: .page-title }
+# HowTo: Components – <{{=it.title}}> {: .page-title }
 
 {% include "web/_shared/contributors/ewagasperowicz.html" %}
 {% include "web/_shared/contributors/robdodson.html" %}
