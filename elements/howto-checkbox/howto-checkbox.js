@@ -160,7 +160,7 @@
     }
 
     /**
-     * `attributeChangedCallback` is called when any of the attributes in the
+     * `attributeChangedCallback()` is called when any of the attributes in the
      * `observedAttributes` array are changed. It's a good place to handle
      * side effects, like setting ARIA attributes.
      */
@@ -212,8 +212,8 @@
     }
 
     /**
-     * `_toggleChecked` calls the `checked` setter and flips its state.
-     * Because `_toggleChecked` is only caused by a user action, it will
+     * `_toggleChecked()` calls the `checked` setter and flips its state.
+     * Because `_toggleChecked()` is only caused by a user action, it will
      * also dispatch a change event. This event bubbles in order to mimic
      * the native behavior of `<input type=checkbox>`.
      */

@@ -23,8 +23,8 @@ is set to true or the `disabled` attribute is applied, the checkbox sets
 
 ## Reference {: #reference }
 
-- [Checkbox pattern in ARIA Authoring Practices 1.1][checkbox-pattern]
-- [What can ARIA do?][what-aria]
+- [Checkbox Pattern in ARIA Authoring Practices 1.1][checkbox-pattern]
+- [What can ARIA Do?][what-aria]
 - [Using tabindex][using-tabindex]
 
 [checkbox-pattern]: https://www.w3.org/TR/wai-aria-practices-1.1/#checkbox
