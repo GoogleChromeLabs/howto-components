@@ -182,8 +182,7 @@
             this.removeAttribute('tabindex');
             // If the focus is currently on this element, unfocus it by
             // calling the `HTMLElement.blur()` method.
-            if (document.activeElement === this)
-              this.blur();
+            this.blur();
           } else {
             this.setAttribute('tabindex', '0');
           }
