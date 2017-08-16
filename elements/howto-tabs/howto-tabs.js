@@ -27,7 +27,7 @@
   };
 
   // To avoid invoking the parser with `.innerHTML` for every new instance, a
-  // template for the contents of the ShadowDOM is shared by all
+  // template for the contents of the shadow DOM is shared by all
   // `<howto-tabs>` instances.
   const template = document.createElement('template');
   template.innerHTML = `
@@ -66,7 +66,7 @@
 
       // For progressive enhancement, the markup should alternate between tabs
       // and panels. Elements that reorder their children tend to not work well
-      // with frameworks. Instead ShadowDOM is used to reorder the elements by
+      // with frameworks. Instead shadow DOM is used to reorder the elements by
       // using slots.
       this.attachShadow({mode: 'open'});
       // Import the shared template to create the slots for tabs and panels.
@@ -84,7 +84,7 @@
     }
 
     /**
-     * `connectedCallback` groups tabs and panels by reordering and makes sure
+     * `connectedCallback()` groups tabs and panels by reordering and makes sure
      * exactly one tab is active.
      */
     connectedCallback() {
@@ -103,7 +103,7 @@
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'tablist');
 
-      // Up until recently, `slotchange` events did not fire when an element is
+      // Up until recently, `slotchange` events did not fire when an element was
       // upgraded by the parser. For this reason, the element invokes the
       // handler manually. Once the new behavior lands in all browsers, the code
       // below can be removed.
@@ -115,7 +115,7 @@
     }
 
     /**
-     * `disconnectedCallback` removes the event listeners that
+     * `disconnectedCallback()` removes the event listeners that
      * `connectedCallback` added.
      */
     disconnectedCallback() {
@@ -124,19 +124,19 @@
     }
 
     /**
-     * `_onSlotChange` is called whenever an element is added or removed from
-     * one of the ShadowDOM slots.
+     * `_onSlotChange()` is called whenever an element is added or removed from
+     * one of the shadow DOM slots.
      */
     _onSlotChange() {
       this._linkPanels();
     }
 
     /**
-     * `_linkPanels` links up tabs with their adjacent panels using
+     * `_linkPanels()` links up tabs with their adjacent panels using
      * `aria-controls` and `aria-labelledby`. Additionally, the method makes
      * sure only one tab is active.
      *
-     * If this function becomes a bottle neck, it can be easily optimized by
+     * If this function becomes a bottleneck, it can be easily optimized by
      * only handling the new elements instead of iterating over all of the
      * element’s children.
      */
@@ -161,16 +161,16 @@
       const selectedTab =
         tabs.find(tab => tab.selected) || tabs[0];
 
-      // Next, we switch to the selected tab. `selectTab` takes care of
+      // Next, switch to the selected tab. `selectTab()` takes care of
       // marking all other tabs as deselected and hiding all other panels.
       this._selectTab(selectedTab);
     }
 
     /**
-     * `_allPanels` returns all the panels in the tab panel. This function could
-     * memoize the result if the DOM queries ever become a performance issue.
-     * The downside of memoization is that dynamically added tabs and panels
-     * will not be handled.
+     * `_allPanels()` returns all the panels in the tab panel. This function
+     * could memoize the result if the DOM queries ever become a performance
+     * issue. The downside of memoization is that dynamically added tabs and
+     * panels will not be handled.
      *
      * This is a method and not a getter, because a getter implies that it is
      * cheap to read.
@@ -180,14 +180,14 @@
     }
 
     /**
-     * `_allTabs` returns all the tabs in the tab panel.
+     * `_allTabs()` returns all the tabs in the tab panel.
      */
     _allTabs() {
       return Array.from(this.querySelectorAll('howto-tab'));
     }
 
     /**
-     * `_panelForTab` returns the panel that the given tab controls.
+     * `_panelForTab()` returns the panel that the given tab controls.
      */
     _panelForTab(tab) {
       const panelId = tab.getAttribute('aria-controls');
@@ -195,12 +195,12 @@
     }
 
     /**
-     * `_prevTab` returns the tab that comes before the currently selected one,
-     * wrapping around when reaching the first one.
+     * `_prevTab()` returns the tab that comes before the currently selected
+     * one, wrapping around when reaching the first one.
      */
     _prevTab() {
       const tabs = this._allTabs();
-      // Use `findIndex` to find the index of the currently
+      // Use `findIndex()` to find the index of the currently
       // selected element and subtracts one to get the index of the previous
       // element.
       let newIdx =
@@ -211,7 +211,7 @@
     }
 
     /**
-     * `_firstTab` returns the first tab.
+     * `_firstTab()` returns the first tab.
      */
     _firstTab() {
       const tabs = this._allTabs();
@@ -219,7 +219,7 @@
     }
 
     /**
-     * `_lastTab` returns the last tab.
+     * `_lastTab()` returns the last tab.
      */
     _lastTab() {
       const tabs = this._allTabs();
@@ -227,7 +227,7 @@
     }
 
     /**
-     * `_nextTab` gets the tab that comes after the currently selected one,
+     * `_nextTab()` gets the tab that comes after the currently selected one,
      * wrapping around when reaching the last tab.
      */
     _nextTab() {
@@ -237,7 +237,7 @@
     }
 
     /**
-     * `reset` marks all tabs as deselected and hides all the panels.
+     * `reset()` marks all tabs as deselected and hides all the panels.
      */
     reset() {
       const tabs = this._allTabs();
@@ -249,7 +249,7 @@
 
 
     /**
-     * `_selectTab` marks the given tab as selected.
+     * `_selectTab()` marks the given tab as selected.
      * Additionally, it unhides the panel corresponding to the given tab.
      */
     _selectTab(newTab) {
@@ -267,7 +267,7 @@
     }
 
     /**
-     * `_onKeyDown` handles key presses inside the tab panel.
+     * `_onKeyDown()` handles key presses inside the tab panel.
      */
     _onKeyDown(event) {
       // If the keypress did not originate from a tab element itself,
@@ -305,7 +305,7 @@
       }
 
       // The browser might have some native functionality bound to the arrow
-      // keys, home or end. The element calls `preventDefault` to prevent the
+      // keys, home or end. The element calls `preventDefault()` to prevent the
       // browser from taking any actions.
       event.preventDefault();
       // Select the new tab, that has been determined in the switch-case.
@@ -313,7 +313,7 @@
     }
 
     /**
-     * `_onClick` handles clicks inside the tab panel.
+     * `_onClick()` handles clicks inside the tab panel.
      */
     _onClick(event) {
       // If the click was not targeted on a tab element itself,
@@ -390,8 +390,8 @@
      * that work happens in the `attributeChangedCallback`. As a general rule,
      * make property setters very dumb, and if setting a property or attribute
      * should cause a side effect (like setting a corresponding ARIA attribute)
-     * do that work in the `attributeChangedCallback`. This will avoid having to
-     * manage complex attribute/property reentrancy scenarios.
+     * do that work in the `attributeChangedCallback()`. This will avoid having
+     * to manage complex attribute/property reentrancy scenarios.
      */
     attributeChangedCallback() {
       const value = this.hasAttribute('selected');

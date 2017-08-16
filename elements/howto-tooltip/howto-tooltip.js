@@ -28,7 +28,7 @@ class HowtoTooltip extends HTMLElement {
   }
 
   /**
-   * `connectedCallback` fires when the element is inserted into the DOM.
+   * `connectedCallback()` fires when the element is inserted into the DOM.
    * It's a good place to set the initial `role`, `tabindex`, internal state,
    * and install event listeners.
    */
@@ -36,19 +36,19 @@ class HowtoTooltip extends HTMLElement {
     if (!this.hasAttribute('role'))
       this.setAttribute('role', 'tooltip');
 
-    if (!this.hasAttribute('tooltip'))
+    if (!this.hasAttribute('tabindex'))
       this.setAttribute('tabindex', -1);
 
     this._hide();
 
     // The element that triggers the tooltip references the tooltip
-    // element with aria-describedby.
+    // element with `aria-describedby`.
     this._target = document.querySelector('[aria-describedby=' + this.id + ']');
     if (!this._target)
       return;
 
-    // The tooltip needs to listen to focus/blur events from the target,
-    // as well as hover events over the target.
+    // The tooltip needs to listen to `focus`/`blur` events from the target,
+    // as well as `hover` events over the target.
     this._target.addEventListener('focus', this._show);
     this._target.addEventListener('blur', this._hide);
     this._target.addEventListener('mouseenter', this._show);
@@ -56,8 +56,8 @@ class HowtoTooltip extends HTMLElement {
   }
 
   /**
-   * `disconnectedCallback` unregisters the event listeners that were set up in
-   * `connectedCallback`.
+   * `disconnectedCallback()` unregisters the event listeners that were set up
+   * in `connectedCallback()`.
    */
   disconnectedCallback() {
     if (!this._target)
