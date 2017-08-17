@@ -10,6 +10,7 @@
   // "extends": ["eslint:recommended", "google"],
   "extends": ["google"],
   "rules": {
+    "max-len": ["error", {"ignoreComments": true}],
     "arrow-parens": 0,
     "valid-jsdoc": "off",
     "require-jsdoc": "off",

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint max-len: ["off"], no-console: ["off"], require-jsdoc: 0 */
 module.exports = function(config) {
   const configuration = {
     basePath: '',
