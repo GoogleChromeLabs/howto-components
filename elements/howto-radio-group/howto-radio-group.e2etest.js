@@ -28,8 +28,8 @@ describe('howto-radio-group', function() {
 
   it('should handle arrow keys', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:nth-of-type(1)');
-      window.expectedSecondRadio = document.querySelector('[role=radio]:nth-of-type(2)');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:nth-of-type(1)');
+      window.expectedSecondRadio = document.querySelector('howto-radio-button:nth-of-type(2)');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -54,8 +54,8 @@ describe('howto-radio-group', function() {
 
   it('should wrap focus', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:first-of-type');
-      window.expectedLastRadio = document.querySelector('[role=radio]:last-of-type');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:first-of-type');
+      window.expectedLastRadio = document.querySelector('howto-radio-button:last-of-type');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -72,8 +72,8 @@ describe('howto-radio-group', function() {
 
   it('should focus the last radio on [end]', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:first-of-type');
-      window.expectedLastRadio = document.querySelector('[role=radio]:last-of-type');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:first-of-type');
+      window.expectedLastRadio = document.querySelector('howto-radio-button:last-of-type');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -85,8 +85,8 @@ describe('howto-radio-group', function() {
 
   it('should focus the first radio on [home]', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:first-of-type');
-      window.expectedLastRadio = document.querySelector('[role=radio]:last-of-type');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:first-of-type');
+      window.expectedLastRadio = document.querySelector('howto-radio-button:last-of-type');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -101,8 +101,8 @@ describe('howto-radio-group', function() {
 
   it('should mark the selected element as aria-checked=true', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:nth-of-type(1)');
-      window.expectedSecondRadio = document.querySelector('[role=radio]:nth-of-type(2)');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:nth-of-type(1)');
+      window.expectedSecondRadio = document.querySelector('howto-radio-button:nth-of-type(2)');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -115,8 +115,8 @@ describe('howto-radio-group', function() {
 
   it('should return focus to the checked element', async function() {
     await this.driver.executeScript(_ => {
-      window.expectedFirstRadio = document.querySelector('[role=radio]:nth-of-type(1)');
-      window.expectedSecondRadio = document.querySelector('[role=radio]:nth-of-type(2)');
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:nth-of-type(1)');
+      window.expectedSecondRadio = document.querySelector('howto-radio-button:nth-of-type(2)');
     });
 
     success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
@@ -135,7 +135,7 @@ describe('howto-radio-group', function() {
 );
 
   it('should focus and select a radio on click', async function() {
-    const secondRadio = await this.driver.findElement(By.css('[role=radio]:nth-of-type(2)'));
+    const secondRadio = await this.driver.findElement(By.css('howto-radio-button:nth-of-type(2)'));
     await secondRadio.click();
     expect(await secondRadio.getAttribute('aria-checked')).to.equal('true');
     expect(await secondRadio.getAttribute('tabindex')).to.equal('0');
