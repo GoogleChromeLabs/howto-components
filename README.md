@@ -54,7 +54,7 @@ This builds a docker image `googlechrome/howto-components` and runs it. The dock
 
 ## Staging
 
-All branches and PRs are built and uploaded on Travis CI. The staged version can be viewed at `https://dash-elements.surma.link/<commit hash>`.
+All branches and PRs are built and uploaded on Travis CI. The staged version can be viewed at `http://dash-elements.surma.link/<commit hash>`.
 
 ## License
 
