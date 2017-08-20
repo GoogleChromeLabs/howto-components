@@ -10,45 +10,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<style>
-  howto-radio-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-left: 10px;
-  }
-
-  howto-radio-button {
-    display: inline-block;
-    position: relative;
-    cursor: default;
-  }
-
-  howto-radio-button:focus {
-    outline: 0;
-  }
-
-  howto-radio-button:focus::before {
-    box-shadow: 0 0 1px 2px #5B9DD9;
-  }
-
-  howto-radio-button::before {
-    content: '';
-    display: block;
-    width: 10px;
-    height: 10px;
-    border: 1px solid black;
-    position: absolute;
-    left: -18px;
-    top: 3px;
-    border-radius: 50%;
-  }
-
-  howto-radio-button[aria-checked="true"]::before {
-    background: red;
-  }
-</style>
-
 <howto-radio-group>
   <howto-radio-button>Water</howto-radio-button>
   <howto-radio-button>Soda</howto-radio-button>

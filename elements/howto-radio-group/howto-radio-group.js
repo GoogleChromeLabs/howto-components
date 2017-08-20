@@ -28,11 +28,58 @@
   };
 
   /**
+   * Cloning contents from a &lt;template&gt; element is more performant
+   * than using innerHTML because it avoids addtional HTML parse costs.
+   */
+  const radioButtonTemplate = document.createElement('template');
+  radioButtonTemplate.innerHTML = `
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        cursor: default;
+      }
+    
+      :host(:focus) {
+        outline: 0;
+      }
+    
+      :host(:focus)::before {
+        box-shadow: 0 0 1px 2px #5B9DD9;
+      }
+    
+      :host::before {
+        content: '';
+        display: block;
+        width: 10px;
+        height: 10px;
+        border: 1px solid black;
+        position: absolute;
+        left: -18px;
+        top: 3px;
+        border-radius: 50%;
+      }
+    
+      :host([aria-checked="true"])::before {
+        background: red;
+      }
+    </style>
+    <slot></slot>
+  `;
+
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(radioButtonTemplate, 'howto-radio-button');
+  // /HIDE
+
+  /**
    * `HowtoRadioButton` is a simple, checkable button.
    */
   class HowtoRadioButton extends HTMLElement {
     constructor() {
       super();
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(radioButtonTemplate.content.cloneNode(true));
     }
 
     /**
@@ -45,10 +92,10 @@
      * defaults just to indcate that they will likely change in the future.
      */
     connectedCallback() {
-      this.setAttribute('role', 'radio');
-      this.setAttribute('tabindex', this.getAttribute('tabindex') || -1);
-      this.setAttribute('aria-checked',
-        this.getAttribute('aria-checked') || false);
+      if (!this.hasAttribute('role'))
+        this.setAttribute('role', 'radio');
+      if (!this.hasAttribute('tabindex'))
+        this.setAttribute('tabindex', -1);
     }
   }
 
@@ -57,6 +104,29 @@
    * `HowtoRadioButton` class.
    */
   window.customElements.define('howto-radio-button', HowtoRadioButton);
+
+
+  /**
+   * Cloning contents from a &lt;template&gt; element is more performant
+   * than using innerHTML because it avoids addtional HTML parse costs.
+   */
+  const radioGroupTemplate = document.createElement('template');
+  radioGroupTemplate.innerHTML = `
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 20px;
+      }
+    </style>
+    <slot></slot>
+  `;
+
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(radioGroupTemplate, 'howto-radio-group');
+  // /HIDE
 
   /**
    * `HowtoRadioGroup` is responsible for handling user input, and updating the
@@ -70,6 +140,8 @@
   class HowtoRadioGroup extends HTMLElement {
     constructor() {
       super();
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(radioGroupTemplate.content.cloneNode(true));
     }
 
     /**
@@ -86,7 +158,16 @@
      * present yet.
      */
     connectedCallback() {
-      this.setAttribute('role', 'radiogroup');
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
+      if (!this.hasAttribute('role'))
+        this.setAttribute('role', 'radiogroup');
+
       let firstCheckedButton = this.checkedRadioButton;
       if (firstCheckedButton) {
         this._uncheckAll();
@@ -94,6 +175,7 @@
       } else {
         this.querySelector('[role="radio"]').setAttribute('tabindex', 0);
       }
+
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
     }
