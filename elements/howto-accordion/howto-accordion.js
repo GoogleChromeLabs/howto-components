@@ -36,6 +36,9 @@
   class HowtoAccordion extends HTMLElement {
     constructor() {
       super();
+      // Create a MutationObserver that the element uses to be informed about
+      // new children and attribute changes on those children.
+      this._mo = new MutationObserver(this._onMutation.bind(this));
     }
 
     /**
@@ -43,63 +46,99 @@
      * `expanded` attribute on the headers to adjust their styling accordingly.
      */
     connectedCallback() {
-      // `<howto-accordion-headers>` emit a custom event when the heading is
-      // instructed to expand.
-      this.addEventListener('change', this._onChange);
       // The element also implements [roving tabindex] to switch focus between
       // the headers. Therefore key presses are intercepted.
       //
       // [roving tabindex]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Technique_1_oving_tabindex
       this.addEventListener('keydown', this._onKeyDown);
 
-      // TODO: Set up MutationObserver to listen for `expanded` attribute on the
-      // headings.
+      // The Mutation Observer observes this element as well as all the
+      // headings. The
+      // Mutation Observer only watches the headings for changes to their
+      // `expanded` attribute.
+      this._mo.observe(this, {childList: true});
+      Array.from(this.children)
+        .filter(node => this._isHeading(node))
+        .forEach(node =>
+          this._mo.observe(node, {
+            attributes: true,
+            attributeFilter: ['expanded'],
+          }));
 
-      // Wait for `<howto-accordion-heading>` and `<howto-accordion-panel`
-      // to have booted before proceeding.
+      // `_linkHeadings()` needs all children to have IDs, which is only
+      // guaranteed to have happened once their `connectedCallback()` has run.
       Promise.all([
         customElements.whenDefined('howto-accordion-heading'),
         customElements.whenDefined('howto-accordion-panel'),
       ])
         .then(_ => {
-        // Acquire all headings inside the element that need to be set up.
-        const headings = this._allHeadings();
-
-        // Give all headings and panels a unique ID. Set up `aria-controls` and
-        // `aria-labelledby` attributes on headings and panels using those IDs.
-        headings.forEach(heading => {
-          // All buttons inside the `HowtoAccordionHeadings` are made
-          // unfocusable here. Only the first heading will be made focusable
-          // afterwards. This is necessary to implement roving tabindex.
-          heading.setAttribute('tabindex', -1);
-          const panel = this._panelForHeading(heading);
-
-          // Make headings and panels reference each other
-          // with the `aria-labelledby` and `aria-controls` attributes.
-          heading.setAttribute('aria-controls', panel.id);
-          panel.setAttribute('aria-labelledby', heading.id);
+          this._linkHeadings();
+          this._animateAll();
         });
-        // Make the first heading focusable.
-        headings[0].setAttribute('tabindex', 0);
+    }
 
-        // Set all the panels to the collapsed state to have a well-defined
-        // initial state.
+    /**
+     * On every mutation – that is adding/removing a child node or changing the
+     * `expanded` attribute on one of the headings – the MutationObserver calls
+     * `_animateAll()` to animate all panels to their currently specified state.
+     */
+    _onMutation(mutations) {
+      mutations.forEach(mutation => {
+        // All new children need to be observed as well to be notified about
+        // changes to their `expanded` attribute.
+        Array.from(mutation.addedNodes)
+          .filter(node => this._isHeading(node))
+          .forEach(node =>
+            this._mo.observe(node, {
+              attributes: true,
+              attributeFilter: ['expanded'],
+            }));
+      });
+      // If any new children have been added, update the links!
+      if (mutations.some(mutation => mutation.addedNodes.length > 0))
+        this._linkHeadings();
+      this._animateAll();
+    }
 
-        // Check if any of the headings have been marked as
-        // expanded using the `expanded` attribute. If so, all the associated
-        // panels get expanded as well.
-        headings
-          .forEach(heading => {
-            const panel = this._panelForHeading(heading);
-            if (!heading.expanded) {
-              this._collapseHeading(heading);
-              this._collapsePanel(panel);
-            } else {
-              this._expandHeading(heading);
-              this._expandPanel(panel);
-            }
-          });
-        });
+    /**
+     * `_linkHeadings()` links up headings and corresponding panels using
+     * `aria-controls` and `aria-labelledby`.
+     */
+    _linkHeadings() {
+      // Acquire all headings and corresponding panels.
+      const headings = this._allHeadings();
+      const panels = headings.map(heading => this._panelForHeading(heading));
+
+      // Go through the heading-panel pairs and set up their ARIA attributes
+      // and set the current state.
+      for (let i = 0; i < headings.length; i++) {
+        // Make headings and panels reference each other
+        // with the `aria-labelledby` and `aria-controls` attributes.
+        headings[i].setAttribute('aria-controls', panels[i].id);
+        panels[i].setAttribute('aria-labelledby', headings[i].id);
+      }
+
+      // Give all headings and panels a unique ID. Set up `aria-controls` and
+      // `aria-labelledby` attributes on headings and panels using those IDs.
+      const focusableHeading =
+        headings.find(heading => heading.getAttribute('tabindex') !== -1);
+      headings.forEach(heading => {
+        // All buttons inside the `HowtoAccordionHeadings` are made
+        // unfocusable here. Only the first heading will be made focusable
+        // afterwards. This is necessary to implement roving tabindex.
+        heading.setAttribute('tabindex', -1);
+      });
+      // Make the first heading focusable.
+      focusableHeading.setAttribute('tabindex', 0);
+    }
+
+    /**
+     * `_animate()` animates all panels to their current state.
+     */
+    _animateAll() {
+      this._allHeadings().forEach(heading =>
+        this._animatePanelForHeading(heading, heading.expanded)
+      );
     }
 
     /**
@@ -107,8 +146,8 @@
      * `connectedCallback` added.
      */
     disconnectedCallback() {
-      this.removeEventListener('change', this._onChange);
       this.removeEventListener('keydown', this._onKeyDown);
+      this._mo.disconnect();
     }
 
     /**
@@ -117,15 +156,6 @@
      */
     _isHeading(elem) {
       return elem.tagName.toLowerCase() === 'howto-accordion-heading';
-    }
-
-    /**
-     * `_onChange` handles the `change` event. The event’s
-     * target is the heading that has been instructed to expand by click,
-     * keyboard input.
-     */
-    _onChange(event) {
-      this._animatePanelForHeading(event.target, event.detail.isExpandedNow);
     }
 
     /**
@@ -485,7 +515,30 @@
       if (!this.id)
         this.id = `howto-accordion-heading-generated-${headingIdCounter++}`;
       this._shadowButton.addEventListener('click', this._onClick);
-      this._shadowButton.setAttribute('aria-expanded', 'false');
+
+      if (!this._shadowButton.hasAttribute('aria-expanded'))
+        this._shadowButton.setAttribute('aria-expanded', 'false');
+
+      this._upgradeProperty('expanded');
+    }
+
+    /**
+    * Check if a property has an instance value. If so, copy the value, and
+    * delete the instance property so it doesn't shadow the class property
+    * setter. Finally, pass the value to the class property setter so it can
+    * trigger any side effects.
+    * This is to safe guard against cases where, for instance, a framework
+    * may have added the element to the page and set a value on one of its
+    * properties, but lazy loaded its definition. Without this guard, the
+    * upgraded element would miss that property and the instance property
+    * would prevent the class property setter from ever being called.
+    */
+    _upgradeProperty(prop) {
+      if (this.hasOwnProperty(prop)) {
+        let value = this[prop];
+        delete this[prop];
+        this[prop] = value;
+      }
     }
 
     /**
@@ -539,15 +592,6 @@
      */
     _onClick() {
       this.expanded = !this.expanded;
-
-      // Dispatch an event that signals a request to expand to the
-      // `<howto-accordion>` element.
-      this.dispatchEvent(
-        new CustomEvent('change', {
-          detail: {isExpandedNow: this.expanded},
-          bubbles: true,
-        })
-      );
     }
   }
   window.customElements
