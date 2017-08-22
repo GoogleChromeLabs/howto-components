@@ -464,7 +464,7 @@
   `;
   // HIDE
   // ShadyCSS will rename classes as needed to ensure style scoping.
-  ShadyCSS.prepareTemplate(accordionTemplate, 'howto-accordion-heading');
+  ShadyCSS.prepareTemplate(accordionHeadingTemplate, 'howto-accordion-heading');
   // /HIDE
 
   /**
@@ -597,7 +597,7 @@
   }
   window.customElements
     .define('howto-accordion-heading', HowtoAccordionHeading);
-  
+
   /**
    * Cloning contents from a &lt;template&gt; element is more performant
    * than using innerHTML because it avoids addtional HTML parse costs.
