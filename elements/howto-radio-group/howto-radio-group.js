@@ -92,6 +92,13 @@
      * defaults just to indcate that they will likely change in the future.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'radio');
       if (!this.hasAttribute('tabindex'))
