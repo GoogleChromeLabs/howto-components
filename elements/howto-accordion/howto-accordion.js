@@ -28,6 +28,31 @@
   };
 
   /**
+   * Cloning contents from a &lt;template&gt; element is more performant
+   * than using innerHTML because it avoids addtional HTML parse costs.
+   */
+  const accordionTemplate = document.createElement('template');
+  accordionTemplate.innerHTML = `
+    <style>
+      :host {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      ::slotted(.animating) {
+        transition: transform 0.3s ease-in-out;
+      }
+    </style>
+    <slot></slot>
+  `;
+
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(accordionTemplate, 'howto-accordion');
+  // /HIDE
+
+  /**
    * `HowtoAccordion` is a container element for headings and panels.
    *
    * Each heading must be a `<howto-accordion-heading>`. Each panel must be a
@@ -36,6 +61,8 @@
   class HowtoAccordion extends HTMLElement {
     constructor() {
       super();
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(accordionTemplate.content.cloneNode(true));
     }
 
     /**
@@ -43,6 +70,13 @@
      * `expanded` attribute on the headers to adjust their styling accordingly.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       // `<howto-accordion-headers>` emit a custom event when the heading is
       // instructed to expand.
       this.addEventListener('change', this._onChange);
@@ -413,8 +447,8 @@
   // Another advantage is focus management. If the button inside ShadowDOM has
   // focus, `document.activeElement` returns the containing
   // `<howto-accordion-heading>` element rather than the button itself.
-  const shadowDOMTemplate = document.createElement('template');
-  shadowDOMTemplate.innerHTML = `
+  const accordionHeadingTemplate = document.createElement('template');
+  accordionHeadingTemplate.innerHTML = `
     <style>
       :host {
         contain: content;
@@ -428,6 +462,10 @@
     </style>
     <button><slot></slot></button>
   `;
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(accordionHeadingTemplate, 'howto-accordion-heading');
+  // /HIDE
 
   /**
    * `HowtoAccordionHeading` is the element for the headings in the accordion.
@@ -469,9 +507,9 @@
         mode: 'open',
         delegatesFocus: true,
       });
-      // Import the ShadowDOM template.
+      // Clone the shadow DOM template.
       this.shadowRoot.appendChild(
-        document.importNode(shadowDOMTemplate.content, true)
+        accordionHeadingTemplate.content.cloneNode(true)
       );
       this._shadowButton = this.shadowRoot.querySelector('button');
     }
@@ -480,6 +518,13 @@
      * `connectedCallback()` sets up the role, event handler and initial state.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'heading');
       if (!this.id)
@@ -553,6 +598,25 @@
   window.customElements
     .define('howto-accordion-heading', HowtoAccordionHeading);
 
+  /**
+   * Cloning contents from a &lt;template&gt; element is more performant
+   * than using innerHTML because it avoids addtional HTML parse costs.
+   */
+  const accordionPanelTemplate = document.createElement('template');
+  accordionPanelTemplate.innerHTML = `
+    <style>
+      :host(:not([expanded])) {
+        display: none;
+      }
+    </style>
+    <slot></slot>
+  `;
+
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(accordionPanelTemplate, 'howto-accordion-panel');
+  // /HIDE
+
   // `panelIdCounter` counts the number of IDs generated for panels and is used
   // to generated new, unique IDs.
   let panelIdCounter = 0;
@@ -567,12 +631,23 @@
   class HowtoAccordionPanel extends HTMLElement {
     constructor() {
       super();
+      this.attachShadow({mode: 'open'});
+      this.shadowRoot.appendChild(
+        accordionPanelTemplate.content.cloneNode(true)
+      );
     }
 
     /**
      * `connectedCallback()` sets up the role and the ID of the element.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       if (!this.hasAttribute('role'))
         this.setAttribute('role', 'region');
       if (!this.id)

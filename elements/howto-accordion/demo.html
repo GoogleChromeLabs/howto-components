@@ -11,12 +11,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <style>
-  howto-accordion {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    align-items: stretch;
-  }
   /* Headings need a background color so they are not transparent. Otherwise
   the content will shine through during the animation. */
   howto-accordion-heading {
@@ -29,15 +23,6 @@ limitations under the License.
   howto-accordion-panel {
     padding: 20px;
     background-color: lightgray;
-  }
-  /* The accordion gets the `animating` class assigned if its children are about
-  to be animated. The implementation relies on the `transitionend` event, so
-  this class _must_ define a transition on the `transform` property. */
-  howto-accordion > *.animating {
-    transition: transform 0.3s ease-in-out;
-  }
-  howto-accordion-panel:not([expanded]) {
-    display: none;
   }
 </style>
 
