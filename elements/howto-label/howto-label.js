@@ -52,10 +52,6 @@
      * aria-labelledby.
      */
     connectedCallback() {
-      if (!this.id) {
-        this.id = `howto-label-generated-${howtoLabelCounter++}`;
-      }
-
       // Fire _forChanged at startup to label any wrapped elements.
       this._forChanged();
     }
@@ -81,12 +77,19 @@
      * Label it.
      */
     _forChanged() {
-      let target = this._currentLabelTarget();
-      if (target) {
-        target.removeAttribute('aria-labelledby');
+      // Greedily generate id if one is not already present.
+      if (!this.id) {
+        this.id = `howto-label-generated-${howtoLabelCounter++}`;
       }
-      target = this._findTarget();
-      target.setAttribute('aria-labelledby', this.id);
+      let oldTarget = this._currentLabelTarget();
+      let newTarget = this._findTarget();
+      if (oldTarget === newTarget) {
+        return;
+      }
+      if (oldTarget) {
+        oldTarget.removeAttribute('aria-labelledby');
+      }
+      newTarget.setAttribute('aria-labelledby', this.id);
     }
 
     _onClick(event) {

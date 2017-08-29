@@ -11,12 +11,48 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<howto-label for="foo">
-  Click Me
-</howto-tabs>
-<howto-checkbox id="foo"></howto-checkbox>
+<style>
+  body {
+    padding: 20px;
+  }
+  div {
+    margin-bottom: 10px;
+  }
 
-<howto-label>
-  Click Me
-  <howto-checkbox></howto-checkbox>
-</howto-tabs>
+  howto-label,
+  howto-checkbox {
+    vertical-align: middle;
+  }
+</style>
+
+<div>
+  <howto-label for="foo">
+    Click Me
+  </howto-label>
+  <howto-checkbox id="foo"></howto-checkbox>
+</div>
+
+<div>
+  <howto-label>
+    Click Me Too
+    <howto-checkbox></howto-checkbox>
+  </howto-label>
+</div>
+
+<div>
+  <howto-label for="bar" id="baz">
+    Click Me As Well
+  </howto-label>
+  <howto-checkbox id="bar"></howto-checkbox>
+</div>
+
+<div>
+  <howto-label>
+    <strong>Click Me Last</strong>
+    <howto-checkbox howto-label-target></howto-checkbox>
+  </howto-label>
+</div>
+
+<script src="https://rawgit.com/webcomponents/webcomponentsjs/master/webcomponents-lite.js"></script>
+<script src="../howto-checkbox/howto-checkbox.js"></script>
+<script src="./howto-label.js"></script>
