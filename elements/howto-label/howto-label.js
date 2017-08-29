@@ -38,9 +38,11 @@
       super();
       this.attachShadow({mode: 'open'});
       this.shadowRoot.appendChild(template.content.cloneNode(true));
+      // The <slot> will be used again when checking for wrapped children
+      // so it makes sense to cache a reference to it.
+      this._slot = this.shadowRoot.querySelector('slot');
       // Listen for the slotchange event to label any wrapped children
-      this.shadowRoot.querySelector('slot')
-        .addEventListener('slotchange', this._forChanged.bind(this));
+      this._slot.addEventListener('slotchange', this._updateLabel.bind(this));
       this.addEventListener('click', this._onClick.bind(this));
     }
 
@@ -52,8 +54,8 @@
      * aria-labelledby.
      */
     connectedCallback() {
-      // Fire _forChanged at startup to label any wrapped elements.
-      this._forChanged();
+      // Fire _updateLabel at startup to label any wrapped elements.
+      this._updateLabel();
     }
 
     get for() {
@@ -66,9 +68,7 @@
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
-      if (name === 'for') {
-        this._forChanged();
-      }
+      this._updateLabel();
     }
 
     /**
@@ -76,7 +76,7 @@
      * Find the new element to label.
      * Label it.
      */
-    _forChanged() {
+    _updateLabel() {
       // Greedily generate id if one is not already present.
       if (!this.id) {
         this.id = `howto-label-generated-${howtoLabelCounter++}`;
@@ -119,26 +119,32 @@
         // external target
         let scope = this.getRootNode();
         return scope.getElementById(this.for);
-      } else {
-        let slottedChildren = this.shadowRoot
-          .querySelector('slot').assignedNodes({flatten: true});
-        let el;
-        slottedChildren.forEach(child => {
-          // Ignore text nodes
-          if (child.nodeType === Node.TEXT_NODE) {
-            return;
-          }
-          // Implicit internal target, first element child
-          if (!el) {
-            el = child;
-          }
-          // Explicit internal target
-          if (child.hasAttribute('howto-label-target')) {
-            el = child;
-          }
-        });
-        return el;
       }
+
+      let slottedChildren = this._slot.assignedNodes({flatten: true});
+      let el;
+      slottedChildren.forEach(child => {
+        // Ignore text nodes
+        if (child.nodeType === Node.TEXT_NODE) {
+          return;
+        }
+        // Find the first element child. This is the implicit target
+        // of the label.
+        if (!el) {
+          el = child;
+        }
+        // If any element has a howto-label-target attribute, treat it as
+        // the explicit target of the label. This let's howto-label support
+        // multiple children. E.g.
+        // <howto-label>
+        //   <strong>Click <em>me</em></strong>
+        //   <howto-checkbox howto-label-target></howto-checkbox>
+        // </howto-label>
+        if (child.hasAttribute('howto-label-target')) {
+          el = child;
+        }
+      });
+      return el;
     }
   }
   customElements.define('howto-label', HowToLabel);
