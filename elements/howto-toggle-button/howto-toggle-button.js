@@ -42,11 +42,11 @@
       :host([hidden]) {
         display: none;
       }
-      :host([aria-pressed="true"]),
-      :host(:not([aria-disabled="true"]):active) {
+      :host([pressed]),
+      :host(:not([disabled]):active) {
         background-color: #999;
       }
-      :host([aria-disabled="true"]) {
+      :host([disabled]) {
         opacity: 0.35;
       }
     </style>
