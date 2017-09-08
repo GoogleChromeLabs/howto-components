@@ -10,5 +10,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+<style>
+  howto-toggle-button {
+    background-color: #eee;  
+    padding: 3px;
+    cursor: default;
+    user-select: none;
+    border: 1px solid #333;
+    border-radius: 3px;
+    transition: background-color .2s ease;
+  }
+
+  howto-toggle-button[pressed],
+  howto-toggle-button:not([disabled]):active {
+    background-color: #999;
+  }
+
+  howto-toggle-button[disabled] {
+    opacity: 0.35;
+  }
+</style>
 
 <howto-toggle-button>Press me</howto-toggle-button>

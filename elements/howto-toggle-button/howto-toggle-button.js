@@ -30,24 +30,10 @@
   template.innerHTML = `
     <style>
       :host {
-        background-color: #eee;
         display: inline-block;
-        padding: 3px;
-        border: 1px solid #333;
-        border-radius: 3px;
-        cursor: default;
-        user-select: none;
-        transition: background-color .2s ease;
       }
       :host([hidden]) {
         display: none;
-      }
-      :host([pressed]),
-      :host(:not([disabled]):active) {
-        background-color: #999;
-      }
-      :host([disabled]) {
-        opacity: 0.35;
       }
     </style>
     <slot></slot>

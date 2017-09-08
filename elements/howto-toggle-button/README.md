@@ -19,7 +19,7 @@ pressed states.
 
 The toggle button also supports a `disabled` state. If either the `disabled` property
 is set to true or the `disabled` attribute is applied, the toggle button sets
-`aria-disabled="true"` and set `tabindex="-1"`.
+`aria-disabled="true"` and removes the `tabindex` attribute.
 
 ## Reference {: #reference }
 
