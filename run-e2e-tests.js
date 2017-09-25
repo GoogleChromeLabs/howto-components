@@ -37,6 +37,8 @@ function startServer() {
   return new Promise(resolve => {
     const app = express();
     app.use(express.static('docs'));
+    app.use(express.static('elements'));
+    app.use(express.static('node_modules'));
     const server = http.createServer(app).listen();
     server.on('listening', _ => resolve(server));
   });
