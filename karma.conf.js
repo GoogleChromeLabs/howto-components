@@ -19,7 +19,7 @@ module.exports = function(config) {
     basePath: '',
     frameworks: ['mocha', 'chai'],
     files: [
-      'https://cdn.rawgit.com/webcomponents/webcomponentsjs/d5b7ca65/webcomponents-sd-ce.js',
+      'node_modules/@webcomponents/webcomponentsjs/webcomponents-sd-ce.js',
       'tools/testing-helper.js',
       'elements/*/*.js',
     ],

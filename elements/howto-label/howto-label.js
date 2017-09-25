@@ -26,8 +26,18 @@
    */
   const template = document.createElement('template');
   template.innerHTML = `
+    <style>
+      :host {
+        cursor: default;
+      }
+    </style>
     <slot></slot>
   `;
+
+  // HIDE
+  // ShadyCSS will rename classes as needed to ensure style scoping.
+  ShadyCSS.prepareTemplate(template, 'howto-checkbox');
+  // /HIDE
 
   class HowToLabel extends HTMLElement {
     static get observedAttributes() {
@@ -42,8 +52,8 @@
       // so it makes sense to cache a reference to it.
       this._slot = this.shadowRoot.querySelector('slot');
       // Listen for the slotchange event to label any wrapped children
-      this._slot.addEventListener('slotchange', this._updateLabel.bind(this));
-      this.addEventListener('click', this._onClick.bind(this));
+      this._slot.addEventListener('slotchange', this._onSlotChange.bind(this));
+      this.addEventListener('click', this._onClick);
     }
 
     /**
@@ -54,6 +64,13 @@
      * aria-labelledby.
      */
     connectedCallback() {
+      // HIDE
+      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
+      // because if you shim Custom Properties (CSS variables) the element
+      // will need access to its parent node.
+      ShadyCSS.styleElement(this);
+      // /HIDE
+
       // Fire _updateLabel at startup to label any wrapped elements.
       this._updateLabel();
     }
@@ -77,19 +94,29 @@
      * Label it.
      */
     _updateLabel() {
-      // Greedily generate id if one is not already present.
-      if (!this.id) {
-        this.id = `howto-label-generated-${howtoLabelCounter++}`;
-      }
-      let oldTarget = this._currentLabelTarget();
-      let newTarget = this._findTarget();
-      if (oldTarget === newTarget) {
-        return;
-      }
-      if (oldTarget) {
-        oldTarget.removeAttribute('aria-labelledby');
-      }
-      newTarget.setAttribute('aria-labelledby', this.id);
+      // Under polyfill you may end up in situations where elements referenced
+      // by the label are parsed _after_ the label is connected, so defer
+      // looking for them until the next microtask.
+      Promise.resolve()
+        .then(_ => {
+          // Greedily generate id if one is not already present.
+          if (!this.id) {
+            this.id = `howto-label-generated-${howtoLabelCounter++}`;
+          }
+          let oldTarget = this._currentLabelTarget();
+          let newTarget = this._findTarget();
+          if (!newTarget || oldTarget === newTarget) {
+            return;
+          }
+          if (oldTarget) {
+            oldTarget.removeAttribute('aria-labelledby');
+          }
+          newTarget.setAttribute('aria-labelledby', this.id);
+        });
+    }
+
+    _onSlotChange(event) {
+      this._updateLabel();
     }
 
     _onClick(event) {
@@ -121,30 +148,17 @@
         return scope.getElementById(this.for);
       }
 
-      let slottedChildren = this._slot.assignedNodes({flatten: true});
-      let el;
-      slottedChildren.forEach(child => {
-        // Ignore text nodes
-        if (child.nodeType === Node.TEXT_NODE) {
-          return;
-        }
-        // Find the first element child. This is the implicit target
-        // of the label.
-        if (!el) {
-          el = child;
-        }
-        // If any element has a howto-label-target attribute, treat it as
-        // the explicit target of the label. This let's howto-label support
-        // multiple children. E.g.
-        // <howto-label>
-        //   <strong>Click <em>me</em></strong>
-        //   <howto-checkbox howto-label-target></howto-checkbox>
-        // </howto-label>
-        if (child.hasAttribute('howto-label-target')) {
-          el = child;
-        }
-      });
-      return el;
+      // Get all non-text slotted children
+      let slottedChildren =
+        this._slot.assignedNodes({flatten: true})
+          .filter(child => child.nodeType !== Node.TEXT_NODE);
+      // Find the first one that defines an explicit external target
+      let el =
+        slottedChildren
+          .find(child => child.hasAttribute('howto-label-target'));
+      // Return that first explicit external target, or
+      // the first child if there is none.
+      return el || slottedChildren[0];
     }
   }
   customElements.define('howto-label', HowToLabel);

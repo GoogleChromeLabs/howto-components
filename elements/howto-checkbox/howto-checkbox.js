@@ -30,7 +30,7 @@
     <style>
       :host {
         display: inline-block;
-        background: url('/elements/howto-checkbox/images/unchecked-checkbox.svg') no-repeat;
+        background: url('{%PATH%}/images/unchecked-checkbox.svg') no-repeat;
         background-size: contain;
         width: 24px;
         height: 24px;
@@ -39,17 +39,17 @@
         display: none;
       }
       :host([aria-checked="true"]) {
-        background: url('/elements/howto-checkbox/images/checked-checkbox.svg') no-repeat;
+        background: url('{%PATH%}/images/checked-checkbox.svg') no-repeat;
         background-size: contain;
       }
       :host([aria-disabled="true"]) {
         background:
-          url('/elements/howto-checkbox/images/unchecked-checkbox-disabled.svg') no-repeat;
+          url('{%PATH%}/images/unchecked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
       :host([aria-checked="true"][aria-disabled="true"]) {
         background:
-          url('/elements/howto-checkbox/images/checked-checkbox-disabled.svg') no-repeat;
+          url('{%PATH%}/images/checked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
     </style>
