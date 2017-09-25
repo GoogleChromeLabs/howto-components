@@ -80,6 +80,10 @@
         this.setAttribute('role', 'button');
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
+      // To singal to assistive technology that this is a toggle button, and
+      // not just a regular button, add an inital aria-pressed state.
+      if (!this.hasAttribute('aria-pressed'))
+        this.setAttribute('aria-pressed', 'false');
 
       // A user may set a property on an _instance_ of an element,
       // before its prototype has been connected to this class.
