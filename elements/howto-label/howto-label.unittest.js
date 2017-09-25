@@ -66,7 +66,7 @@
       });
     });
 
-    describe('implicit [for]', function() {
+    describe('implicit target', function() {
       beforeEach(function() {
         this.container.innerHTML = `
           <howto-label>

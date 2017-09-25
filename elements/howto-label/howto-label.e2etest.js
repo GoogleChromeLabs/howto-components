@@ -19,20 +19,57 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {By} = require('selenium-webdriver');
 
-describe('howto-label', function() {
+describe.only('howto-label', function() {
   let success;
 
-  beforeEach(function() {
-    return this.driver.get(`${this.address}/howto-label/demo.html`)
-      .then(_ => helper.waitForElement(this.driver, 'howto-label'));
+  describe('explicit [for]', function() {
+    beforeEach(function() {
+      return this.driver.get(`${this.address}/howto-label/fixtures/explicit-for.html`)
+        .then(_ => helper.waitForElement(this.driver, 'howto-label'));
+    });
+
+    it('should focus the target of [for] on click', async function() {
+      await this.driver.findElement(By.css('howto-label')).click();
+      success = await this.driver.executeScript(function() {
+        let target = document.getElementById(document.querySelector('howto-label').for);
+        let activeElement = document.activeElement;
+        return activeElement === target;
+      });
+      expect(success).to.be.true;
+    });
   });
 
-  it('should focus the target on click', async function() {
-    await this.driver.findElement(By.css('[for=foo]')).click();
-    success = await this.driver.executeScript(function() {
-      let activeElement = document.activeElement;
-      return activeElement === document.querySelector('#foo');
+  describe('implicit target', function() {
+    beforeEach(function() {
+      return this.driver.get(`${this.address}/howto-label/fixtures/implicit-target.html`)
+        .then(_ => helper.waitForElement(this.driver, 'howto-label'));
     });
-    expect(success).to.be.true;
+
+    it('should focus the first element child on click', async function() {
+      await this.driver.findElement(By.css('howto-label')).click();
+      success = await this.driver.executeScript(function() {
+        let target = document.querySelector('howto-label').firstElementChild;
+        let activeElement = document.activeElement;
+        return activeElement === target;
+      });
+      expect(success).to.be.true;
+    });
+  });
+
+  describe('nested children, explicit target', function() {
+    beforeEach(function() {
+      return this.driver.get(`${this.address}/howto-label/fixtures/nested-explicit-target.html`)
+        .then(_ => helper.waitForElement(this.driver, 'howto-label'));
+    });
+
+    it('should focus the element with [howto-label-target] on click', async function() {
+      await this.driver.findElement(By.css('howto-label')).click();
+      success = await this.driver.executeScript(function() {
+        let target = document.querySelector('[howto-label-target]');
+        let activeElement = document.activeElement;
+        return activeElement === target;
+      });
+      expect(success).to.be.true;
+    });
   });
 });
