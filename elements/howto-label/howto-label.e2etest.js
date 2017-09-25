@@ -19,7 +19,7 @@ const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
 const {By} = require('selenium-webdriver');
 
-describe.only('howto-label', function() {
+describe('howto-label', function() {
   let success;
 
   describe('explicit [for]', function() {
