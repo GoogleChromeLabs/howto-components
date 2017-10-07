@@ -30,7 +30,7 @@
     <style>
       :host {
         display: inline-block;
-        background: url('{%PATH%}/images/unchecked-checkbox.svg') no-repeat;
+        background: url('./images/unchecked-checkbox.svg') no-repeat;
         background-size: contain;
         width: 24px;
         height: 24px;
@@ -38,18 +38,18 @@
       :host([hidden]) {
         display: none;
       }
-      :host([aria-checked="true"]) {
-        background: url('{%PATH%}/images/checked-checkbox.svg') no-repeat;
+      :host([checked]) {
+        background: url('./images/checked-checkbox.svg') no-repeat;
         background-size: contain;
       }
-      :host([aria-disabled="true"]) {
+      :host([disabled]) {
         background:
-          url('{%PATH%}/images/unchecked-checkbox-disabled.svg') no-repeat;
+          url('./images/unchecked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
-      :host([aria-checked="true"][aria-disabled="true"]) {
+      :host([checked][disabled]) {
         background:
-          url('{%PATH%}/images/checked-checkbox-disabled.svg') no-repeat;
+          url('./images/checked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
     </style>
@@ -75,6 +75,7 @@
      */
     constructor() {
       super();
+      this.accessibleNode.role = 'checkbox';
       this.attachShadow({mode: 'open'});
       this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
@@ -92,8 +93,6 @@
       ShadyCSS.styleElement(this);
       // /HIDE
 
-      if (!this.hasAttribute('role'))
-        this.setAttribute('role', 'checkbox');
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
 
@@ -106,7 +105,7 @@
       this._upgradeProperty('checked');
       this._upgradeProperty('disabled');
 
-      this.addEventListener('keydown', this._onKeyDown);
+      this.addEventListener('keyup', this._onKeyUp);
       this.addEventListener('click', this._onClick);
     }
 
@@ -124,7 +123,7 @@
      * removing event listeners.
      */
     disconnectedCallback() {
-      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('keyup', this._onKeyUp);
       this.removeEventListener('click', this._onClick);
     }
 
@@ -168,10 +167,10 @@
       const hasValue = newValue !== null;
       switch (name) {
         case 'checked':
-          this.setAttribute('aria-checked', hasValue);
+          this.accessibleNode.checked = hasValue;
           break;
         case 'disabled':
-          this.setAttribute('aria-disabled', hasValue);
+          this.accessibleNode.disabled = hasValue;
           // The `tabindex` attribute does not provide a way to fully remove
           // focusability from an element.
           // Elements with `tabindex=-1` can still be focused with
@@ -190,7 +189,7 @@
       }
     }
 
-    _onKeyDown(event) {
+    _onKeyUp(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey)
         return;

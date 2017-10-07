@@ -11,19 +11,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<style>
-  howto-checkbox {
-    vertical-align: middle;
-  }
-  #join-label {
-    vertical-align: middle;
-    display: inline-block;
-    font-weight: bold;
-    font-family: sans-serif;
-    font-size: 20px;
-    margin-left: 8px;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HowTo: Checkbox — Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      howto-checkbox {
+        vertical-align: middle;
+      }
+      howto-label {
+        display: inline-block;
+        vertical-align: middle;
+        font-weight: bold;
+        font-family: sans-serif;
+        font-size: 20px;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+  <body>  
+    <howto-checkbox id="checkbox"></howto-checkbox>
+    <howto-label for="checkbox">Join Newsletter</howto-label>
+    <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-sd-ce.js"></script>
+    <script src="../howto-label/howto-label.js"></script>
+    <script src="./howto-checkbox.js"></script>
+  </body>
+</html>
 
-<howto-checkbox aria-labelledby="join-label"></howto-checkbox>
-<span id="join-label">Join Newsletter</span>
