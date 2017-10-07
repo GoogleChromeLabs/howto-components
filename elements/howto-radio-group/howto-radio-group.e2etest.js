@@ -26,6 +26,19 @@ describe('howto-radio-group', function() {
       .then(_ => helper.waitForElement(this.driver, 'howto-radio-group'));
   });
 
+  it('should handle spacebar', async function() {
+    await this.driver.executeScript(_ => {
+      window.expectedFirstRadio = document.querySelector('howto-radio-button:nth-of-type(1)');
+    });
+
+    success = await helper.pressKeyUntil(this.driver, Key.TAB, _ => document.activeElement === window.expectedFirstRadio);
+    expect(success).to.be.true;
+
+    await this.driver.actions().sendKeys(Key.SPACE).perform();
+    success = await this.driver.executeScript(_ => window.expectedFirstRadio.getAttribute('aria-checked') === 'true');
+    expect(success).to.be.true;
+  });
+
   it('should handle arrow keys', async function() {
     await this.driver.executeScript(_ => {
       window.expectedFirstRadio = document.querySelector('howto-radio-button:nth-of-type(1)');
@@ -131,8 +144,7 @@ describe('howto-radio-group', function() {
     await this.driver.actions().sendKeys(Key.SHIFT, Key.TAB).perform();
     success = await this.driver.executeScript(_ => document.activeElement === window.expectedSecondRadio);
     expect(success).to.be.true;
-  }
-);
+  });
 
   it('should focus and select a radio on click', async function() {
     const secondRadio = await this.driver.findElement(By.css('howto-radio-button:nth-of-type(2)'));

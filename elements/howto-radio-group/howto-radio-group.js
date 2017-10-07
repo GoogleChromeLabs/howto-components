@@ -226,6 +226,12 @@
           this._setChecked(this.lastRadioButton);
           break;
 
+        case KEYCODE.SPACE:
+          e.preventDefault();
+          if (e.target.tagName.toLowerCase() === 'howto-radio-button')
+            this._setChecked(e.target);
+          break;
+
         default:
           break;
       }
