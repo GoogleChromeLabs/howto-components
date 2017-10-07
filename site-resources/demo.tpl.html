@@ -26,16 +26,24 @@
     window.addEventListener('message', sendSize);
 
     window._loadJavaScript = _ => {
-      const whenScriptsLoaded = [
+      let scriptsToLoad = [
         'https://cdn.rawgit.com/webcomponents/webcomponentsjs/d5b7ca65/webcomponents-sd-ce.js',
         '{{=it.title}}.js',
-      ].reduce((chain, src) =>
-        chain.then(_ => loadScript(src)),
-        Promise.resolve()
-      );
-      return whenScriptsLoaded
-        .then(_ => customElements.whenDefined('{{=it.title}}'))
-        .then(_ => sendSize());
+      ];
+
+      // Load howto-label into every demo.
+      if ('{{=it.title}}' !== 'howto-label') {
+        scriptsToLoad.push('../howto-label/howto-label.js');
+      }
+
+      const whenScriptsLoaded = scriptsToLoad
+        .reduce((chain, src) =>
+          chain.then(_ => loadScript(src)),
+          Promise.resolve()
+        );
+        return whenScriptsLoaded
+          .then(_ => customElements.whenDefined('{{=it.title}}'))
+          .then(_ => sendSize());
     };
 
     // If there’s a `nojs` in the URL’s query string, don’t load the elements,
@@ -55,7 +63,7 @@
         ro.observe(document.body);
         ro.observe(document.scrollingElement);
       });
-
+    
     // Send size after loading is done
     requestAnimationFrame(_ => sendSize());
   })();
