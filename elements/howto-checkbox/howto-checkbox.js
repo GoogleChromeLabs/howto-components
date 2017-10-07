@@ -38,16 +38,16 @@
       :host([hidden]) {
         display: none;
       }
-      :host([aria-checked="true"]) {
+      :host([checked]) {
         background: url('{%PATH%}/images/checked-checkbox.svg') no-repeat;
         background-size: contain;
       }
-      :host([aria-disabled="true"]) {
+      :host([disabled]) {
         background:
           url('{%PATH%}/images/unchecked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
       }
-      :host([aria-checked="true"][aria-disabled="true"]) {
+      :host([checked][disabled]) {
         background:
           url('{%PATH%}/images/checked-checkbox-disabled.svg') no-repeat;
         background-size: contain;
@@ -106,7 +106,7 @@
       this._upgradeProperty('checked');
       this._upgradeProperty('disabled');
 
-      this.addEventListener('keydown', this._onKeyDown);
+      this.addEventListener('keyup', this._onKeyUp);
       this.addEventListener('click', this._onClick);
     }
 
@@ -124,7 +124,7 @@
      * removing event listeners.
      */
     disconnectedCallback() {
-      this.removeEventListener('keydown', this._onKeyDown);
+      this.removeEventListener('keyup', this._onKeyUp);
       this.removeEventListener('click', this._onClick);
     }
 
@@ -190,7 +190,7 @@
       }
     }
 
-    _onKeyDown(event) {
+    _onKeyUp(event) {
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey)
         return;
