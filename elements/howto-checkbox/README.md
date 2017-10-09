@@ -19,7 +19,8 @@ checked states.
 
 The checkbox also supports a `disabled` state. If either the `disabled` property
 is set to true or the `disabled` attribute is applied, the checkbox sets
-`aria-disabled="true"` and set `tabindex="-1"`.
+`aria-disabled="true"`, removes the `tabindex` attribute, and returns focus
+to the document if the checkbox is the current `activeElement`.
 
 Warning: Just because you _can_ build a custom element checkbox, doesn't
 necessarily mean that you _should_. As this example shows, you will need to add
