@@ -17,13 +17,13 @@ limitations under the License.
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <link rel="stylesheet" href="../styles/main.css" />
 
-<h1>{{=it.title}}</h1>
+<h1 id="element">{{=it.title}}</h1>
 <section class="intro">
   {{=it.markdown(it.readFile(`elements/${it.title}/README.md`))}}
 </section>
-<h2>Demo</h2>
+<h2 id="demo">Demo</h2>
 <iframe src="demo.html" class="demo" aria-label="live demo" role="region"></iframe>
-<h2>Example usage</h2>
+<h2 id="example-usage">Example usage</h2>
 <ul class="literate demo" id="{{=it.title}}_demo">
   {{ for (let section of it.demoSections) { }}
   <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
@@ -32,7 +32,7 @@ limitations under the License.
   </li>
   {{ } }}
 </ul>
-<h2>Code</h2>
+<h2 id="code">Code</h2>
 <ul class="literate code" id="{{=it.title}}_impl">
   {{ for (let section of it.sections) { }}
   <li class="{{=section.commentType.toLowerCase()}} {{? (section.commentText.length <= 0) && (section.codeText.length <= 0)}}empty{{?}}">
