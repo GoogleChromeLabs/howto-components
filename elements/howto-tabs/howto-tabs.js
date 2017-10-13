@@ -44,11 +44,6 @@
     <slot name="panel"></slot>
   `;
 
-  // HIDE
-  // ShadyCSS will rename classes as needed to ensure style scoping.
-  ShadyCSS.prepareTemplate(template, 'howto-tabs');
-  // /HIDE
-
   /**
    * `HowtoTabs` is a container element for tabs and panels.
    *
@@ -59,7 +54,7 @@
   class HowtoTabs extends HTMLElement {
     constructor() {
       super();
-
+      this.accessibleNode.role = 'tablist';
       // Event handlers that are not attached to this element need to be bound
       // if they need access to `this`.
       this._onSlotChange = this._onSlotChange.bind(this);
@@ -88,25 +83,16 @@
      * exactly one tab is active.
      */
     connectedCallback() {
-      // HIDE
-      // Shim Shadow DOM styles. This needs to be run in connectedCallback
-      // because if you shim Custom Properties (CSS variables) the element
-      // will need access to its parent node.
-      ShadyCSS.styleElement(this);
-      // /HIDE
-
       // The element needs to do some manual input event handling to allow
       // switching with arrow keys and Home/End.
       this.addEventListener('keydown', this._onKeyDown);
       this.addEventListener('click', this._onClick);
 
-      if (!this.hasAttribute('role'))
-        this.setAttribute('role', 'tablist');
-
       // Up until recently, `slotchange` events did not fire when an element was
       // upgraded by the parser. For this reason, the element invokes the
       // handler manually. Once the new behavior lands in all browsers, the code
       // below can be removed.
+      // https://github.com/whatwg/dom/issues/447
       Promise.all([
         customElements.whenDefined('howto-tab'),
         customElements.whenDefined('howto-panel'),
@@ -133,7 +119,7 @@
 
     /**
      * `_linkPanels()` links up tabs with their adjacent panels using
-     * `aria-controls` and `aria-labelledby`. Additionally, the method makes
+     * AOM controls and AOM labeledBy. Additionally, the method makes
      * sure only one tab is active.
      *
      * If this function becomes a bottleneck, it can be easily optimized by
@@ -147,13 +133,15 @@
       tabs.forEach(tab => {
         const panel = tab.nextElementSibling;
         if (panel.tagName.toLowerCase() !== 'howto-panel') {
-          console.error(`Tab #${tab.id} is not a` +
-            `sibling of a <howto-panel>`);
           return;
         }
 
-        tab.setAttribute('aria-controls', panel.id);
-        panel.setAttribute('aria-labelledby', tab.id);
+        tab.panel = panel; // Would prefer if this was private somehow...
+        tab.accessibleNode.controls = new AccessibleNodeList();
+        tab.accessibleNode.controls.add(panel.accessibleNode);
+        panel.tab = tab;
+        panel.accessibleNode.labeledBy = new AccessibleNodeList();
+        panel.accessibleNode.labeledBy.add(tab.accessibleNode);
       });
 
       // The element checks if any of the tabs have been marked as selected.
@@ -190,8 +178,10 @@
      * `_panelForTab()` returns the panel that the given tab controls.
      */
     _panelForTab(tab) {
-      const panelId = tab.getAttribute('aria-controls');
-      return this.querySelector(`#${panelId}`);
+      // Originally this method relied on looking at the aria-controls id
+      // and querying for that element. If AOM had a reference back to its
+      // element we could use that instead.
+      return tab.panel;
     }
 
     /**
@@ -260,7 +250,7 @@
       const newPanel = this._panelForTab(newTab);
       // If that panel doesn’t exist, abort.
       if (!newPanel)
-        throw new Error(`No panel with id ${newPanelId}`);
+        return;
       newTab.selected = true;
       newPanel.hidden = false;
       newTab.focus();
@@ -272,7 +262,7 @@
     _onKeyDown(event) {
       // If the keypress did not originate from a tab element itself,
       // it was a keypress inside the a panel or on empty space. Nothing to do.
-      if (event.target.getAttribute('role') !== 'tab')
+      if (event.target.nodeName.toLowerCase() !== 'howto-tab')
         return;
       // Don’t handle modifier shortcuts typically used by assistive technology.
       if (event.altKey)
@@ -318,7 +308,7 @@
     _onClick(event) {
       // If the click was not targeted on a tab element itself,
       // it was a click inside the a panel or on empty space. Nothing to do.
-      if (event.target.getAttribute('role') !== 'tab')
+      if (event.target.nodeName.toLowerCase() !== 'howto-tab')
         return;
       // If it was on a tab element, though, select that tab.
       this._selectTab(event.target);
@@ -326,9 +316,6 @@
   }
   customElements.define('howto-tabs', HowtoTabs);
 
-  // `howtoTabCounter` counts the number of `<howto-tab>` instances created. The
-  // number is used to generated new, unique IDs.
-  let howtoTabCounter = 0;
   /**
    * `HowtoTabsTab` is a tab for a `<howto-tabs>` tab panel. `<howto-tab>`
    * should always be used with `role=heading` in the markup so that the
@@ -347,17 +334,11 @@
 
     constructor() {
       super();
+      this.accessibleNode.role = 'tab';
+      this.accessibleNode.selected = false;
     }
 
     connectedCallback() {
-      // If this is executed, JavaScript is working and the element
-      // changes its role to `tab`.
-      this.setAttribute('role', 'tab');
-      if (!this.id)
-        this.id = `howto-tab-generated-${howtoTabCounter++}`;
-
-      // Set a well-defined initial state.
-      this.setAttribute('aria-selected', 'false');
       this.setAttribute('tabindex', -1);
       this._upgradeProperty('selected');
     }
@@ -395,7 +376,7 @@
      */
     attributeChangedCallback() {
       const value = this.hasAttribute('selected');
-      this.setAttribute('aria-selected', value);
+      this.accessibleNode.selected = value;
       this.setAttribute('tabindex', value ? 0 : -1);
     }
 
@@ -413,19 +394,10 @@
   }
   customElements.define('howto-tab', HowtoTab);
 
-  let howtoPanelCounter = 0;
-  /**
-   * `HowtoPanel` is a panel for a `<howto-tabs>` tab panel.
-   */
   class HowtoPanel extends HTMLElement {
     constructor() {
       super();
-    }
-
-    connectedCallback() {
-      this.setAttribute('role', 'tabpanel');
-      if (!this.id)
-        this.id = `howto-panel-generated-${howtoPanelCounter++}`;
+      this.accessibleNode.role = 'tabpanel';
     }
   }
   customElements.define('howto-panel', HowtoPanel);
