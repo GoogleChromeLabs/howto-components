@@ -22,8 +22,9 @@
   };
 
   /**
-   * Cloning contents from a &lt;template&gt; element is more performant
-   * than using innerHTML because it avoids addtional HTML parse costs.
+   * Defining the element's implementation in a <template> helps cut down on
+   * HTML parse cost. This content will only be parsed once, and then cloned
+   * in the element's constructor.
    */
   const template = document.createElement('template');
   template.innerHTML = `
@@ -55,14 +56,9 @@
     </style>
   `;
 
-  // HIDE
-  // ShadyCSS will rename classes as needed to ensure style scoping.
-  ShadyCSS.prepareTemplate(template, 'howto-checkbox');
-  // /HIDE
-
   class HowToCheckbox extends HTMLElement {
     static get observedAttributes() {
-      return ['checked', 'disabled'];
+      return ['role', 'checked', 'disabled'];
     }
 
     /**
@@ -82,17 +78,10 @@
 
     /**
      * `connectedCallback()` fires when the element is inserted into the DOM.
-     * It's a good place to set the initial `role`, `tabindex`, internal state,
-     * and install event listeners.
+     * It's the earliest an element is allowed to touch Light DOM, including its
+     * own attributes. It's a good time to setup tabindex.
      */
     connectedCallback() {
-      // HIDE
-      // Shim Shadow DOM styles. This needs to be run in `connectedCallback()`
-      // because if you shim Custom Properties (CSS variables) the element
-      // will need access to its parent node.
-      ShadyCSS.styleElement(this);
-      // /HIDE
-
       if (!this.hasAttribute('tabindex'))
         this.setAttribute('tabindex', 0);
 
@@ -102,6 +91,8 @@
       // and run them through the proper class setters.
       // See the [lazy properites](/web/fundamentals/architecture/building-components/best-practices#lazy-properties)
       // section for more details.
+      // There is [a discussion](https://github.com/w3c/webcomponents/issues/671#issuecomment-333324070)
+      // to see if we can fix this in the custom element's spec
       this._upgradeProperty('checked');
       this._upgradeProperty('disabled');
 
@@ -161,7 +152,7 @@
     /**
      * `attributeChangedCallback()` is called when any of the attributes in the
      * `observedAttributes` array are changed. It's a good place to handle
-     * side effects, like setting ARIA attributes.
+     * side effects, like setting ARIA/AOM.
      */
     attributeChangedCallback(name, oldValue, newValue) {
       const hasValue = newValue !== null;
@@ -185,6 +176,11 @@
           } else {
             this.setAttribute('tabindex', '0');
           }
+          break;
+        // Need to observe ARIA role in case the user tries to override us.
+        case 'role':
+          if (hasValue)
+            this.accessibleNode.role = newValue;
           break;
       }
     }
@@ -230,5 +226,3 @@
 
   window.customElements.define('howto-checkbox', HowToCheckbox);
 })();
-
-
