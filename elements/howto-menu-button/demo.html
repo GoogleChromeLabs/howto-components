@@ -1,0 +1,32 @@
+<!doctype html>
+
+<style>
+ul {
+  position: absolute;
+  display: block;
+  width: 10em;
+  padding: 0;
+}
+
+li {
+  display: block;
+  width: 100%;
+  padding: .2em .5em;
+  border: 1px solid lightgrey;
+}
+
+/* The menu is closed. */
+ul[aria-hidden="true"] {
+  display: none;
+}
+</style>
+
+<div class="text">
+   <howto-menu-button aria-label="menu" id="menu-btn" width='20' height='20'>Menu</howto-menu-button>
+
+   <ul aria-role="menu" aria-hidden="true" aria-labelledby="menu-btn">
+     <li role="menuitem" tabindex="0">option 1</li>
+     <li role="menuitem" tabindex="0">option 2</li>
+     <li role="menuitem" tabindex="0">option 3</li>
+   </ul>
+</div>
