@@ -52,6 +52,9 @@
    * cached and therefore, changes during runtime work.
    */
   class HowtoTabs extends HTMLElement {
+    static get observedAttributes() {
+      return ['role'];
+    }
     constructor() {
       super();
       this.accessibleNode.role = 'tablist';
@@ -107,6 +110,14 @@
     disconnectedCallback() {
       this.removeEventListener('keydown', this._onKeyDown);
       this.removeEventListener('click', this._onClick);
+    }
+
+    /**
+     * We only have this callback to observe changes to role :(
+     */
+    attributeChangedCallback(name, oldVal, newVal) {
+      if (name === 'role' && newVal)
+        this.accessibleNode.role = newVal;
     }
 
     /**
@@ -329,7 +340,7 @@
    */
   class HowtoTab extends HTMLElement {
     static get observedAttributes() {
-      return ['selected'];
+      return ['role', 'selected'];
     }
 
     constructor() {
@@ -374,10 +385,18 @@
      * do that work in the `attributeChangedCallback()`. This will avoid having
      * to manage complex attribute/property reentrancy scenarios.
      */
-    attributeChangedCallback() {
-      const value = this.hasAttribute('selected');
-      this.accessibleNode.selected = value;
-      this.setAttribute('tabindex', value ? 0 : -1);
+    attributeChangedCallback(name, oldVal, newVal) {
+      switch (name) {
+        case 'selected':
+          let value = this.hasAttribute('selected');
+          this.accessibleNode.selected = value;
+          this.setAttribute('tabindex', value ? 0 : -1);
+          break;
+        case 'role':
+          if (newVal)
+            this.accessibleNode.role = newVal;
+          break;
+      }
     }
 
     set selected(value) {
