@@ -71,7 +71,8 @@
      */
     constructor() {
       super();
-      this.accessibleNode.role = 'checkbox';
+      this.attachAccessibleRoot();
+      this.accessibleRoot.role = 'checkbox';
       this.attachShadow({mode: 'open'});
       this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
@@ -158,10 +159,10 @@
       const hasValue = newValue !== null;
       switch (name) {
         case 'checked':
-          this.accessibleNode.checked = hasValue;
+          this.accessibleRoot.checked = hasValue;
           break;
         case 'disabled':
-          this.accessibleNode.disabled = hasValue;
+          this.accessibleRoot.disabled = hasValue;
           // The `tabindex` attribute does not provide a way to fully remove
           // focusability from an element.
           // Elements with `tabindex=-1` can still be focused with
@@ -176,11 +177,6 @@
           } else {
             this.setAttribute('tabindex', '0');
           }
-          break;
-        // Need to observe ARIA role in case the user tries to override us.
-        case 'role':
-          if (hasValue)
-            this.accessibleNode.role = newValue;
           break;
       }
     }
