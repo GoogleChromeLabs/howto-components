@@ -22,10 +22,10 @@
     PAGE_DOWN: 34,
     END: 35,
     HOME:	36,
-    LEFT_ARROW:	37,
-    UP_ARROW:	38,
-    RIGHT_ARROW: 39,
-    DOWN_ARROW:	40,
+    LEFT:	37,
+    UP:	38,
+    RIGHT: 39,
+    DOWN:	40,
   };
 
   /**
@@ -36,9 +36,19 @@
   template.innerHTML = `
     <style>
       :host {
-        display: inline;
+        display: inline-block;
       }
-      .slider {
+      .track {
+        box-sizing: border-box;
+        position: relative;
+        width: 300px;
+        height: 5px;
+        border: 1px solid #888888;
+        background-color: #eeeeee;
+        outline: none;
+      }
+      .thumb {
+        box-sizing: border-box;
         border: 1px solid;
         border-color: #666666 #888888;
         background-color: #dddddd;
@@ -47,25 +57,13 @@
         height: 28px;
         top: -14px;
       }
-      .slider:focus, .slider:hover {
+      .thumb:focus, .thumb:hover {
         outline: 2px solid #888;
         background-color: #ddeeff;
       }
-      .slider-container {
-        margin: 2px;
-        padding: 1px;
-        background-color: #eeeeee;
-        border: 1px solid #888888;
-        position: relative;
-        top: 2em;
-        height: 4px;
-        width: 300px;
-        outline: none;
-      }
     </style>
-    <div class="slider-container">
-      <div class="slider"></div>
-      <howto-label for="slider" class="value"></howto-label>
+    <div class="track">
+      <div class="thumb"></div>
     </div>
   `;
 
@@ -76,7 +74,7 @@
 
   class HowToSlider extends HTMLElement {
     static get observedAttributes() {
-      return ['value'];
+      return ['min', 'max', 'value'];
     }
     /**
      * The element's constructor is run anytime a new instance is created.
@@ -90,6 +88,16 @@
       super();
       this.attachShadow({mode: 'open'});
       this.shadowRoot.appendChild(template.content.cloneNode(true));
+      this._track = this.shadowRoot.querySelector('.track');
+      this._thumb = this.shadowRoot.querySelector('.thumb');
+
+      // Event handlers that are not attached to this element need to be bound
+      // if they need access to `this`.
+      this._onKeyUp = this._onKeyUp.bind(this);
+      this._onClick = this._onClick.bind(this);
+      this._onMouseDown = this._onMouseDown.bind(this);
+      this._onMouseMove = this._onMouseMove.bind(this);
+      this._onMouseUp = this._onMouseUp.bind(this);
     }
 
     /**
@@ -105,21 +113,6 @@
       ShadyCSS.styleElement(this);
       // /HIDE
 
-      if (!this.hasAttribute('role'))
-        this.setAttribute('role', 'slider');
-      if (!this.hasAttribute('tabindex'))
-        this.setAttribute('tabindex', 0);
-      if (!this.hasAttribute('aria-valuenow'))
-        this.setAttribute('aria-valuenow', 0);
-      if (!this.hasAttribute('aria-valuemin'))
-        this.setAttribute('aria-valuemin', 0);
-      if (!this.hasAttribute('aria-valuemax'))
-        this.setAttribute('aria-valuemax', 100);
-      if (!this.hasAttribute('value'))
-        this.setAttribute('value', 0);
-
-      this.shadowRoot.querySelector('howto-label').innerHTML = this.value;
-
       // A user may set a property on an _instance_ of an element,
       // before its prototype has been connected to this class.
       // The `_upgradeProperty()` method will check for any instance properties
@@ -127,10 +120,25 @@
       // See the [lazy properites](/web/fundamentals/architecture/building-components/best-practices#lazy-properties)
       // section for more details.
       // this upgrade property to be added
+      this._upgradeProperty('min');
+      this._upgradeProperty('max');
+      this._upgradeProperty('value');
+
+      // Setup defaults
+      if (!this.hasAttribute('role'))
+        this.setAttribute('role', 'slider');
+      if (!this.hasAttribute('tabindex'))
+        this.setAttribute('tabindex', 0);
+      if (!this.hasAttribute('min'))
+        this.min = 0;
+      if (!this.hasAttribute('max'))
+        this.max = 100;
+      if (!this.hasAttribute('value'))
+        this.value = 50;
 
       this.addEventListener('keyup', this._onKeyUp);
       this.addEventListener('click', this._onClick);
-      this.addEventListener('mousedown', this._onMousedown);
+      this._thumb.addEventListener('mousedown', this._onMouseDown);
     }
 
     _upgradeProperty(prop) {
@@ -142,39 +150,47 @@
     }
 
     /**
-     * `disconnectedCallback()` fires when the element is removed from the DOM.
-     * It's a good place to do clean up work like releasing references and
-     * removing event listeners.
-     */
-    disconnectedCallback() {
-      this.removeEventListener('keyup', this._onKeyUp);
-      this.removeEventListener('click', this._onClick);
-      this.removeEventListener('mousedown', this._onMousedown);
-      this.removeEventListener('mouseup', this._onMouseup);
-      this.removeEventListener('mousemove', this._onMousemove);
-    }
-
-    /**
      * Properties and their corresponding attributes should mirror one another.
-     * The property setter for `checked` handles truthy/falsy values and
-     * reflects those to the state of the attribute. See the [avoid
+     * See the [avoid
      * reentrancy](/web/fundamentals/architecture/building-components/best-practices#avoid-reentrancy)
      * section for more details.
      */
+    /**
+     * The setter for value will clamp the value so it falls within the min/max
+     * range.
+     */
     set value(value) {
-      this.setAttribute('value', value);
+      let newValue = value;
+
+      if (newValue > this.max) {
+        newValue = this.max;
+      }
+
+      if (newValue < this.min) {
+        newValue = this.min;
+      }
+
+      this.setAttribute('value', newValue);
     }
 
     get value() {
-      return parseInt(this.getAttribute('value'));
+      return parseInt(this.getAttribute('value'), 10);
     }
 
-    get valuemax() {
-      return parseInt(this.getAttribute('aria-valuemax'));
+    set min(value) {
+      this.setAttribute('min', value);
     }
 
-    get valuemin() {
-      return parseInt(this.getAttribute('aria-valuemin'));
+    get min() {
+      return parseInt(this.getAttribute('min'), 10);
+    }
+
+    set max(value) {
+      this.setAttribute('max', value);
+    }
+
+    get max() {
+      return parseInt(this.getAttribute('max'), 10);
     }
 
     /**
@@ -183,7 +199,24 @@
      * side effects, like setting ARIA attributes.
      */
     attributeChangedCallback(name, oldValue, newValue) {
-      this.setAttribute(`aria-${name}now`, newValue);
+      switch (name) {
+        case 'value':
+          this.setAttribute('aria-valuenow', newValue);
+          this._moveThumbTo(newValue);
+          break;
+        case 'min':
+          this.setAttribute('aria-valuemin', newValue);
+          if (this.value)
+            this.value = this.value;
+          break;
+        case 'max':
+          this.setAttribute('aria-valuemax', newValue);
+          if (this.value)
+            this.value = this.value;
+          break;
+        default:
+          break;
+      }
     }
 
     _onKeyUp(event) {
@@ -192,13 +225,13 @@
         return;
 
       switch (event.keyCode) {
-        case KEYCODE.RIGHT_ARROW:
-        case KEYCODE.UP_ARROW:
+        case KEYCODE.RIGHT:
+        case KEYCODE.UP:
           event.preventDefault();
           this._increaseValue(1);
           break;
-        case KEYCODE.LEFT_ARROW:
-        case KEYCODE.DOWN_ARROW:
+        case KEYCODE.LEFT:
+        case KEYCODE.DOWN:
           event.preventDefault();
           this._decreaseValue(1);
           break;
@@ -224,93 +257,71 @@
       }
     }
 
-    _onClick(event) {
-      const diffX = event.pageX - this.offsetLeft;
-      const containerWidth =
-          this.shadowRoot.querySelector('.slider-container').offsetWidth;
-      this.value =
-          parseInt(((this.valuemax - this.valuemin) * diffX) / containerWidth);
-      if (this.value <= this.valuemin) {
-        this._setMinValue();
-      } else if (this.value >= this.valuemax) {
-        this._setMaxValue();
-      } else {
-        this._changeValue(this.value);
-      }
-    }
-
-    _onMousedown(event) {
-      this.addEventListener('mousemove', this._onMousemove);
-      this.addEventListener('mouseup', this._onMouseup);
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    _onMousemove(event) {
-      this._onClick(event);
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    _onMouseup(event) {
-      this.removeEventListener('mousemove', this._onMousemove);
-      this.removeEventListener('mouseup', this._onMouseup);
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
     _increaseValue(value) {
-      if (this.value + value <= this.valuemax) {
-        this._changeValue(this.value+value);
-      } else {
-        this._setMaxValue();
-      }
+      this.value = this.value + value;
     }
 
     _decreaseValue(value) {
-      if (this.value - value >= this.valuemin) {
-        this._changeValue(this.value-value);
-      } else {
-        this._setMinValue();
-      }
+      this.value = this.value - value;
     }
 
     _setMinValue() {
-      this._changeValue(this.valuemin);
+      this.value = this.min;
     }
 
     _setMaxValue() {
-      this._changeValue(this.valuemax);
+      this.value = this.max;
     }
 
-    _changePosition() {
-      const containerWidth =
-        this.shadowRoot.querySelector('.slider-container').offsetWidth;
-      const sliderWidth =
-        this.shadowRoot.querySelector('.slider').offsetWidth;
-      const left =
-        Math.round((this.value * containerWidth)
-                  / (this.valuemax - this.valuemin)) - (sliderWidth / 2);
-      this.shadowRoot.querySelector('.slider').style.left = left + 'px';
-    }
+    _onClick(event) {
+      const trackWidth = this._track.offsetWidth;
+      const trackLeft = this._track.offsetLeft;
+      const deltaX = event.pageX - trackLeft;
+      this.value =
+        parseInt(
+        (((this.max - this.min) * deltaX) / trackWidth) + this.min
+        , 10);
 
-
-    /**
-     * `_changeValue(value)` calls the `value` setter and sets its value.
-     * Because `_changeValue(value)` is only caused by a user action, it will
-     * also dispatch a change event. This event bubbles in order to let the
-     * change to its listeners.
-     */
-    _changeValue(value) {
-      this.value = value;
-      this._changePosition();
-      this.shadowRoot.querySelector('howto-label').innerHTML = this.value;
       this.dispatchEvent(new CustomEvent('change', {
         detail: {
           value: this.value,
         },
         bubbles: true,
       }));
+
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    _onMouseDown(event) {
+      // Add listeners to the document so the user can continue
+      // dragging the thumb even if they move the pointer outside
+      // of the bounds of the element.
+      document.addEventListener('mousemove', this._onMouseMove);
+      document.addEventListener('mouseup', this._onMouseUp);
+      this._thumb.focus();
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    _onMouseMove(event) {
+      this._onClick(event);
+    }
+
+    _onMouseUp(event) {
+      document.removeEventListener('mousemove', this._onMouseMove);
+      document.removeEventListener('mouseup', this._onMouseUp);
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    _moveThumbTo(value) {
+      const trackWidth = this._track.offsetWidth;
+      const thumbWidth = this._thumb.offsetWidth;
+      // Percentage(value, min, max) = (value − min) / (max − min);
+      const percent = (value - this.min) / (this.max - this.min);
+      const pos = trackWidth * percent - thumbWidth / 2;
+      this._thumb.style.left = `${pos}px`;
     }
   }
 
