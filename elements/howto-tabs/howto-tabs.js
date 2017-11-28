@@ -57,7 +57,8 @@
     }
     constructor() {
       super();
-      this.accessibleNode.role = 'tablist';
+      this.attachAccessibleRoot();
+      this.accessibleRoot.role = 'tablist';
       // Event handlers that are not attached to this element need to be bound
       // if they need access to `this`.
       this._onSlotChange = this._onSlotChange.bind(this);
@@ -113,14 +114,6 @@
     }
 
     /**
-     * We only have this callback to observe changes to role :(
-     */
-    attributeChangedCallback(name, oldVal, newVal) {
-      if (name === 'role' && newVal)
-        this.accessibleNode.role = newVal;
-    }
-
-    /**
      * `_onSlotChange()` is called whenever an element is added or removed from
      * one of the shadow DOM slots.
      */
@@ -148,11 +141,9 @@
         }
 
         tab.panel = panel; // Would prefer if this was private somehow...
-        tab.accessibleNode.controls = new AccessibleNodeList();
-        tab.accessibleNode.controls.add(panel.accessibleNode);
+        tab.accessibleRoot.controls = [panel];
         panel.tab = tab;
-        panel.accessibleNode.labeledBy = new AccessibleNodeList();
-        panel.accessibleNode.labeledBy.add(tab.accessibleNode);
+        panel.accessibleRoot.labelledBy = [tab];
       });
 
       // The element checks if any of the tabs have been marked as selected.
@@ -345,8 +336,9 @@
 
     constructor() {
       super();
-      this.accessibleNode.role = 'tab';
-      this.accessibleNode.selected = false;
+      this.attachAccessibleRoot();
+      this.accessibleRoot.role = 'tab';
+      this.accessibleRoot.selected = false;
     }
 
     connectedCallback() {
@@ -389,20 +381,10 @@
       switch (name) {
         case 'selected':
           let value = this.hasAttribute('selected');
-          // Don't override the user if ARIA is set. This is kinda weird.
-          if (!this.hasAttribute('aria-selected'))
-            this.accessibleNode.selected = value;
+          this.accessibleRoot.selected = value;
           // AOM doesn't help with tabindex so apologies to the user if they
           // set this...
           this.setAttribute('tabindex', value ? 0 : -1);
-          break;
-        case 'aria-selected':
-          if (newVal)
-            this.accessibleNode.selected = newVal;
-          break;
-        case 'role':
-          if (newVal)
-            this.accessibleNode.role = newVal;
           break;
       }
     }
@@ -424,7 +406,8 @@
   class HowtoPanel extends HTMLElement {
     constructor() {
       super();
-      this.accessibleNode.role = 'tabpanel';
+      this.attachAccessibleRoot();
+      this.accessibleRoot.role = 'tabpanel';
     }
   }
   customElements.define('howto-panel', HowtoPanel);
