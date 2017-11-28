@@ -381,16 +381,10 @@
       switch (name) {
         case 'selected':
           let value = this.hasAttribute('selected');
-          // Don't override the user if ARIA is set. This is kinda weird.
-          if (!this.hasAttribute('aria-selected'))
-            this.accessibleRoot.selected = value;
+          this.accessibleRoot.selected = value;
           // AOM doesn't help with tabindex so apologies to the user if they
           // set this...
           this.setAttribute('tabindex', value ? 0 : -1);
-          break;
-        case 'aria-selected':
-          if (newVal)
-            this.accessibleRoot.selected = newVal;
           break;
       }
     }
