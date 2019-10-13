@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint max-len: ["off"] */
+/* eslint max-len: ["o9"]
+"] */
 
 const helper = require('../../tools/selenium-helper.js');
 const expect = require('chai').expect;
