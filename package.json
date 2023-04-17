@@ -64,7 +64,7 @@
     "karma-safari-launcher": "^1.0.0",
     "mocha": "^3.2.0",
     "npm-watch": "^0.1.8",
-    "selenium-assistant": "^5.0.4",
-    "selenium-webdriver": "^3.4.0"
+    "selenium-assistant": "^6.1.1",
+    "selenium-webdriver": "^4.8.2"
   }
 }
